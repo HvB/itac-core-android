@@ -1,0 +1,37 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#e9e8dd"
+    tools:context=".android_app_activity.ConnexionActivity" >
+
+
+    <EditText
+        android:layout_width="500px"
+        android:layout_height="80px"
+        android:layout_gravity="center"
+        android:layout_marginTop="30px"
+        android:id="@+id/ip"
+        android:hint="Saisissez l'adresse IP"/>
+
+    <EditText
+        android:layout_width="500px"
+        android:layout_height="80px"
+        android:layout_gravity="center"
+        android:layout_marginTop="30px"
+        android:id="@+id/port"
+        android:hint="Saisissez le numero de port"/>
+
+    <Button
+        android:layout_width="500px"
+        android:layout_height="80px"
+        android:layout_gravity="center"
+        android:id="@+id/loginbtn"
+        android:textColor="#ffffff"
+        android:layout_marginTop="30px"
+        android:textAlignment="center"
+        android:text="Valider"/>
+
+
+</LinearLayout>

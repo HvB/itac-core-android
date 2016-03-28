@@ -1,0 +1,29 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#e9e8dd"
+    tools:context=".android_app_activity.AuthentificationActivity" >
+
+
+
+    <EditText
+        android:layout_width="440px"
+        android:layout_height="80px"
+        android:layout_gravity="center"
+        android:layout_marginTop="80px"
+        android:id="@+id/pseudo"
+        android:hint="pseudo"/>
+
+
+    <Button
+        android:layout_width="440px"
+        android:layout_height="80px"
+        android:layout_gravity="center"
+        android:id="@+id/loginbtn"
+        android:textColor="#ffffff"
+        android:layout_marginTop="30px"
+        android:textAlignment="center"
+        android:text="Se connecter"/>
+    </LinearLayout>

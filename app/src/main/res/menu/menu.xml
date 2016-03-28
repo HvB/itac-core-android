@@ -1,0 +1,18 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="fr.learning_adventure.android.itac.android_app_activity.EspacePersonnelActivity">
+    <item android:id="@+id/connect"
+        android:title="Connexion externe "
+        android:orderInCategory="100"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/parametre"
+        android:title="parametres de connexion "
+        android:orderInCategory="100"
+        app:showAsAction="never"/>
+    <item android:id="@+id/quitter"
+        android:title="Quitter "
+        android:orderInCategory="100"
+        app:showAsAction="never"/>
+</menu>
