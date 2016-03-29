@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fr.learning_adventure.android.itac.R;
-import fr.learning_adventure.android.itac.model.Learner;
 import fr.learning_adventure.android.itac.widget.Clink;
 
 
@@ -44,7 +43,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     Boolean connected = true;
     ListView mListView;
     List<String> messages = new ArrayList<String>();
-    Learner learner;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
