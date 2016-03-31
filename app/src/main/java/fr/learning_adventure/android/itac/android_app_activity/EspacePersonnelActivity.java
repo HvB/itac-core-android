@@ -2,15 +2,19 @@ package fr.learning_adventure.android.itac.android_app_activity;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Base64;
 import android.util.Log;
@@ -21,9 +25,11 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.github.nkzawa.emitter.Emitter;
@@ -42,6 +48,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fr.learning_adventure.android.itac.R;
+import fr.learning_adventure.android.itac.model.Artifact;
 import fr.learning_adventure.android.itac.widget.Clink;
 
 
@@ -52,13 +59,14 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     private static Socket socket;
     private final static String FILE_URI_SOCKET = "uri_socket.txt";
     Boolean connected = true;
-    ListView mListView;
+    GridView listArtifact;
     List<String> messages = new ArrayList<String>();
     private static int RESULT_LOAD_IMAGE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_espacepersonnel);
 
 
@@ -69,16 +77,56 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         TextView pseudoTextView = (TextView) findViewById(R.id.pseudo_textView);
         pseudoTextView.setText("bienvenue " + pseudo);
 
-        //ajout de message
+        //gestion de l'affichage du layout d'ajout artifact
+        final Button addArtifactBtn = (Button) this.findViewById(R.id.addArtifact);
+        final RelativeLayout artifactLayout = (RelativeLayout) this.findViewById(R.id.artifact);
+        addArtifactBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                artifactLayout.setVisibility(View.VISIBLE);
+                addArtifactBtn.setVisibility(View.INVISIBLE);
+
+
+            }
+        });
+
+
+
+        //ajout de artifact
+        final ImageView imageView = (ImageView) findViewById(R.id.imgView);
+        final EditText titre = (EditText) EspacePersonnelActivity.this.findViewById(R.id.titre);
         final EditText message = (EditText) EspacePersonnelActivity.this.findViewById(R.id.message_input);
         ImageButton button = (ImageButton) this.findViewById(R.id.send_button);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                messages.add(message.getText().toString());
-                socket.emit("message", message.getText().toString());
-                message.setText("");
 
+                if(titre.getText().toString().equals(""))
+                {
+                    Clink.show(EspacePersonnelActivity.this, "veuillez saisir le titre de l'objet");
+
+                }
+                else if ((message.getText().toString().equals("")) && (hasImage(imageView)==false))
+                {
+                    Clink.show(EspacePersonnelActivity.this, "veuillez inserer un objet");
+
+                }
+                else if ((hasImage(imageView)==false)){
+                    messages.add(titre.getText().toString());
+                    message.setText("");
+                    titre.setText("");
+                    artifactLayout.setVisibility(View.INVISIBLE);
+                    addArtifactBtn.setVisibility(View.VISIBLE);
+                }
+                else {
+                    Artifact art = new Artifact(1,EspacePersonnelActivity.this.getPseudo());
+                    art.setTitle(titre.getText().toString());
+                    art.setMessage(message.getText().toString());
+                    messages.add(titre.getText().toString());
+                    artifactLayout.setVisibility(View.INVISIBLE);
+                    addArtifactBtn.setVisibility(View.VISIBLE);
+
+                }
             }
         });
 
@@ -99,14 +147,15 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
 
         //Ajouter une liste d'objets
-        mListView = (ListView) findViewById(R.id.listView);
+        listArtifact = (GridView) findViewById(R.id.listArtifactView);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(EspacePersonnelActivity.this,
                 android.R.layout.simple_list_item_1, (List<String>) messages);
-        mListView.setAdapter(adapter);
+        listArtifact.setAdapter(adapter);
 
         //apel aux méthodes initialize et setinterface: initialiser socket et gerer interface
         initialize();
         setInterface();
+
 
     }
 
@@ -259,7 +308,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         }
     }
 
-        //select image from gallery
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -276,14 +325,16 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             String picturePath = cursor.getString(columnIndex);
             cursor.close();
 
-//            ImageView imageView = (ImageView) findViewById(R.id.imgView);
-//            imageView.setImageBitmap(BitmapFactory.decodeFile(picturePath));
+            final EditText message = (EditText) EspacePersonnelActivity.this.findViewById(R.id.message_input);
+            ImageView imageView = (ImageView) findViewById(R.id.imgView);
+            imageView.setImageBitmap(BitmapFactory.decodeFile(picturePath));
+            message.setVisibility(View.INVISIBLE);
+            message.setText("");
             sendImage(picturePath);
 
         }
     }
 
-    //encoder image sur 64 bit
     @TargetApi(Build.VERSION_CODES.FROYO)
     private String encodeImage(String path)
     {
@@ -304,11 +355,10 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
     }
 
-    //envoyer image au serveur
     public void sendImage(String path)
     {
 
-        socket.emit("image",encodeImage(path));
+        socket.emit("message",encodeImage(path));
 
     }
 
@@ -325,5 +375,15 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         this.pseudo = pseudo;
     }
 
+    //retourner si l'imageview contient une image ou non
+    private boolean hasImage(@NonNull ImageView view) {
+        Drawable drawable = view.getDrawable();
+        boolean hasImage = (drawable != null);
 
+        if (hasImage && (drawable instanceof BitmapDrawable)) {
+            hasImage = ((BitmapDrawable)drawable).getBitmap() != null;
+        }
+
+        return hasImage;
+    }
 }
