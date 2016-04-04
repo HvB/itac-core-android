@@ -30,7 +30,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
@@ -70,12 +69,10 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         setContentView(R.layout.activity_espacepersonnel);
 
 
-        //récuperer le pseudo et l'afficher
+        //récuperer le pseudo
         Intent intent = getIntent();
         final String pseudo = intent.getStringExtra("pseudoName");
         EspacePersonnelActivity.this.setPseudo(pseudo);
-        TextView pseudoTextView = (TextView) findViewById(R.id.pseudo_textView);
-        pseudoTextView.setText("bienvenue " + pseudo);
 
         //gestion de l'affichage du layout d'ajout artifact
         final Button addArtifactBtn = (Button) this.findViewById(R.id.addArtifact);
@@ -89,6 +86,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
             }
         });
+
+
 
 
 
@@ -113,6 +112,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 }
                 else if ((hasImage(imageView)==false)){
                     messages.add(titre.getText().toString());
+                    socket.emit("message",message.getText().toString());
+
                     message.setText("");
                     titre.setText("");
                     artifactLayout.setVisibility(View.INVISIBLE);
@@ -122,7 +123,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     Artifact art = new Artifact(1,EspacePersonnelActivity.this.getPseudo());
                     art.setTitle(titre.getText().toString());
                     art.setMessage(message.getText().toString());
-                    messages.add(titre.getText().toString());
+                    messages.add(art.getTitle());
                     artifactLayout.setVisibility(View.INVISIBLE);
                     addArtifactBtn.setVisibility(View.VISIBLE);
 
@@ -155,6 +156,37 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         //apel aux méthodes initialize et setinterface: initialiser socket et gerer interface
         initialize();
         setInterface();
+        //réception de l'image
+        socket.on("send_image", new Emitter.Listener() {
+
+            public void call(final Object... args) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String data = (String) args[0];
+                        byte[] decodedString = Base64.decode(data, Base64.DEFAULT);
+                        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                        ImageView image = (ImageView) findViewById(R.id.imageReceived);
+                        image.setImageBitmap(decodedByte);
+
+                    }
+                });
+            }
+
+        });
+
+        //Réception message
+        socket.on("EVT_ReponseOKConnexionZEP", new Emitter.Listener() {
+
+            @Override
+            public void call(final Object... args) {
+
+                String data = (String) args[0];
+                Log.i("message :", data);
+            }
+
+
+        });
 
 
     }
@@ -308,7 +340,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         }
     }
 
-
+    //selectionner l'image depuis la galerie
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -335,6 +367,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         }
     }
 
+
+    //encoder image en base 64
     @TargetApi(Build.VERSION_CODES.FROYO)
     private String encodeImage(String path)
     {
@@ -358,7 +392,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     public void sendImage(String path)
     {
 
-        socket.emit("message",encodeImage(path));
+        socket.emit("image",encodeImage(path));
 
     }
 

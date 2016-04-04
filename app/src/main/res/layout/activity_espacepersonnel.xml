@@ -9,56 +9,27 @@
     android:weightSum="1">
 
 
-
-
-
-
     <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:background="#ddd">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10px"
-            android:layout_marginLeft="500px"
-            android:id="@+id/pseudo_textView"
-            android:layout_gravity="right"
-            android:textColor="#050404"
-            android:textSize="20dp" />
-
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="100dp"
         android:layout_gravity="center_horizontal"
         android:layout_weight="0.36"
         android:background="#fdfdfd"
-        android:id="@+id/zep_layout">
+        android:id="@+id/zep_layout"
+        android:layout_margin="10dp">
 
-
-
-
-        <TextView
+        <ImageView
+            android:id="@+id/imageReceived"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Zone d'échange personnel"
-            android:textSize="30sp"
-            android:id="@+id/textView2"
-            android:layout_centerHorizontal="true" />
+            android:layout_weight="1" android:layout_height="wrap_content">
+
+        </ImageView>
+
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top|right"
-            android:layout_marginLeft="300dp"
             android:id="@+id/login_logout_btn"
             android:textColor="#ffffff" />
 
