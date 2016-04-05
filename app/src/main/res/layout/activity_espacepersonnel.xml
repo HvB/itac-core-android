@@ -10,8 +10,8 @@
 
 
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_height="200dp"
         android:layout_gravity="center_horizontal"
         android:layout_weight="0.36"
         android:background="#fdfdfd"
@@ -60,7 +60,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="400dp"
+        android:layout_height="wrap_content"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:layout_marginTop="17dp"
@@ -72,16 +72,29 @@
         android:id="@+id/artifact"
         >
 
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/exit_button"
+            android:src="@drawable/exit"
+            android:contentDescription="Exit"
+
+            android:layout_alignParentRight="true"
+            android:padding="5dp"
+            android:background="@null"
+            >
+        </ImageButton>
+
         <EditText
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:id="@+id/titre"
             android:layout_weight="1"
             android:hint="Titre"
-            android:layout_marginTop="10dp"
             android:textStyle="bold"
             android:maxLines="1"
             android:background="#ffffff"
+            android:layout_below="@id/exit_button"
             />
 
         <EditText
@@ -96,59 +109,58 @@
             android:inputType="text"
             android:layout_below="@id/titre"/>
 
-        <ImageView
-            android:id="@+id/imgView"
-            android:layout_width="fill_parent"
-            android:layout_weight="1" android:layout_height="250dp"
-            android:layout_marginTop="10dp"
-            android:layout_below="@id/titre"
-            >
-
-        </ImageView>
 
 
 
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="75dp"
-            android:layout_margin="5dp"
-            android:layout_alignParentBottom="true"
+
+
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/send_button"
+            android:src="@drawable/sent"
+            android:contentDescription="Send"
             android:layout_below="@+id/message_input"
-            android:id="@+id/linearLayout">
+            android:layout_alignParentRight="true"
+            android:padding="5dp"
+            android:background="@null"
+            >
+        </ImageButton>
 
 
-            <ImageButton
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:id="@+id/buttonLoadPicture"
-                android:layout_weight="0"
-                android:layout_gravity="bottom|left"
-                android:src="@drawable/gallery">
-            </ImageButton>
-
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/send_button"
-                android:src="@drawable/sent"
-                android:contentDescription="Send"
-                android:layout_gravity="bottom|right"
-                android:layout_marginLeft="300dp">
-            </ImageButton>
-
-
-        </LinearLayout>
     </RelativeLayout>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|left"
-        android:layout_marginLeft="16dp"
-        android:id="@+id/addArtifact"
-        android:text="Ajouter"
-        />
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="75dp"
+        android:layout_margin="5dp"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom">
+
+        <ImageButton
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:id="@+id/addArtifact"
+            android:layout_weight="0"
+            android:layout_gravity="bottom|left"
+            android:background="@null"
+
+            android:src="@drawable/images">
+        </ImageButton>
+        <ImageButton
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:id="@+id/buttonLoadPicture"
+            android:layout_weight="0"
+            android:layout_gravity="bottom|left"
+            android:background="@null"
+
+            android:src="@drawable/gallery">
+        </ImageButton>
+    </LinearLayout>
 </LinearLayout>
 

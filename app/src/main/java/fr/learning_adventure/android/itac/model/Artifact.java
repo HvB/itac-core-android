@@ -18,8 +18,7 @@ public class Artifact implements Serializable{
     private Bitmap image;
     private String pseudo;
 
-    private final static String JSON_ID = "id";
-    private final static String JSON_PSEUDO = "author";
+    private final static String JSON_PSEUDO = "creator";
     private final static String JSON_TITLE = "title";
     private final static String JSON_MESSAGE = "message";
 
@@ -55,8 +54,7 @@ public class Artifact implements Serializable{
         this.image = image;
     }
 
-    public Artifact(Integer idAr, String pseudo) {
-        this.idAr = idAr;
+    public Artifact( String pseudo) {
         this.pseudo = pseudo;
         this.title = null;
         this.message = null;
@@ -66,7 +64,6 @@ public class Artifact implements Serializable{
 
     public Artifact(JSONObject object) {
         try {
-            this.idAr = object.getInt(Artifact.JSON_ID);
             this.title = object.getString(Artifact.JSON_TITLE);
             this.message = object.getString(Artifact.JSON_MESSAGE);
             this.pseudo = object.getString(Artifact.JSON_PSEUDO);
@@ -81,7 +78,7 @@ public class Artifact implements Serializable{
     public JSONObject toJSON() {
         JSONObject object = new JSONObject();
         try {
-            object.putOpt(Artifact.JSON_ID, this.idAr);
+            object.putOpt(Artifact.JSON_PSEUDO, this.pseudo);
             object.putOpt(Artifact.JSON_TITLE, this.title);
             object.putOpt(Artifact.JSON_MESSAGE, this.message);
         } catch (JSONException e) {

@@ -75,13 +75,15 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         EspacePersonnelActivity.this.setPseudo(pseudo);
 
         //gestion de l'affichage du layout d'ajout artifact
-        final Button addArtifactBtn = (Button) this.findViewById(R.id.addArtifact);
+        final ImageButton buttonLoadImage = (ImageButton) findViewById(R.id.buttonLoadPicture);
+        final ImageButton addArtifactBtn = (ImageButton) this.findViewById(R.id.addArtifact);
         final RelativeLayout artifactLayout = (RelativeLayout) this.findViewById(R.id.artifact);
         addArtifactBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 artifactLayout.setVisibility(View.VISIBLE);
                 addArtifactBtn.setVisibility(View.INVISIBLE);
+                buttonLoadImage.setVisibility(View.INVISIBLE);
 
 
             }
@@ -91,8 +93,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
 
 
-        //ajout de artifact
-        final ImageView imageView = (ImageView) findViewById(R.id.imgView);
+        //ajout de article
         final EditText titre = (EditText) EspacePersonnelActivity.this.findViewById(R.id.titre);
         final EditText message = (EditText) EspacePersonnelActivity.this.findViewById(R.id.message_input);
         ImageButton button = (ImageButton) this.findViewById(R.id.send_button);
@@ -102,42 +103,49 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
                 if(titre.getText().toString().equals(""))
                 {
-                    Clink.show(EspacePersonnelActivity.this, "veuillez saisir le titre de l'objet");
+                    Clink.show(EspacePersonnelActivity.this, "veuillez saisir le titre de l'article");
 
                 }
-                else if ((message.getText().toString().equals("")) && (hasImage(imageView)==false))
+                else if ((message.getText().toString().equals("")) )
                 {
-                    Clink.show(EspacePersonnelActivity.this, "veuillez inserer un objet");
+                    Clink.show(EspacePersonnelActivity.this, "veuillez inserer un message");
 
                 }
-                else if ((hasImage(imageView)==false)){
+                else {
+                    Artifact artefact = new Artifact(getPseudo());
+                    artefact.setTitle(titre.getText().toString());
+                    artefact.setMessage(message.getText().toString());
+                    socket.emit("EVT_ReceptionArtefactMessage",artefact.toJSON());
                     messages.add(titre.getText().toString());
-                    socket.emit("message",message.getText().toString());
-
                     message.setText("");
                     titre.setText("");
                     artifactLayout.setVisibility(View.INVISIBLE);
                     addArtifactBtn.setVisibility(View.VISIBLE);
-                }
-                else {
-                    Artifact art = new Artifact(1,EspacePersonnelActivity.this.getPseudo());
-                    art.setTitle(titre.getText().toString());
-                    art.setMessage(message.getText().toString());
-                    messages.add(art.getTitle());
-                    artifactLayout.setVisibility(View.INVISIBLE);
-                    addArtifactBtn.setVisibility(View.VISIBLE);
+                    buttonLoadImage.setVisibility(View.VISIBLE);
 
                 }
+
+            }
+        });
+
+        ImageButton exitButton = (ImageButton) this.findViewById(R.id.exit_button);
+        exitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                message.setText("");
+                titre.setText("");
+                artifactLayout.setVisibility(View.INVISIBLE);
+                addArtifactBtn.setVisibility(View.VISIBLE);
+                buttonLoadImage.setVisibility(View.VISIBLE);
+
             }
         });
 
         //parcours gallery et selection image
-        ImageButton buttonLoadImage = (ImageButton) findViewById(R.id.buttonLoadPicture);
         buttonLoadImage.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
-
                 Intent i = new Intent(
                         Intent.ACTION_PICK,
                         android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -182,8 +190,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             public void call(final Object... args) {
 
                 String data = (String) args[0];
-                Log.i("message :", data);
-            }
+                Log.i("message :",data);}
+
 
 
         });
@@ -255,7 +263,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 @Override
                 public void call(Object... args) {
                     Log.i("Socket", "connection");
-                    socket.emit("new_user", EspacePersonnelActivity.this.getPseudo());
+                    socket.emit("EVT_DemandeConnexionZEP", EspacePersonnelActivity.this.getPseudo());
 
 
                 }
@@ -357,12 +365,12 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             String picturePath = cursor.getString(columnIndex);
             cursor.close();
 
-            final EditText message = (EditText) EspacePersonnelActivity.this.findViewById(R.id.message_input);
-            ImageView imageView = (ImageView) findViewById(R.id.imgView);
-            imageView.setImageBitmap(BitmapFactory.decodeFile(picturePath));
-            message.setVisibility(View.INVISIBLE);
-            message.setText("");
-            sendImage(picturePath);
+            ImageView imageView = (ImageView) findViewById(R.id.imageReceived);
+            if(hasImage(imageView)==(false)) {
+                imageView.setImageBitmap(BitmapFactory.decodeFile(picturePath));
+                sendImage(picturePath);
+            }
+            else  Clink.show(EspacePersonnelActivity.this, "la zone d'echange contient déja un objet");
 
         }
     }
