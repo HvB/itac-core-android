@@ -61,7 +61,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     private final static String FILE_URI_SOCKET = "uri_socket.txt";
     Boolean connected = true;
     private static int RESULT_LOAD_IMAGE = 1;
-
+    int random = (int)(Math.random()*10000);
     GridView listArtifactView;
     List<Artifact> listArtifact = new ArrayList<>();
     ArtifactAdapter artifactAdapter = new ArtifactAdapter(this,listArtifact );
@@ -120,6 +120,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     artefact.setTitle(titre.getText().toString());
                     artefact.setMessage(message.getText().toString());
                     artefact.setType(1);
+
                     listArtifact.add(artefact);
                     message.setText("");
                     titre.setText("");
@@ -270,7 +271,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 @Override
                 public void call(Object... args) {
                     Log.i("Socket", "connection");
-                    socket.emit("EVT_DemandeConnexionZEP", EspacePersonnelActivity.this.getPseudo());
+                    socket.emit("EVT_DemandeConnexionZEP", EspacePersonnelActivity.this.getPseudo(),EspacePersonnelActivity.this.getPseudo().substring(0,3)+String.valueOf(random));
 
 
                 }

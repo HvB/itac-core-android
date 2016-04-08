@@ -16,11 +16,19 @@ public class Artifact implements Serializable{
     private String image;
     private String pseudo;
     private int type;
+    private int idConteneur;
+    private int typeConteneur;
+
 
     private final static String JSON_PSEUDO = "creator";
     private final static String JSON_TITLE = "title";
     private final static String JSON_MESSAGE = "message";
     private final static String JSON_IMAGE = "image";
+    private final static String JSON_TYPE = "typeArtiact";
+    private final static String JSON_idContneur = "isConteneur";
+    private final static String JSON_TYPEConteneur = "typeArtiact";
+
+
 
 
     public String getPseudo() {
@@ -71,6 +79,21 @@ public class Artifact implements Serializable{
     }
 
 
+    public int getIdConteneur() {
+        return idConteneur;
+    }
+
+    public void setIdConteneur(int idConteneur) {
+        this.idConteneur = idConteneur;
+    }
+
+    public int getTypeConteneur() {
+        return typeConteneur;
+    }
+
+    public void setTypeConteneur(int typeConteneur) {
+        this.typeConteneur = typeConteneur;
+    }
 
     public Artifact( String pseudo,int type) {
         this.type = type;
@@ -78,6 +101,8 @@ public class Artifact implements Serializable{
         this.title = null;
         this.message = null;
         this.image = null;
+        this.idConteneur =0;
+        this.typeConteneur = 0 ;
 
     }
 
@@ -87,6 +112,7 @@ public class Artifact implements Serializable{
             this.message = object.getString(Artifact.JSON_MESSAGE);
             this.pseudo = object.getString(Artifact.JSON_PSEUDO);
             this.image = object.getString(Artifact.JSON_IMAGE);
+
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -101,6 +127,10 @@ public class Artifact implements Serializable{
             object.putOpt(Artifact.JSON_TITLE, this.title);
             object.putOpt(Artifact.JSON_MESSAGE, this.message);
             object.putOpt(Artifact.JSON_IMAGE, this.image);
+            object.putOpt(Artifact.JSON_idContneur, this.idConteneur);
+            object.putOpt(Artifact.JSON_TYPE, this.type);
+            object.putOpt(Artifact.JSON_TYPEConteneur, this.typeConteneur);
+
 
         } catch (JSONException e) {
             e.printStackTrace();
