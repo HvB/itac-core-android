@@ -1,7 +1,5 @@
 package fr.learning_adventure.android.itac.model;
 
-import android.graphics.Bitmap;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -15,13 +13,23 @@ public class Artifact implements Serializable{
     private Integer idAr;
     private String title;
     private String message;
-    private Bitmap image;
+    private String image;
     private String pseudo;
+    private int type;
 
     private final static String JSON_PSEUDO = "creator";
     private final static String JSON_TITLE = "title";
     private final static String JSON_MESSAGE = "message";
+    private final static String JSON_IMAGE = "image";
 
+
+    public String getPseudo() {
+        return pseudo;
+    }
+
+    public void setPseudo(String pseudo) {
+        this.pseudo = pseudo;
+    }
     public String getTitle() {
         return title;
     }
@@ -46,15 +54,26 @@ public class Artifact implements Serializable{
         this.message = message;
     }
 
-    public Bitmap getImage() {
+    public String getImagePath() {
         return image;
     }
 
-    public void setImage(Bitmap image) {
+    public void setImagePath(String image) {
         this.image = image;
     }
 
-    public Artifact( String pseudo) {
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+
+
+    public Artifact( String pseudo,int type) {
+        this.type = type;
         this.pseudo = pseudo;
         this.title = null;
         this.message = null;
@@ -67,7 +86,7 @@ public class Artifact implements Serializable{
             this.title = object.getString(Artifact.JSON_TITLE);
             this.message = object.getString(Artifact.JSON_MESSAGE);
             this.pseudo = object.getString(Artifact.JSON_PSEUDO);
-
+            this.image = object.getString(Artifact.JSON_IMAGE);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -81,6 +100,8 @@ public class Artifact implements Serializable{
             object.putOpt(Artifact.JSON_PSEUDO, this.pseudo);
             object.putOpt(Artifact.JSON_TITLE, this.title);
             object.putOpt(Artifact.JSON_MESSAGE, this.message);
+            object.putOpt(Artifact.JSON_IMAGE, this.image);
+
         } catch (JSONException e) {
             e.printStackTrace();
         }

@@ -22,7 +22,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
@@ -47,6 +46,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fr.learning_adventure.android.itac.R;
+import fr.learning_adventure.android.itac.adapter.ArtifactAdapter;
+import fr.learning_adventure.android.itac.listener.MyDragListener;
+import fr.learning_adventure.android.itac.listener.MyTouchListener;
 import fr.learning_adventure.android.itac.model.Artifact;
 import fr.learning_adventure.android.itac.widget.Clink;
 
@@ -58,9 +60,11 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     private static Socket socket;
     private final static String FILE_URI_SOCKET = "uri_socket.txt";
     Boolean connected = true;
-    GridView listArtifact;
-    List<String> messages = new ArrayList<String>();
     private static int RESULT_LOAD_IMAGE = 1;
+
+    GridView listArtifactView;
+    List<Artifact> listArtifact = new ArrayList<>();
+    ArtifactAdapter artifactAdapter = new ArtifactAdapter(this,listArtifact );
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +78,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         final String pseudo = intent.getStringExtra("pseudoName");
         EspacePersonnelActivity.this.setPseudo(pseudo);
 
-        //gestion de l'affichage du layout d'ajout artifact
+        //gestion de l'affichage du layout d'ajout aartifact
         final ImageButton buttonLoadImage = (ImageButton) findViewById(R.id.buttonLoadPicture);
         final ImageButton addArtifactBtn = (ImageButton) this.findViewById(R.id.addArtifact);
         final RelativeLayout artifactLayout = (RelativeLayout) this.findViewById(R.id.artifact);
@@ -112,11 +116,11 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
                 }
                 else {
-                    Artifact artefact = new Artifact(getPseudo());
+                    Artifact artefact = new Artifact(getPseudo(),1);
                     artefact.setTitle(titre.getText().toString());
                     artefact.setMessage(message.getText().toString());
-                    socket.emit("EVT_ReceptionArtefactMessage",artefact.toJSON());
-                    messages.add(titre.getText().toString());
+                    artefact.setType(1);
+                    listArtifact.add(artefact);
                     message.setText("");
                     titre.setText("");
                     artifactLayout.setVisibility(View.INVISIBLE);
@@ -156,10 +160,13 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
 
         //Ajouter une liste d'objets
-        listArtifact = (GridView) findViewById(R.id.listArtifactView);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(EspacePersonnelActivity.this,
-                android.R.layout.simple_list_item_1, (List<String>) messages);
-        listArtifact.setAdapter(adapter);
+        listArtifactView = (GridView) findViewById(R.id.listArtifactView);
+
+        listArtifactView.setAdapter(artifactAdapter);
+        listArtifactView.setOnTouchListener(new MyTouchListener());
+        findViewById(R.id.zep_layout).setOnDragListener(new MyDragListener());
+
+
 
         //apel aux méthodes initialize et setinterface: initialiser socket et gerer interface
         initialize();
@@ -365,12 +372,12 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             String picturePath = cursor.getString(columnIndex);
             cursor.close();
 
-            ImageView imageView = (ImageView) findViewById(R.id.imageReceived);
-            if(hasImage(imageView)==(false)) {
-                imageView.setImageBitmap(BitmapFactory.decodeFile(picturePath));
-                sendImage(picturePath);
-            }
-            else  Clink.show(EspacePersonnelActivity.this, "la zone d'echange contient déja un objet");
+
+            Artifact artifact = new Artifact(getPseudo(),2);
+            artifact.setImagePath(picturePath);
+            artifact.setType(2);
+            listArtifact.add(artifact);
+
 
         }
     }

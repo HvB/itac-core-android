@@ -1,8 +1,6 @@
 package fr.learning_adventure.android.itac.android_app_activity;
 
-import android.content.Context;
 import android.content.Intent;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
@@ -11,11 +9,6 @@ import android.widget.EditText;
 
 import fr.learning_adventure.android.itac.R;
 import fr.learning_adventure.android.itac.widget.Clink;
-
-import fr.learning_adventure.android.itac.model.Learner;
-import com.github.nkzawa.emitter.Emitter;
-
-import org.json.JSONObject;
 
 public class AuthentificationActivity extends ActionBarActivity {
 
