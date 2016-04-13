@@ -1,7 +1,6 @@
 package fr.learning_adventure.android.itac.android_app_activity;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;

@@ -19,7 +19,7 @@ import fr.learning_adventure.android.itac.widget.Clink;
 /**
  * Created by learninglab on 18/03/16.
  */
-public class AuthenificationExterneActivity extends ActionBarActivity{
+public class AuthenificationExterneActivity extends ActionBarActivity {
 
     private final static String FILE_Annuaire = "annuaire.txt";
 

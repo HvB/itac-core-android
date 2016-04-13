@@ -58,20 +58,17 @@ public class ArtifactAdapter extends BaseAdapter {
 
 
         if (artifact.getType()==1) {
-            convertView = inflater.inflate(R.layout.artifact_article, null);
+            convertView = inflater.inflate(R.layout.artifact_article_adapter, null);
             mTitle = (TextView) convertView.findViewById(R.id.titre);
-            mPseudo = (TextView) convertView.findViewById(R.id.pseudo);
-            mMessage = (TextView) convertView.findViewById(R.id.message_input);
             mTitle.setText(artifact.getTitle());
-            mPseudo.setText(artifact.getPseudo());
-            mMessage.setText(artifact.getMessage());
+
 
         }
         else{
-            convertView  = inflater.inflate(R.layout.artifact_image, null);
-            mPseudo = (TextView) convertView .findViewById(R.id.pseudo);
-            mImage = (ImageView) convertView .findViewById(R.id.imageReceived);
-            mPseudo.setText(artifact.getPseudo());
+            convertView  = inflater.inflate(R.layout.artifact_image_adapter, null);
+            mTitle = (TextView) convertView .findViewById(R.id.titre);
+            mImage = (ImageView) convertView .findViewById(R.id.image);
+            mTitle.setText(artifact.getPseudo());
             mImage.setImageBitmap(BitmapFactory.decodeFile(artifact.getImagePath()));
 
 

@@ -6,7 +6,6 @@ import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -22,13 +21,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
@@ -47,11 +46,10 @@ import java.util.List;
 
 import fr.learning_adventure.android.itac.R;
 import fr.learning_adventure.android.itac.adapter.ArtifactAdapter;
-import fr.learning_adventure.android.itac.listener.MyDragListener;
+import fr.learning_adventure.android.itac.adapter.AvatarAdapter;
 import fr.learning_adventure.android.itac.listener.MyTouchListener;
 import fr.learning_adventure.android.itac.model.Artifact;
 import fr.learning_adventure.android.itac.widget.Clink;
-
 
 /**
  * Created by learninglab on 03/03/16.
@@ -61,10 +59,13 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     private final static String FILE_URI_SOCKET = "uri_socket.txt";
     Boolean connected = true;
     private static int RESULT_LOAD_IMAGE = 1;
-    int random = (int)(Math.random()*10000);
+
     GridView listArtifactView;
+    GridView listArtifactZEPView;
     List<Artifact> listArtifact = new ArrayList<>();
     ArtifactAdapter artifactAdapter = new ArtifactAdapter(this,listArtifact );
+    List<Artifact> listArtifactZEP = new ArrayList<>();
+    ArtifactAdapter artifactZEPAdapter = new ArtifactAdapter(this,listArtifactZEP );
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +78,55 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         Intent intent = getIntent();
         final String pseudo = intent.getStringExtra("pseudoName");
         EspacePersonnelActivity.this.setPseudo(pseudo);
+        int selectedPosition = intent.getExtras().getInt("avatarPosition");
+        AvatarAdapter imageAdapter = new AvatarAdapter(this);
+
+        ImageView imageView = (ImageView) findViewById(R.id.imageAvatar);
+        imageView.setImageResource(imageAdapter.mThumbIds[selectedPosition]);
+        TextView pseudoView =(TextView) findViewById(R.id.pseudo);
+        pseudoView.setText(pseudo);
+
+
+        //apel aux méthodes initialize et setinterface: initialiser socket et gerer interface
+        initialize();
+        setInterface();
+        //Ajouter une liste d'artifact
+        listArtifactView = (GridView) findViewById(R.id.listArtifactView);
+        listArtifactView.setAdapter(artifactAdapter);
+
+        //ajouter la liste d'artifact de la zone d'echange personnel
+        listArtifactZEPView = (GridView) findViewById(R.id.listArtifactZEPView);
+        listArtifactZEPView.setAdapter(artifactZEPAdapter);
+
+
+        //Affichage de l'artifact
+        listArtifactView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+                Artifact artifact = (Artifact) parent.getItemAtPosition(position);
+                if (artifact.getType() == 1) {
+                    Intent intent = new Intent(EspacePersonnelActivity.this, ArtifactArticleActivity.class);
+                    intent.putExtra("title", artifact.getTitle());
+                    intent.putExtra("message", artifact.getMessage());
+                    intent.putExtra("pseudo", artifact.getPseudo());
+                    //Start details activity
+                    startActivity(intent);
+                } else {
+                    Intent intent = new Intent(EspacePersonnelActivity.this, ArtifactImageActivity.class);
+                    intent.putExtra("pseudo", artifact.getPseudo());
+                    intent.putExtra("image", artifact.getImagePath());
+                    startActivity(intent);
+                }
+            }
+        });
+
+        //Affichage de l'artifact
+        listArtifactView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long id){
+                v.setOnTouchListener(new MyTouchListener());
+                return true;
+            }
+        });
+
 
         //gestion de l'affichage du layout d'ajout aartifact
         final ImageButton buttonLoadImage = (ImageButton) findViewById(R.id.buttonLoadPicture);
@@ -105,22 +155,17 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             @Override
             public void onClick(View view) {
 
-                if(titre.getText().toString().equals(""))
-                {
+                if (titre.getText().toString().equals("")) {
                     Clink.show(EspacePersonnelActivity.this, "veuillez saisir le titre de l'article");
 
-                }
-                else if ((message.getText().toString().equals("")) )
-                {
+                } else if ((message.getText().toString().equals(""))) {
                     Clink.show(EspacePersonnelActivity.this, "veuillez inserer un message");
 
-                }
-                else {
-                    Artifact artefact = new Artifact(getPseudo(),1);
+                } else {
+                    Artifact artefact = new Artifact(getPseudo(), 1);
                     artefact.setTitle(titre.getText().toString());
                     artefact.setMessage(message.getText().toString());
                     artefact.setType(1);
-
                     listArtifact.add(artefact);
                     message.setText("");
                     titre.setText("");
@@ -153,25 +198,16 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             public void onClick(View arg0) {
                 Intent i = new Intent(
                         Intent.ACTION_PICK,
-                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 
                 startActivityForResult(i, RESULT_LOAD_IMAGE);
             }
         });
 
 
-        //Ajouter une liste d'objets
-        listArtifactView = (GridView) findViewById(R.id.listArtifactView);
-
-        listArtifactView.setAdapter(artifactAdapter);
-        listArtifactView.setOnTouchListener(new MyTouchListener());
-        findViewById(R.id.zep_layout).setOnDragListener(new MyDragListener());
 
 
 
-        //apel aux méthodes initialize et setinterface: initialiser socket et gerer interface
-        initialize();
-        setInterface();
         //réception de l'image
         socket.on("send_image", new Emitter.Listener() {
 
@@ -182,8 +218,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         String data = (String) args[0];
                         byte[] decodedString = Base64.decode(data, Base64.DEFAULT);
                         Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                        ImageView image = (ImageView) findViewById(R.id.imageReceived);
-                        image.setImageBitmap(decodedByte);
+                        //ImageView image = (ImageView) findViewById(R.id.imageReceived);
+                        //image.setImageBitmap(decodedByte);
 
                     }
                 });
@@ -271,7 +307,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 @Override
                 public void call(Object... args) {
                     Log.i("Socket", "connection");
-                    socket.emit("EVT_DemandeConnexionZEP", EspacePersonnelActivity.this.getPseudo(),EspacePersonnelActivity.this.getPseudo().substring(0,3)+String.valueOf(random));
+                    socket.emit("EVT_DemandeConnexionZEP", EspacePersonnelActivity.this.getPseudo());
 
 
                 }
@@ -316,13 +352,11 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     //gerer interface selon état de connexion
     public void setInterface() {
 
-        LinearLayout zepLayout = (LinearLayout) findViewById(R.id.zep_layout);
-        Button login_logout_btn = (Button) this.findViewById(R.id.login_logout_btn);
+        RelativeLayout zepLayout = (RelativeLayout) findViewById(R.id.zep_layout);
+        ImageButton login_logout_btn = (ImageButton) this.findViewById(R.id.login_logout_btn);
         if (socket.connected() && connected == true) {
 
-            zepLayout.setBackgroundColor(Color.GREEN);
-            login_logout_btn.setText("Se déconnecter");
-            login_logout_btn.setBackgroundColor(Color.RED);
+            zepLayout.setBackgroundResource(R.drawable.rounded_corner_green);
             login_logout_btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -335,9 +369,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             });
 
         } else {
-            zepLayout.setBackgroundColor(Color.RED);
-            login_logout_btn.setBackgroundColor(Color.GREEN);
-            login_logout_btn.setText("Se connecter");
+            zepLayout.setBackgroundResource(R.drawable.rounded_corner_red);
             login_logout_btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
