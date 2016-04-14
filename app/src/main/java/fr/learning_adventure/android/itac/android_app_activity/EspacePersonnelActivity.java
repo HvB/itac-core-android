@@ -103,17 +103,17 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         listArtifactView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
                 Artifact artifact = (Artifact) parent.getItemAtPosition(position);
-                if (artifact.getType() == 1) {
+                if (artifact.getType() == "message") {
                     Intent intent = new Intent(EspacePersonnelActivity.this, ArtifactArticleActivity.class);
                     intent.putExtra("title", artifact.getTitle());
-                    intent.putExtra("message", artifact.getMessage());
-                    intent.putExtra("pseudo", artifact.getPseudo());
+                    intent.putExtra("message", artifact.getContenu());
+                    intent.putExtra("pseudo", artifact.getCreator());
                     //Start details activity
                     startActivity(intent);
                 } else {
                     Intent intent = new Intent(EspacePersonnelActivity.this, ArtifactImageActivity.class);
-                    intent.putExtra("pseudo", artifact.getPseudo());
-                    intent.putExtra("image", artifact.getImagePath());
+                    intent.putExtra("pseudo", artifact.getCreator());
+                    intent.putExtra("image", artifact.getContenu());
                     startActivity(intent);
                 }
             }
@@ -162,11 +162,14 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     Clink.show(EspacePersonnelActivity.this, "veuillez inserer un message");
 
                 } else {
-                    Artifact artefact = new Artifact(getPseudo(), 1);
+                    Artifact artefact = new Artifact(getPseudo());
                     artefact.setTitle(titre.getText().toString());
-                    artefact.setMessage(message.getText().toString());
-                    artefact.setType(1);
+                    artefact.setContenu(message.getText().toString());
+
+                    artefact.setType("message");
                     listArtifact.add(artefact);
+                    // socket.emit("EVTReceptionArtefactIntoZE",artefact.toJSONMessage());
+                    Log.i("art json msg ", artefact.toJSONMessage().toString());
                     message.setText("");
                     titre.setText("");
                     artifactLayout.setVisibility(View.INVISIBLE);
@@ -198,7 +201,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             public void onClick(View arg0) {
                 Intent i = new Intent(
                         Intent.ACTION_PICK,
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 
                 startActivityForResult(i, RESULT_LOAD_IMAGE);
             }
@@ -307,8 +310,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 @Override
                 public void call(Object... args) {
                     Log.i("Socket", "connection");
-                    socket.emit("EVT_DemandeConnexionZEP", EspacePersonnelActivity.this.getPseudo());
-
+                    socket.emit("EVT_DemandeConnexionZEP", EspacePersonnelActivity.this.getPseudo(), 5);
 
                 }
             });
@@ -395,7 +397,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
         if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != data) {
             Uri selectedImage = data.getData();
-            String[] filePathColumn = { MediaStore.Images.Media.DATA };
+            String[] filePathColumn = { MediaStore.Images.Media.DATA};
 
             Cursor cursor = getContentResolver().query(selectedImage,
                     filePathColumn, null, null, null);
@@ -406,11 +408,12 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             cursor.close();
 
 
-            Artifact artifact = new Artifact(getPseudo(),2);
-            artifact.setImagePath(picturePath);
-            artifact.setType(2);
+            Artifact artifact = new Artifact(getPseudo());
+            artifact.setContenu(picturePath);
+            artifact.setType("image");
             listArtifact.add(artifact);
-
+            socket.emit("EVT_ReceptionArtefactIntoZE", artifact.toJSONImage());
+            Log.i("json :", artifact.toJSONImage().toString());
 
         }
     }
