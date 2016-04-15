@@ -47,6 +47,7 @@ import java.util.List;
 import fr.learning_adventure.android.itac.R;
 import fr.learning_adventure.android.itac.adapter.ArtifactAdapter;
 import fr.learning_adventure.android.itac.adapter.AvatarAdapter;
+import fr.learning_adventure.android.itac.listener.MyDragListener;
 import fr.learning_adventure.android.itac.listener.MyTouchListener;
 import fr.learning_adventure.android.itac.model.Artifact;
 import fr.learning_adventure.android.itac.widget.Clink;
@@ -121,11 +122,18 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
         //Affichage de l'artifact
         listArtifactView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long id){
+            public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long id) {
                 v.setOnTouchListener(new MyTouchListener());
                 return true;
             }
         });
+
+        if(socket.connected())
+        {
+            findViewById(R.id.zep_layout).setOnDragListener(new MyDragListener());
+
+        }
+
 
 
         //gestion de l'affichage du layout d'ajout aartifact

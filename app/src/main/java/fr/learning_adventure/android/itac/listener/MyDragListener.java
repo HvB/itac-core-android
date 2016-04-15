@@ -14,6 +14,7 @@ public class MyDragListener implements View.OnDragListener {
 
     @Override
     public boolean onDrag(View v, DragEvent event) {
+
         int action = event.getAction();
         switch (event.getAction()) {
             case DragEvent.ACTION_DRAG_STARTED:
@@ -33,6 +34,7 @@ public class MyDragListener implements View.OnDragListener {
                 LinearLayout container = (LinearLayout) v;
                 container.addView(view);
                 view.setVisibility(View.VISIBLE);
+
                 break;
             case DragEvent.ACTION_DRAG_ENDED:
                 //v.setBackgroundColor(Color.GREEN);
