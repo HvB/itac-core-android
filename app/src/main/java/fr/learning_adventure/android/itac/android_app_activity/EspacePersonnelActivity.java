@@ -1,6 +1,7 @@
 package fr.learning_adventure.android.itac.android_app_activity;
 
 import android.annotation.TargetApi;
+import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
@@ -17,11 +18,15 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Base64;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnDragListener;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
@@ -47,10 +52,9 @@ import java.util.List;
 import fr.learning_adventure.android.itac.R;
 import fr.learning_adventure.android.itac.adapter.ArtifactAdapter;
 import fr.learning_adventure.android.itac.adapter.AvatarAdapter;
-import fr.learning_adventure.android.itac.listener.MyDragListener;
-import fr.learning_adventure.android.itac.listener.MyTouchListener;
 import fr.learning_adventure.android.itac.model.Artifact;
 import fr.learning_adventure.android.itac.widget.Clink;
+import fr.learning_adventure.android.itac.widget.LinearLayoutAbsListView;
 
 /**
  * Created by learninglab on 03/03/16.
@@ -63,6 +67,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
     GridView listArtifactView;
     GridView listArtifactZEPView;
+    LinearLayoutAbsListView listArtifactLayout,artifactZEPLayout;
     List<Artifact> listArtifact = new ArrayList<>();
     ArtifactAdapter artifactAdapter = new ArtifactAdapter(this,listArtifact );
     List<Artifact> listArtifactZEP = new ArrayList<>();
@@ -91,13 +96,95 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         //apel aux méthodes initialize et setinterface: initialiser socket et gerer interface
         initialize();
         setInterface();
+
+
+        // Action Drop Artifact
+        OnDragListener myOnDragListener = new OnDragListener() {
+
+            @Override
+            public boolean onDrag(View v, DragEvent event) {
+
+
+                switch (event.getAction()) {
+                    case DragEvent.ACTION_DRAG_STARTED:
+                        break;
+                    case DragEvent.ACTION_DRAG_ENTERED:
+                        break;
+                    case DragEvent.ACTION_DRAG_EXITED:
+                        break;
+                    case DragEvent.ACTION_DROP:
+
+                        PassObject passObj = (PassObject)event.getLocalState();
+                        View view = passObj.view;
+                        Artifact passedItem = passObj.artifact;
+                        List<Artifact> srcList = passObj.srcList;
+                        AbsListView oldParent = (AbsListView)view.getParent();
+                        ArtifactAdapter srcAdapter = (ArtifactAdapter) oldParent.getAdapter();
+
+                        LinearLayoutAbsListView newParent = (LinearLayoutAbsListView)v;
+                        ArtifactAdapter destAdapter = (ArtifactAdapter)(newParent.absListView.getAdapter());
+                        List<Artifact> destList = destAdapter.getList();
+
+                        if(removeItemToList(srcList, passedItem)){
+                            addItemToList(destList, passedItem);
+                        }
+
+                        srcAdapter.notifyDataSetChanged();
+                        destAdapter.notifyDataSetChanged();
+
+                        //smooth scroll to bottom
+                        newParent.absListView.smoothScrollToPosition(destAdapter.getCount()-1);
+
+                        break;
+                    case DragEvent.ACTION_DRAG_ENDED:
+                    default:
+                        break;
+                }
+
+                return true;
+            }
+
+        };
         //Ajouter une liste d'artifact
+        listArtifactLayout=(LinearLayoutAbsListView)findViewById(R.id.listArtifactLayout);
+        listArtifactLayout.setOnDragListener(myOnDragListener);
+        listArtifactLayout.setAbsListView(listArtifactView);
         listArtifactView = (GridView) findViewById(R.id.listArtifactView);
         listArtifactView.setAdapter(artifactAdapter);
 
+        //drag artifact on long clic
+        OnItemLongClickListener myOnItemLongClickListener  = new OnItemLongClickListener(){
+
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view,
+                                           int position, long id) {
+                Artifact selectedItem = (Artifact)(parent.getItemAtPosition(position));
+
+                ArtifactAdapter associatedAdapter = (ArtifactAdapter)(parent.getAdapter());
+                List<Artifact> associatedList = associatedAdapter.getList();
+
+                PassObject passObj = new PassObject(view, selectedItem, associatedList);
+
+                ClipData data = ClipData.newPlainText("", "");
+                View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
+                view.startDrag(data, shadowBuilder, passObj, 0);
+
+                return true;
+            }
+
+        };
+
+
+        listArtifactView.setOnItemLongClickListener(myOnItemLongClickListener);
+
+
         //ajouter la liste d'artifact de la zone d'echange personnel
+        artifactZEPLayout =(LinearLayoutAbsListView)findViewById(R.id.artifactZEPLayout);
+        artifactZEPLayout.setOnDragListener(myOnDragListener);
+        artifactZEPLayout.setAbsListView(listArtifactZEPView);
         listArtifactZEPView = (GridView) findViewById(R.id.listArtifactZEPView);
         listArtifactZEPView.setAdapter(artifactZEPAdapter);
+        listArtifactZEPView.setOnItemLongClickListener(myOnItemLongClickListener);
 
 
         //Affichage de l'artifact
@@ -120,19 +207,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             }
         });
 
-        //Affichage de l'artifact
-        listArtifactView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long id) {
-                v.setOnTouchListener(new MyTouchListener());
-                return true;
-            }
-        });
 
-        if(socket.connected())
-        {
-            findViewById(R.id.zep_layout).setOnDragListener(new MyDragListener());
 
-        }
 
 
 
@@ -176,8 +252,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
                     artefact.setType("message");
                     listArtifact.add(artefact);
-                    // socket.emit("EVTReceptionArtefactIntoZE",artefact.toJSONMessage());
-                    Log.i("art json msg ", artefact.toJSONMessage().toString());
+                   // socket.emit("EVTReceptionArtefactIntoZE",artefact.toJSONMessage());
+                    Log.i("art json msg ",artefact.toJSONMessage().toString());
                     message.setText("");
                     titre.setText("");
                     artifactLayout.setVisibility(View.INVISIBLE);
@@ -209,7 +285,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             public void onClick(View arg0) {
                 Intent i = new Intent(
                         Intent.ACTION_PICK,
-                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 
                 startActivityForResult(i, RESULT_LOAD_IMAGE);
             }
@@ -421,7 +497,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             artifact.setType("image");
             listArtifact.add(artifact);
             socket.emit("EVT_ReceptionArtefactIntoZE", artifact.toJSONImage());
-            Log.i("json :", artifact.toJSONImage().toString());
+            Log.i("json :",artifact.toJSONImage().toString());
 
         }
     }
@@ -451,7 +527,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     public void sendImage(String path)
     {
 
-        socket.emit("image",encodeImage(path));
+        socket.emit("image", encodeImage(path));
 
     }
 
@@ -478,5 +554,27 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         }
 
         return hasImage;
+    }
+
+    class PassObject{
+        View view;
+        Artifact artifact;
+        List<Artifact> srcList;
+
+        PassObject(View v, Artifact i, List<Artifact> s){
+            view = v;
+            artifact = i;
+            srcList = s;
+        }
+    }
+
+    private boolean removeItemToList(List<Artifact> l, Artifact it){
+        boolean result = l.remove(it);
+        return result;
+    }
+
+    private boolean addItemToList(List<Artifact> l, Artifact it){
+        boolean result = l.add(it);
+        return result;
     }
 }

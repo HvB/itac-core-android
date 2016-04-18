@@ -12,6 +12,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import fr.learning_adventure.android.itac.R;
+import fr.learning_adventure.android.itac.listener.MyArtifactDragListener;
 import fr.learning_adventure.android.itac.model.Artifact;
 
 public class ArtifactAdapter extends BaseAdapter {
@@ -23,7 +24,7 @@ public class ArtifactAdapter extends BaseAdapter {
     private ImageView mImage;
 
 
-    public ArtifactAdapter(Context context,List<Artifact> artifacts)
+    public ArtifactAdapter(Context context, List<Artifact> artifacts)
     {
         this.context =context;
         this.artifacts = artifacts;
@@ -41,6 +42,9 @@ public class ArtifactAdapter extends BaseAdapter {
         return artifacts.get(position);
     }
 
+    public List<Artifact> getList(){
+        return artifacts;
+    }
     @Override
     public long getItemId(int position) {
 
@@ -57,7 +61,7 @@ public class ArtifactAdapter extends BaseAdapter {
 
 
 
-        if (artifact.getType()==1) {
+        if (artifact.getType()=="message") {
             convertView = inflater.inflate(R.layout.artifact_article_adapter, null);
             mTitle = (TextView) convertView.findViewById(R.id.titre);
             mTitle.setText(artifact.getTitle());
@@ -68,13 +72,15 @@ public class ArtifactAdapter extends BaseAdapter {
             convertView  = inflater.inflate(R.layout.artifact_image_adapter, null);
             mTitle = (TextView) convertView .findViewById(R.id.titre);
             mImage = (ImageView) convertView .findViewById(R.id.image);
-            mTitle.setText(artifact.getPseudo());
-            mImage.setImageBitmap(BitmapFactory.decodeFile(artifact.getImagePath()));
+            mTitle.setText(artifact.getCreator());
+            mImage.setImageBitmap(BitmapFactory.decodeFile(artifact.getContenu()));
 
 
         }
 
-
+        convertView.setOnDragListener(new MyArtifactDragListener(artifacts.get(position)));
         return convertView ;
     }
+
+
 }

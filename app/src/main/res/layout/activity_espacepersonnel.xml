@@ -55,7 +55,7 @@
             />
 
         </LinearLayout>
-        <LinearLayout
+    <com.example.androidimageviewlist.LinearLayoutAbsListView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/avatarlayout"
@@ -75,13 +75,16 @@
             android:verticalSpacing="5dp"
             android:focusable="true"
             android:clickable="true"/>
-        </LinearLayout>
+    </com.example.androidimageviewlist.LinearLayoutAbsListView>
+
     </RelativeLayout>
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    <com.example.androidimageviewlist.LinearLayoutAbsListView
         android:layout_width="match_parent"
         android:layout_height="450dp"
-        android:padding="5dp">
+        android:padding="5dp"
+        android:id="@+id/listArtifactLayout">
 
         <GridView
             android:id="@+id/listArtifactView"
@@ -99,7 +102,7 @@
 
 
             />
-    </LinearLayout>
+    </com.example.androidimageviewlist.LinearLayoutAbsListView>
 
 
 

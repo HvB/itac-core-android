@@ -42,7 +42,7 @@ public class ArtifactImageActivity extends ActionBarActivity {
         ImageView imageView = (ImageView) findViewById(R.id.image);
         imageView.setImageBitmap(BitmapFactory.decodeFile(imagepath));
 
-        setContentView(new SampleView(this));
+        setContentView(new SampleView(this,BitmapFactory.decodeFile(imagepath)));
     }
 
     private static class SampleView extends View {
@@ -55,18 +55,15 @@ public class ArtifactImageActivity extends ActionBarActivity {
         private float scrollByY = 0; //y amount to scroll by
         private float startX = 0; //track x from one ACTION_MOVE to the next
         private float startY = 0; //track y from one ACTION_MOVE to the next
-        String imagepath;
-        public SampleView(Context context) {
+        public SampleView(Context context,Bitmap bmLargeImage) {
             super(context);
-
+            this.bmLargeImage=bmLargeImage;
             // Destination rect for our main canvas draw. It never changes.
             displayRect = new Rect(0, 0, displayWidth, displayHeight);
             // Scroll rect: this will be used to 'scroll around' over the
             // bitmap in memory. Initialize as above.
             scrollRect = new Rect(0, 0, displayWidth, displayHeight);
 
-            // Load a large bitmap into an offscreen area of memory.
-            bmLargeImage = BitmapFactory.decodeFile(imagepath);
         }
 
         @Override
