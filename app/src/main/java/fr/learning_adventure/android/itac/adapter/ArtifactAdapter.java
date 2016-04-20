@@ -12,7 +12,6 @@ import android.widget.TextView;
 import java.util.List;
 
 import fr.learning_adventure.android.itac.R;
-import fr.learning_adventure.android.itac.listener.MyArtifactDragListener;
 import fr.learning_adventure.android.itac.model.Artifact;
 
 public class ArtifactAdapter extends BaseAdapter {
@@ -77,8 +76,7 @@ public class ArtifactAdapter extends BaseAdapter {
 
 
         }
-
-        convertView.setOnDragListener(new MyArtifactDragListener(artifacts.get(position)));
+        //convertView.setOnDragListener(new MyArtifactDragListener(artifacts.get(position)));
         return convertView ;
     }
 

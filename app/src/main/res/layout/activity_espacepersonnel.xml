@@ -15,7 +15,7 @@
         android:layout_gravity="center_horizontal"
         android:id="@+id/zep_layout"
         android:layout_margin="10dp"
-        android:orientation="vertical">
+        >
 
 
 
@@ -55,10 +55,11 @@
             />
 
         </LinearLayout>
-    <com.example.androidimageviewlist.LinearLayoutAbsListView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+    <fr.learning_adventure.android.itac.widget.LinearLayoutAbsListView
+            android:layout_width="fill_parent"
+            android:layout_height="150dp"
             android:layout_toRightOf="@id/avatarlayout"
+            android:layout_toLeftOf="@id/login_logout_btn"
             android:layout_centerVertical="true"
             android:id="@+id/artifactZEPLayout">
 
@@ -75,12 +76,11 @@
             android:verticalSpacing="5dp"
             android:focusable="true"
             android:clickable="true"/>
-    </com.example.androidimageviewlist.LinearLayoutAbsListView>
-
+</fr.learning_adventure.android.itac.widget.LinearLayoutAbsListView>
     </RelativeLayout>
 
 
-    <com.example.androidimageviewlist.LinearLayoutAbsListView
+    <fr.learning_adventure.android.itac.widget.LinearLayoutAbsListView
         android:layout_width="match_parent"
         android:layout_height="450dp"
         android:padding="5dp"
@@ -101,9 +101,8 @@
             android:clickable="true"/>
 
 
-            />
-    </com.example.androidimageviewlist.LinearLayoutAbsListView>
 
+    </fr.learning_adventure.android.itac.widget.LinearLayoutAbsListView>
 
 
 
