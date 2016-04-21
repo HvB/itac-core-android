@@ -27,6 +27,7 @@ public class Artifact implements Serializable{
 
 
 
+
     private final static String JSON_IDAR = "idAr";
     private final static String JSON_CREATOR = "creator";
     private final static String JSON_PROPRIETAIRE = "proprietaire";

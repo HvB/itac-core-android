@@ -21,6 +21,7 @@ public class ArtifactAdapter extends BaseAdapter {
     private TextView mPseudo;
     private TextView mMessage;
     private ImageView mImage;
+    public int count;
 
 
     public ArtifactAdapter(Context context, List<Artifact> artifacts)
@@ -28,6 +29,9 @@ public class ArtifactAdapter extends BaseAdapter {
         this.context =context;
         this.artifacts = artifacts;
     }
+
+
+
     @Override
     public int getCount() {
 
@@ -69,9 +73,7 @@ public class ArtifactAdapter extends BaseAdapter {
         }
         else{
             convertView  = inflater.inflate(R.layout.artifact_image_adapter, null);
-            mTitle = (TextView) convertView .findViewById(R.id.titre);
             mImage = (ImageView) convertView .findViewById(R.id.image);
-            mTitle.setText(artifact.getCreator());
             mImage.setImageBitmap(BitmapFactory.decodeFile(artifact.getContenu()));
 
 

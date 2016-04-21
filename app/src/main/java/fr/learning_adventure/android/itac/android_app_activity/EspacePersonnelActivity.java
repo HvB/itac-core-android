@@ -31,6 +31,7 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -43,6 +44,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -52,6 +54,7 @@ import java.util.List;
 import fr.learning_adventure.android.itac.R;
 import fr.learning_adventure.android.itac.adapter.ArtifactAdapter;
 import fr.learning_adventure.android.itac.adapter.AvatarAdapter;
+import fr.learning_adventure.android.itac.listener.MyArtifactDragListener;
 import fr.learning_adventure.android.itac.model.Artifact;
 import fr.learning_adventure.android.itac.model.PassObject;
 import fr.learning_adventure.android.itac.widget.Clink;
@@ -65,6 +68,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     private final static String FILE_URI_SOCKET = "uri_socket.txt";
     Boolean connected = true;
     private static int RESULT_LOAD_IMAGE = 1;
+    private static int REQUEST_CAMERA= 0;
     GridView listArtifactView;
     GridView listArtifactZEPView;
     LinearLayoutAbsListView listArtifactLayout,artifactZEPLayout;
@@ -84,13 +88,15 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         Intent intent = getIntent();
         final String pseudo = intent.getStringExtra("pseudoName");
         EspacePersonnelActivity.this.setPseudo(pseudo);
-        int selectedPosition = intent.getExtras().getInt("avatarPosition");
+        final int selectedPosition = intent.getExtras().getInt("avatarPosition");
         AvatarAdapter imageAdapter = new AvatarAdapter(this);
 
         ImageView imageView = (ImageView) findViewById(R.id.imageAvatar);
         imageView.setImageResource(imageAdapter.mThumbIds[selectedPosition]);
         TextView pseudoView =(TextView) findViewById(R.id.pseudo);
         pseudoView.setText(pseudo);
+        LinearLayout trashLayout = (LinearLayout)findViewById(R.id.trashLayout);
+        trashLayout.setOnDragListener(new MyArtifactDragListener());
 
 
         //apel aux méthodes initialize et setinterface: initialiser socket et gerer interface
@@ -116,6 +122,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     case DragEvent.ACTION_DROP:
 
                         PassObject passObj = (PassObject)event.getLocalState();
+                        int position = passObj.position;
                         View view = passObj.view;
                         Artifact passedItem = passObj.artifact;
                         List<Artifact> srcList = passObj.srcList;
@@ -126,8 +133,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         ArtifactAdapter destAdapter = (ArtifactAdapter)(newParent.absListView.getAdapter());
                         List<Artifact> destList = destAdapter.getList();
 
-                             srcList.remove(passedItem);
-                            addItemToList(destList, passedItem);
+                        srcList.remove(position);
+                        destList.add(passedItem);
 
 
 
@@ -139,6 +146,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
                         break;
                     case DragEvent.ACTION_DRAG_ENDED:
+                        passObj = (PassObject)event.getLocalState();
+                        view = passObj.view;
+                        view.setVisibility(View.VISIBLE);
 
                     default:
                         break;
@@ -160,11 +170,12 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 ArtifactAdapter associatedAdapter = (ArtifactAdapter)(parent.getAdapter());
                 List<Artifact> associatedList = associatedAdapter.getList();
 
-                PassObject passObj = new PassObject(view, selectedItem, associatedList);
+                PassObject passObj = new PassObject(view, selectedItem, associatedList,position);
 
                 ClipData data = ClipData.newPlainText("", "");
                 View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
                 view.startDrag(data, shadowBuilder, passObj, 0);
+                view.setVisibility(View.INVISIBLE);
 
                 return true;
             }
@@ -201,6 +212,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     intent.putExtra("title", artifact.getTitle());
                     intent.putExtra("message", artifact.getContenu());
                     intent.putExtra("pseudo", artifact.getCreator());
+                    intent.putExtra("avatarPosition",selectedPosition);
                     //Start details activity
                     startActivity(intent);
                 } else {
@@ -219,6 +231,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
         //gestion de l'affichage du layout d'ajout aartifact
         final ImageButton buttonLoadImage = (ImageButton) findViewById(R.id.buttonLoadPicture);
+        final ImageButton buttonTakeImage = (ImageButton) this.findViewById(R.id.buttonTakePicture);
         final ImageButton addArtifactBtn = (ImageButton) this.findViewById(R.id.addArtifact);
         final RelativeLayout artifactLayout = (RelativeLayout) this.findViewById(R.id.artifact);
         addArtifactBtn.setOnClickListener(new View.OnClickListener() {
@@ -227,6 +240,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 artifactLayout.setVisibility(View.VISIBLE);
                 addArtifactBtn.setVisibility(View.INVISIBLE);
                 buttonLoadImage.setVisibility(View.INVISIBLE);
+                buttonTakeImage.setVisibility(View.INVISIBLE);
 
 
             }
@@ -265,6 +279,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     artifactLayout.setVisibility(View.INVISIBLE);
                     addArtifactBtn.setVisibility(View.VISIBLE);
                     buttonLoadImage.setVisibility(View.VISIBLE);
+                    buttonTakeImage.setVisibility(View.VISIBLE);
+
 
                 }
 
@@ -280,6 +296,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 artifactLayout.setVisibility(View.INVISIBLE);
                 addArtifactBtn.setVisibility(View.VISIBLE);
                 buttonLoadImage.setVisibility(View.VISIBLE);
+                buttonTakeImage.setVisibility(View.VISIBLE);
+
 
             }
         });
@@ -297,8 +315,14 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             }
         });
 
+        buttonTakeImage.setOnClickListener(new View.OnClickListener() {
 
-
+                                               @Override
+                                               public void onClick(View arg0) {
+                                                   Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                                                   startActivityForResult(intent, REQUEST_CAMERA);
+                                               }
+                                           });
 
 
         //réception de l'image
@@ -480,11 +504,12 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         }
     }
 
-    //selectionner l'image depuis la galerie
+    //selectionner l'image depuis la galerie ou l'appareil photo
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        //selection de l'image depuis la galerie
         if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != data) {
             Uri selectedImage = data.getData();
             String[] filePathColumn = { MediaStore.Images.Media.DATA};
@@ -508,6 +533,34 @@ public class EspacePersonnelActivity extends ActionBarActivity {
            // Log.i("json :",artifact.toJSONImage().toString());
 
         }
+
+        //prendre un photo
+        if (requestCode == REQUEST_CAMERA && resultCode == RESULT_OK && null != data)
+        {
+            Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            thumbnail.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
+            File destination = new File(Environment.getExternalStorageDirectory(),
+                    System.currentTimeMillis() + ".jpg");
+            FileOutputStream fo;
+            try {
+                destination.createNewFile();
+                fo = new FileOutputStream(destination);
+                fo.write(bytes.toByteArray());
+                fo.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Artifact artifact = new Artifact(getPseudo());
+            artifact.setContenu(destination.getAbsolutePath());
+            artifact.setType("image");
+            listArtifact.add(artifact);
+            artifactAdapter.notifyDataSetChanged();
+
+        }
+
     }
 
 
