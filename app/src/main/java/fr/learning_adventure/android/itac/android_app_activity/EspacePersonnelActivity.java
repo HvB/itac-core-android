@@ -55,6 +55,7 @@ import fr.learning_adventure.android.itac.R;
 import fr.learning_adventure.android.itac.adapter.ArtifactAdapter;
 import fr.learning_adventure.android.itac.adapter.AvatarAdapter;
 import fr.learning_adventure.android.itac.listener.MyArtifactDragListener;
+import fr.learning_adventure.android.itac.listener.MyDragListenerZP;
 import fr.learning_adventure.android.itac.model.Artifact;
 import fr.learning_adventure.android.itac.model.PassObject;
 import fr.learning_adventure.android.itac.widget.Clink;
@@ -97,7 +98,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         pseudoView.setText(pseudo);
         LinearLayout trashLayout = (LinearLayout)findViewById(R.id.trashLayout);
         trashLayout.setOnDragListener(new MyArtifactDragListener());
-
+        LinearLayout zpLayout = (LinearLayout)findViewById(R.id.zp_Layout);
+        zpLayout.setOnDragListener(new MyDragListenerZP());
 
         //apel aux méthodes initialize et setinterface: initialiser socket et gerer interface
         initialize();
@@ -133,9 +135,31 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         ArtifactAdapter destAdapter = (ArtifactAdapter)(newParent.absListView.getAdapter());
                         List<Artifact> destList = destAdapter.getList();
 
-                        srcList.remove(position);
-                        destList.add(passedItem);
+                        if(srcList !=destList)
+                        {if (srcList==listArtifactZEP){
+//                            if(destList.contains(passedItem)){
+//                                fenetre dialog
+//                            }
 
+                            srcList.remove(position);
+                            destList.add(passedItem);
+
+                            //socket.emit("EVT_ZEPToEP");
+                            }
+                            else
+                              {
+                                  //                            if(destList.contains(passedItem)){
+//                                fenetre dialog
+//                            }
+
+                                  destList.add(passedItem);
+                                  //passedItem.setidConteneur("ZE1");
+                                  //passedItem.setTyeConteneur(ZE2");
+                                  //socket.emit("EVT_EPtoZEP)
+
+                              }
+
+                        }
 
 
                         srcAdapter.notifyDataSetChanged();
