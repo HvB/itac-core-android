@@ -21,6 +21,7 @@ public class ArtifactAdapter extends BaseAdapter {
     private TextView mPseudo;
     private TextView mMessage;
     private ImageView mImage;
+    private TextView mDate;
     public int count;
 
 
@@ -68,6 +69,8 @@ public class ArtifactAdapter extends BaseAdapter {
             convertView = inflater.inflate(R.layout.artifact_article_adapter, null);
             mTitle = (TextView) convertView.findViewById(R.id.titre);
             mTitle.setText(artifact.getTitle());
+            mDate = (TextView) convertView.findViewById(R.id.date);
+            mDate.setText(artifact.getDateCreation());
 
 
         }
@@ -75,6 +78,8 @@ public class ArtifactAdapter extends BaseAdapter {
             convertView  = inflater.inflate(R.layout.artifact_image_adapter, null);
             mImage = (ImageView) convertView .findViewById(R.id.image);
             mImage.setImageBitmap(BitmapFactory.decodeFile(artifact.getContenu()));
+            mDate = (TextView) convertView.findViewById(R.id.date);
+            mDate.setText(artifact.getDateCreation());
 
 
         }

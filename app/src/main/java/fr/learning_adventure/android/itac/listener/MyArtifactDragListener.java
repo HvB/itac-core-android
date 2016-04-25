@@ -26,7 +26,7 @@ public class MyArtifactDragListener implements View.OnDragListener {
             case DragEvent.ACTION_DRAG_STARTED:
                 break;
             case DragEvent.ACTION_DRAG_ENTERED:
-                v.setBackgroundColor(Color.RED);
+                v.setBackgroundColor(Color.parseColor("#ef9a9a"));
                 break;
             case DragEvent.ACTION_DRAG_EXITED:
                 v.setBackgroundColor(Color.parseColor("#e9e8dd"));

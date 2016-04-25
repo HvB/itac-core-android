@@ -48,7 +48,10 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import fr.learning_adventure.android.itac.R;
@@ -69,14 +72,14 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     private final static String FILE_URI_SOCKET = "uri_socket.txt";
     Boolean connected = true;
     private static int RESULT_LOAD_IMAGE = 1;
-    private static int REQUEST_CAMERA= 0;
+    private static int REQUEST_CAMERA = 0;
     GridView listArtifactView;
     GridView listArtifactZEPView;
-    LinearLayoutAbsListView listArtifactLayout,artifactZEPLayout;
+    LinearLayoutAbsListView listArtifactLayout, artifactZEPLayout;
     List<Artifact> listArtifact = new ArrayList<>();
-    ArtifactAdapter artifactAdapter = new ArtifactAdapter(this,listArtifact );
+    ArtifactAdapter artifactAdapter = new ArtifactAdapter(this, listArtifact);
     List<Artifact> listArtifactZEP = new ArrayList<>();
-    ArtifactAdapter artifactZEPAdapter = new ArtifactAdapter(this,listArtifactZEP );
+    ArtifactAdapter artifactZEPAdapter = new ArtifactAdapter(this, listArtifactZEP);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,11 +97,11 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
         ImageView imageView = (ImageView) findViewById(R.id.imageAvatar);
         imageView.setImageResource(imageAdapter.mThumbIds[selectedPosition]);
-        TextView pseudoView =(TextView) findViewById(R.id.pseudo);
+        TextView pseudoView = (TextView) findViewById(R.id.pseudo);
         pseudoView.setText(pseudo);
-        LinearLayout trashLayout = (LinearLayout)findViewById(R.id.trashLayout);
+        LinearLayout trashLayout = (LinearLayout) findViewById(R.id.trashLayout);
         trashLayout.setOnDragListener(new MyArtifactDragListener());
-        LinearLayout zpLayout = (LinearLayout)findViewById(R.id.zp_Layout);
+        final LinearLayout zpLayout = (LinearLayout) findViewById(R.id.zp_Layout);
         zpLayout.setOnDragListener(new MyDragListenerZP());
 
         //apel aux méthodes initialize et setinterface: initialiser socket et gerer interface
@@ -123,41 +126,23 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         break;
                     case DragEvent.ACTION_DROP:
 
-                        PassObject passObj = (PassObject)event.getLocalState();
+                        PassObject passObj = (PassObject) event.getLocalState();
                         int position = passObj.position;
                         View view = passObj.view;
                         Artifact passedItem = passObj.artifact;
                         List<Artifact> srcList = passObj.srcList;
-                        AbsListView oldParent = (AbsListView)view.getParent();
+                        AbsListView oldParent = (AbsListView) view.getParent();
                         ArtifactAdapter srcAdapter = (ArtifactAdapter) oldParent.getAdapter();
 
-                        LinearLayoutAbsListView newParent = (LinearLayoutAbsListView)v;
-                        ArtifactAdapter destAdapter = (ArtifactAdapter)(newParent.absListView.getAdapter());
+                        LinearLayoutAbsListView newParent = (LinearLayoutAbsListView) v;
+                        ArtifactAdapter destAdapter = (ArtifactAdapter) (newParent.absListView.getAdapter());
                         List<Artifact> destList = destAdapter.getList();
 
-                        if(srcList !=destList)
-                        {if (srcList==listArtifactZEP){
-//                            if(destList.contains(passedItem)){
-//                                fenetre dialog
-//                            }
+                        if (srcList != destList) {
 
                             srcList.remove(position);
                             destList.add(passedItem);
 
-                            //socket.emit("EVT_ZEPToEP");
-                            }
-                            else
-                              {
-                                  //                            if(destList.contains(passedItem)){
-//                                fenetre dialog
-//                            }
-
-                                  destList.add(passedItem);
-                                  //passedItem.setidConteneur("ZE1");
-                                  //passedItem.setTyeConteneur(ZE2");
-                                  //socket.emit("EVT_EPtoZEP)
-
-                              }
 
                         }
 
@@ -166,11 +151,11 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         destAdapter.notifyDataSetChanged();
 
                         //smooth scroll to bottom
-                        newParent.absListView.smoothScrollToPosition(destAdapter.getCount()-1);
+                        newParent.absListView.smoothScrollToPosition(destAdapter.getCount() - 1);
 
                         break;
                     case DragEvent.ACTION_DRAG_ENDED:
-                        passObj = (PassObject)event.getLocalState();
+                        passObj = (PassObject) event.getLocalState();
                         view = passObj.view;
                         view.setVisibility(View.VISIBLE);
 
@@ -184,17 +169,17 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         };
 
         //drag artifact on long clic
-        OnItemLongClickListener myOnItemLongClickListener  = new OnItemLongClickListener(){
+        OnItemLongClickListener myOnItemLongClickListener = new OnItemLongClickListener() {
 
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view,
                                            int position, long id) {
-                Artifact selectedItem = (Artifact)(parent.getItemAtPosition(position));
+                Artifact selectedItem = (Artifact) (parent.getItemAtPosition(position));
 
-                ArtifactAdapter associatedAdapter = (ArtifactAdapter)(parent.getAdapter());
+                ArtifactAdapter associatedAdapter = (ArtifactAdapter) (parent.getAdapter());
                 List<Artifact> associatedList = associatedAdapter.getList();
 
-                PassObject passObj = new PassObject(view, selectedItem, associatedList,position);
+                PassObject passObj = new PassObject(view, selectedItem, associatedList, position);
 
                 ClipData data = ClipData.newPlainText("", "");
                 View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
@@ -208,9 +193,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
         //gestion des grid view
         listArtifactZEPView = (GridView) findViewById(R.id.listArtifactZEPView);
-        artifactZEPLayout =(LinearLayoutAbsListView)findViewById(R.id.artifactZEPLayout);
+        artifactZEPLayout = (LinearLayoutAbsListView) findViewById(R.id.artifactZEPLayout);
         listArtifactView = (GridView) findViewById(R.id.listArtifactView);
-        listArtifactLayout=(LinearLayoutAbsListView)findViewById(R.id.listArtifactLayout);
+        listArtifactLayout = (LinearLayoutAbsListView) findViewById(R.id.listArtifactLayout);
 
 
         listArtifactLayout.setOnDragListener(myOnDragListener);
@@ -226,7 +211,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         listArtifactView.setOnItemLongClickListener(myOnItemLongClickListener);
 
 
-
         //Affichage de l'artifact
         listArtifactView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
@@ -236,21 +220,20 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     intent.putExtra("title", artifact.getTitle());
                     intent.putExtra("message", artifact.getContenu());
                     intent.putExtra("pseudo", artifact.getCreator());
-                    intent.putExtra("avatarPosition",selectedPosition);
+                    intent.putExtra("date", artifact.getDateCreation());
+                    intent.putExtra("avatarPosition", selectedPosition);
                     //Start details activity
                     startActivity(intent);
                 } else {
                     Intent intent = new Intent(EspacePersonnelActivity.this, ArtifactImageActivity.class);
                     intent.putExtra("pseudo", artifact.getCreator());
                     intent.putExtra("image", artifact.getContenu());
+                    intent.putExtra("date", artifact.getDateCreation());
+
                     startActivity(intent);
                 }
             }
         });
-
-
-
-
 
 
         //gestion de l'affichage du layout d'ajout aartifact
@@ -262,16 +245,10 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             @Override
             public void onClick(View view) {
                 artifactLayout.setVisibility(View.VISIBLE);
-                addArtifactBtn.setVisibility(View.INVISIBLE);
-                buttonLoadImage.setVisibility(View.INVISIBLE);
-                buttonTakeImage.setVisibility(View.INVISIBLE);
 
 
             }
         });
-
-
-
 
 
         //ajout de article
@@ -292,18 +269,17 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     Artifact artefact = new Artifact(getPseudo());
                     artefact.setTitle(titre.getText().toString());
                     artefact.setContenu(message.getText().toString());
-
+                    DateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+                    String date = df.format(Calendar.getInstance().getTime());
+                    artefact.setDateCreation(date);
                     artefact.setType("message");
                     listArtifact.add(artefact);
                     artifactAdapter.notifyDataSetChanged();
-                   // socket.emit("EVTReceptionArtefactIntoZE",artefact.toJSONMessage());
+                    // socket.emit("EVTReceptionArtefactIntoZE",artefact.toJSONMessage());
                     //Log.i("art json msg ",artefact.toJSONMessage().toString());
                     message.setText("");
                     titre.setText("");
                     artifactLayout.setVisibility(View.INVISIBLE);
-                    addArtifactBtn.setVisibility(View.VISIBLE);
-                    buttonLoadImage.setVisibility(View.VISIBLE);
-                    buttonTakeImage.setVisibility(View.VISIBLE);
 
 
                 }
@@ -318,9 +294,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 message.setText("");
                 titre.setText("");
                 artifactLayout.setVisibility(View.INVISIBLE);
-                addArtifactBtn.setVisibility(View.VISIBLE);
-                buttonLoadImage.setVisibility(View.VISIBLE);
-                buttonTakeImage.setVisibility(View.VISIBLE);
 
 
             }
@@ -341,12 +314,12 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
         buttonTakeImage.setOnClickListener(new View.OnClickListener() {
 
-                                               @Override
-                                               public void onClick(View arg0) {
-                                                   Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                                                   startActivityForResult(intent, REQUEST_CAMERA);
-                                               }
-                                           });
+            @Override
+            public void onClick(View arg0) {
+                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivityForResult(intent, REQUEST_CAMERA);
+            }
+        });
 
 
         //réception de l'image
@@ -375,8 +348,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             public void call(final Object... args) {
 
                 String data = (String) args[0];
-                Log.i("message :",data);}
-
+                Log.i("message :", data);
+            }
 
 
         });
@@ -396,13 +369,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            //Authentification externe
-            case R.id.connect:
-                Intent intent = new Intent(EspacePersonnelActivity.this, AuthenificationExterneActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                EspacePersonnelActivity.this.startActivity(intent);
-
-                return true;
 
             //accés au parametre de connexion : saisie d'adresse ip et port
             case R.id.parametre:
@@ -455,9 +421,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             socket.on(Socket.EVENT_MESSAGE, new Emitter.Listener() {
                 @Override
                 public void call(Object... args) {
-
-
-
 
 
                     Log.i("Socket", "message");
@@ -536,7 +499,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         //selection de l'image depuis la galerie
         if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != data) {
             Uri selectedImage = data.getData();
-            String[] filePathColumn = { MediaStore.Images.Media.DATA};
+            String[] filePathColumn = {MediaStore.Images.Media.DATA};
 
             Cursor cursor = getContentResolver().query(selectedImage,
                     filePathColumn, null, null, null);
@@ -550,17 +513,19 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             Artifact artifact = new Artifact(getPseudo());
             artifact.setContenu(picturePath);
             artifact.setType("image");
+            DateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+            String date = df.format(Calendar.getInstance().getTime());
+            artifact.setDateCreation(date);
             listArtifact.add(artifact);
 
             artifactAdapter.notifyDataSetChanged();
-           // socket.emit("EVT_ReceptionArtefactIntoZE", artifact.toJSONImage());
-           // Log.i("json :",artifact.toJSONImage().toString());
+            // socket.emit("EVT_ReceptionArtefactIntoZE", artifact.toJSONImage());
+            // Log.i("json :",artifact.toJSONImage().toString());
 
         }
 
         //prendre un photo
-        if (requestCode == REQUEST_CAMERA && resultCode == RESULT_OK && null != data)
-        {
+        if (requestCode == REQUEST_CAMERA && resultCode == RESULT_OK && null != data) {
             Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             thumbnail.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
@@ -580,6 +545,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             Artifact artifact = new Artifact(getPseudo());
             artifact.setContenu(destination.getAbsolutePath());
             artifact.setType("image");
+            DateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+            String date = df.format(Calendar.getInstance().getTime());
+            artifact.setDateCreation(date);
             listArtifact.add(artifact);
             artifactAdapter.notifyDataSetChanged();
 
@@ -590,18 +558,17 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
     //encoder image en base 64
     @TargetApi(Build.VERSION_CODES.FROYO)
-    private String encodeImage(String path)
-    {
+    private String encodeImage(String path) {
         File imagefile = new File(path);
         FileInputStream fis = null;
-        try{
+        try {
             fis = new FileInputStream(imagefile);
-        }catch(FileNotFoundException e){
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
         Bitmap bm = BitmapFactory.decodeStream(fis);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bm.compress(Bitmap.CompressFormat.JPEG,100,baos);
+        bm.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] b = baos.toByteArray();
         String encImage = Base64.encodeToString(b, Base64.DEFAULT);
         //Base64.de
@@ -609,18 +576,16 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
     }
 
-    public void sendImage(String path)
-    {
+    public void sendImage(String path) {
 
         socket.emit("image", encodeImage(path));
 
     }
 
 
-
-
     //get & set pseudo, ip
     String pseudo;
+
     public String getPseudo() {
         return this.pseudo;
     }
@@ -635,7 +600,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         boolean hasImage = (drawable != null);
 
         if (hasImage && (drawable instanceof BitmapDrawable)) {
-            hasImage = ((BitmapDrawable)drawable).getBitmap() != null;
+            hasImage = ((BitmapDrawable) drawable).getBitmap() != null;
         }
 
         return hasImage;
@@ -643,13 +608,4 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
 
 
-    private boolean removeItemToList(List<Artifact> l, Artifact it){
-        boolean result = l.remove(it);
-        return result;
-    }
-
-    private boolean addItemToList(List<Artifact> l, Artifact it){
-        boolean result = l.add(it);
-        return result;
-    }
 }

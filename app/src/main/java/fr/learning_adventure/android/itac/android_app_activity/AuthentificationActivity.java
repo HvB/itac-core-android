@@ -51,7 +51,7 @@ public class AuthentificationActivity extends ActionBarActivity {
                                           if (pseudoText.getText().toString().equals("")) {
                                               Clink.show(AuthentificationActivity.this, "veuillez saisir un pseudo");
                                           }
-                                          if(avatarAdapter.getSelectedPosition()<0){
+                                         else if(avatarAdapter.getSelectedPosition()<0){
                                               Clink.show(AuthentificationActivity.this, "veuillez choisir un avatar");
 
                                           }

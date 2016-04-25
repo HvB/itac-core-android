@@ -18,13 +18,15 @@ public class ArtifactImageActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.artifact_image);
 
-        String title = getIntent().getStringExtra("pseudo");
+        String date = getIntent().getStringExtra("date");
         String imagepath = getIntent().getStringExtra("image");
+        String pseudo = getIntent().getStringExtra("pseudo");
 
-        TextView titleTextView = (TextView) findViewById(R.id.title);
-        titleTextView.setText(title);
 
+        TextView pseudoView =(TextView) findViewById(R.id.pseudo);
         ImageView imageView = (ImageView) findViewById(R.id.image);
+
+        pseudoView.setText("Crée par "+pseudo+" le "+date);
         imageView.setImageBitmap(BitmapFactory.decodeFile(imagepath));
     }
 }

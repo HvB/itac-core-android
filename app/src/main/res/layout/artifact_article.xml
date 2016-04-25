@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#000"
+    android:orientation="vertical"
   >
 
     <RelativeLayout
@@ -19,32 +20,30 @@
     android:id="@+id/artifact"
     >
 
-        <LinearLayout
-            android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#90caf9"
+        android:layout_gravity="bottom"
+        android:id="@+id/creation"
+        android:layout_marginTop="10dp">
+
+
+        <TextView
+            android:id="@+id/pseudo"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
-            android:id="@+id/avatarlayout"
-            >
-            <ImageView
-                android:id="@+id/imageAvatar"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                >
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="left"
 
-            </ImageView>
+            />
 
-            <TextView
-                android:id="@+id/pseudo"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:gravity="center"
-                />
+    </LinearLayout>
 
-        </LinearLayout>
+
+
+
 
     <EditText
         android:layout_width="fill_parent"
@@ -54,7 +53,7 @@
         android:textStyle="bold"
         android:maxLines="1"
         android:background="#ffffff"
-        android:layout_below="@id/avatarlayout"
+        android:layout_below="@id/creation"
         android:textSize="30sp"
         android:gravity="center"
         />
@@ -66,11 +65,14 @@
         android:id="@+id/message_input"
         android:layout_below="@id/titre"
         android:gravity="top"
-        android:layout_marginBottom="10dp"/>
+        android:layout_marginBottom="10dp"
+        android:paddingTop="10dp"/>
 
         <TextView
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/message_input"/>
     </RelativeLayout>
+
+
 </LinearLayout>

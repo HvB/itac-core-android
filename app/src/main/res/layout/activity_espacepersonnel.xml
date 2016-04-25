@@ -6,21 +6,19 @@
     android:orientation="vertical"
     android:background="#e9e8dd"
     tools:context=".android_app_activity.EspacePersonnelActivity"
-    android:weightSum="1">
+    android:weightSum="1"
+    android:id="@+id/zp_Layout">
 
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:id="@+id/zp_Layout"
-        >
-        </LinearLayout>
+
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:id="@+id/zep_layout"
-        android:layout_margin="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="20dp"
         >
 
 
@@ -96,10 +94,10 @@
             android:id="@+id/listArtifactView"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
             android:columnWidth="100dp"
             android:drawSelectorOnTop="true"
             android:gravity="center"
+            android:horizontalSpacing="5dp"
             android:numColumns="auto_fit"
             android:stretchMode="columnWidth"
             android:verticalSpacing="5dp"
