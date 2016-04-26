@@ -1,242 +1,245 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/zp_Layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     android:background="#e9e8dd"
-    tools:context=".android_app_activity.EspacePersonnelActivity"
+    android:orientation="vertical"
     android:weightSum="1"
-    android:id="@+id/zp_Layout">
+    tools:context=".android_app_activity.EspacePersonnelActivity">
 
 
     <RelativeLayout
+        android:id="@+id/zep_layout"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:id="@+id/zep_layout"
+        android:layout_marginBottom="10dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:layout_marginBottom="10dp"
-        android:layout_marginTop="20dp"
-        >
+        android:layout_marginTop="20dp">
 
 
-
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/login_logout_btn"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentRight="true"
-                android:textColor="#ffffff"
-                android:src="@drawable/login"
-                android:background="@null"
-                />
-        <LinearLayout
+        <ImageButton
+            android:id="@+id/login_logout_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
+            android:background="@null"
+            android:src="@drawable/login"
+            android:textColor="#ffffff" />
+
+        <LinearLayout
             android:id="@+id/avatarlayout"
-            >
-        <ImageView
-            android:id="@+id/imageAvatar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            >
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:orientation="vertical">
 
-        </ImageView>
+            <ImageView
+                android:id="@+id/imageAvatar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/pseudo"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            />
+            </ImageView>
+
+            <TextView
+                android:id="@+id/pseudo"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
         </LinearLayout>
-    <fr.learning_adventure.android.itac.widget.LinearLayoutAbsListView
+
+        <fr.learning_adventure.android.itac.widget.LinearLayoutAbsListView
+            android:id="@+id/artifactZEPLayout"
             android:layout_width="fill_parent"
             android:layout_height="150dp"
-            android:layout_toRightOf="@id/avatarlayout"
-            android:layout_toLeftOf="@id/login_logout_btn"
             android:layout_centerVertical="true"
-            android:id="@+id/artifactZEPLayout">
+            android:layout_toLeftOf="@id/login_logout_btn"
+            android:layout_toRightOf="@id/avatarlayout">
 
-        <GridView
-            android:id="@+id/listArtifactZEPView"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:columnWidth="100dp"
-            android:drawSelectorOnTop="true"
-            android:gravity="center"
-            android:numColumns="auto_fit"
-            android:stretchMode="columnWidth"
-            android:verticalSpacing="5dp"
-            android:focusable="true"
-            android:clickable="true"/>
-</fr.learning_adventure.android.itac.widget.LinearLayoutAbsListView>
+            <GridView
+                android:id="@+id/listArtifactZEPView"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:clickable="true"
+                android:columnWidth="100dp"
+                android:drawSelectorOnTop="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:numColumns="auto_fit"
+                android:stretchMode="columnWidth"
+                android:verticalSpacing="5dp" />
+        </fr.learning_adventure.android.itac.widget.LinearLayoutAbsListView>
     </RelativeLayout>
 
 
     <fr.learning_adventure.android.itac.widget.LinearLayoutAbsListView
+        android:id="@+id/listArtifactLayout"
         android:layout_width="match_parent"
         android:layout_height="450dp"
-        android:padding="5dp"
-        android:id="@+id/listArtifactLayout">
+        android:padding="5dp">
 
         <GridView
             android:id="@+id/listArtifactView"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:clickable="true"
             android:columnWidth="100dp"
             android:drawSelectorOnTop="true"
+            android:focusable="true"
             android:gravity="center"
             android:horizontalSpacing="5dp"
             android:numColumns="auto_fit"
             android:stretchMode="columnWidth"
-            android:verticalSpacing="5dp"
-            android:focusable="true"
-            android:clickable="true"/>
-
+            android:verticalSpacing="5dp" />
 
 
     </fr.learning_adventure.android.itac.widget.LinearLayoutAbsListView>
 
 
-
     <RelativeLayout
+        android:id="@+id/artifact"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:layout_marginTop="17dp"
+        android:layout_gravity="bottom"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:layout_gravity="bottom"
+        android:layout_marginTop="17dp"
         android:background="#007fff"
-        android:visibility="invisible"
-        android:id="@+id/artifact"
-        >
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:visibility="visible">
 
         <ImageButton
+            android:id="@+id/exit_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/exit_button"
-            android:src="@drawable/exit"
-            android:contentDescription="Exit"
-
             android:layout_alignParentRight="true"
-            android:padding="5dp"
             android:background="@null"
-            >
-        </ImageButton>
+            android:contentDescription="Exit"
+            android:padding="5dp"
+            android:src="@drawable/exit"></ImageButton>
 
         <EditText
+            android:id="@+id/titre"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/titre"
-            android:layout_weight="1"
-            android:hint="Titre"
-            android:textStyle="bold"
-            android:maxLines="1"
-            android:background="#ffffff"
             android:layout_below="@id/exit_button"
-         />
+            android:layout_weight="1"
+            android:background="#ffffff"
+            android:hint="Titre"
+            android:maxLines="1"
+            android:textStyle="bold" />
 
         <EditText
+            android:id="@+id/message_input"
             android:layout_width="fill_parent"
             android:layout_height="250dp"
+            android:layout_below="@id/titre"
             android:layout_marginTop="10dp"
-            android:background="#ffffff"
-            android:id="@+id/message_input"
             android:layout_weight="1"
-            android:hint="Message"
+            android:background="#ffffff"
             android:gravity="top"
-            android:inputType="text"
-            android:layout_below="@id/titre"/>
-
-
-
-
-
+            android:hint="Message"
+            android:inputType="text" />
 
 
         <ImageButton
+            android:id="@+id/send_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/send_button"
-            android:src="@drawable/sent"
-            android:contentDescription="Send"
-            android:layout_below="@+id/message_input"
             android:layout_alignParentRight="true"
-            android:padding="5dp"
+            android:layout_below="@+id/message_input"
             android:background="@null"
-            >
-            </ImageButton>
+            android:contentDescription="Send"
+            android:padding="5dp"
+            android:src="@drawable/sent"></ImageButton>
 
 
     </RelativeLayout>
 
     <RelativeLayout
-        android:orientation="horizontal"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="5dp"
         android:layout_alignParentBottom="true"
-        android:layout_gravity="bottom">
+        android:layout_gravity="bottom"
+        android:layout_margin="5dp"
+        android:orientation="horizontal">
 
         <ImageButton
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:layout_marginLeft="16dp"
             android:id="@+id/addArtifact"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
             android:background="@null"
 
-            android:src="@drawable/images">
-        </ImageButton>
-    <ImageButton
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:id="@+id/buttonLoadPicture"
-        android:layout_toRightOf="@+id/addArtifact"
-        android:background="@null"
-
-        android:src="@drawable/gallery">
-    </ImageButton>
+            android:src="@drawable/images"></ImageButton>
 
         <ImageButton
-            android:layout_height="wrap_content"
+            android:id="@+id/buttonLoadPicture"
             android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="16dp"
+            android:layout_toRightOf="@+id/addArtifact"
+            android:background="@null"
+
+            android:src="@drawable/gallery"></ImageButton>
+
+        <ImageButton
             android:id="@+id/buttonTakePicture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
             android:layout_toRightOf="@+id/buttonLoadPicture"
             android:background="@null"
-            android:src="@drawable/camera">
-        </ImageButton>
+            android:src="@drawable/camera"></ImageButton>
 
         <LinearLayout
-            android:layout_alignParentRight="true"
-            android:id="@+id/trashLayout"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-
-        <ImageButton
             android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:id="@+id/trash"
+            android:layout_alignParentRight="true"
+            android:id="@+id/trashEditLayout"
+            android:visibility="invisible">
 
-            android:background="@null"
-            android:src="@drawable/trash">
-        </ImageButton>
+            <LinearLayout
+                android:id="@+id/editLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/buttonTakePicture">
+
+                <ImageButton
+                    android:id="@+id/edit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dp"
+
+                    android:background="@null"
+                    android:src="@drawable/edit"></ImageButton>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/trashLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageButton
+                    android:id="@+id/trash"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="30dp"
+
+                    android:background="@null"
+                    android:src="@drawable/trash"></ImageButton>
+            </LinearLayout>
         </LinearLayout>
-        </RelativeLayout>
+    </RelativeLayout>
 </LinearLayout>
 

@@ -3,6 +3,7 @@ package fr.learning_adventure.android.itac.listener;
 import android.view.DragEvent;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.LinearLayout;
 
 import java.util.List;
 
@@ -17,6 +18,7 @@ public class MyDragListenerZP implements View.OnDragListener {
 
 
 
+    LinearLayout trashEditLayout ;
 
         @Override
         public boolean onDrag(View v, DragEvent event) {

@@ -148,33 +148,6 @@ public class Artifact implements Serializable{
         this.contenu = null;
     }
 
-    public class Modificateurs
-    {
-        private String modificateur;
-        private String dateModification;
-
-
-        public Modificateurs(String modificateur, String dateModification) {
-            this.modificateur = modificateur;
-            this.dateModification = dateModification;
-        }
-
-        public String getModificateur() {
-            return modificateur;
-        }
-
-        public void setModificateur(String modificateur) {
-            this.modificateur = modificateur;
-        }
-
-        public String getDateModification() {
-            return dateModification;
-        }
-
-        public void setDateModification(String dateModification) {
-            this.dateModification = dateModification;
-        }
-    }
 
 
 

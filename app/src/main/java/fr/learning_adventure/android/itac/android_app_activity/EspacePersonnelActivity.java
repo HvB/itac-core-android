@@ -7,6 +7,7 @@ import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -47,6 +48,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -57,9 +59,8 @@ import java.util.List;
 import fr.learning_adventure.android.itac.R;
 import fr.learning_adventure.android.itac.adapter.ArtifactAdapter;
 import fr.learning_adventure.android.itac.adapter.AvatarAdapter;
-import fr.learning_adventure.android.itac.listener.MyArtifactDragListener;
-import fr.learning_adventure.android.itac.listener.MyDragListenerZP;
 import fr.learning_adventure.android.itac.model.Artifact;
+import fr.learning_adventure.android.itac.model.Modificateurs;
 import fr.learning_adventure.android.itac.model.PassObject;
 import fr.learning_adventure.android.itac.widget.Clink;
 import fr.learning_adventure.android.itac.widget.LinearLayoutAbsListView;
@@ -99,10 +100,14 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         imageView.setImageResource(imageAdapter.mThumbIds[selectedPosition]);
         TextView pseudoView = (TextView) findViewById(R.id.pseudo);
         pseudoView.setText(pseudo);
-        LinearLayout trashLayout = (LinearLayout) findViewById(R.id.trashLayout);
-        trashLayout.setOnDragListener(new MyArtifactDragListener());
+        final LinearLayout trashLayout = (LinearLayout) findViewById(R.id.trashLayout);
+        final LinearLayout editLayout = (LinearLayout) findViewById(R.id.editLayout);
+        final LinearLayout trashEditLayout = (LinearLayout) findViewById(R.id.trashEditLayout);
         final LinearLayout zpLayout = (LinearLayout) findViewById(R.id.zp_Layout);
-        zpLayout.setOnDragListener(new MyDragListenerZP());
+        final EditText titre = (EditText) EspacePersonnelActivity.this.findViewById(R.id.titre);
+        final EditText message = (EditText) EspacePersonnelActivity.this.findViewById(R.id.message_input);
+        final RelativeLayout artifactLayout = (RelativeLayout) this.findViewById(R.id.artifact);
+        final ImageButton button = (ImageButton) this.findViewById(R.id.send_button);
 
         //apel aux méthodes initialize et setinterface: initialiser socket et gerer interface
         initialize();
@@ -110,7 +115,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
 
         // Action Drop Artifact
-        OnDragListener myOnDragListener = new OnDragListener() {
+        final OnDragListener myOnDragListener = new OnDragListener() {
 
             @Override
             public boolean onDrag(View v, DragEvent event) {
@@ -152,12 +157,99 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
                         //smooth scroll to bottom
                         newParent.absListView.smoothScrollToPosition(destAdapter.getCount() - 1);
+                        trashEditLayout.setVisibility(View.INVISIBLE);
+
 
                         break;
                     case DragEvent.ACTION_DRAG_ENDED:
                         passObj = (PassObject) event.getLocalState();
                         view = passObj.view;
                         view.setVisibility(View.VISIBLE);
+
+                    default:
+                        break;
+                }
+
+                return true;
+            }
+
+        };
+
+
+        // Action Drop Artifact
+        final OnDragListener myArtefactOnDragListener = new OnDragListener() {
+
+            @Override
+            public boolean onDrag(View v, DragEvent event) {
+
+
+                switch (event.getAction()) {
+                    case DragEvent.ACTION_DRAG_STARTED:
+                        break;
+                    case DragEvent.ACTION_DRAG_ENTERED:
+                        v.setBackgroundColor(Color.parseColor("#ef9a9a"));
+                        break;
+                    case DragEvent.ACTION_DRAG_EXITED:
+                        v.setBackgroundColor(Color.parseColor("#e9e8dd"));
+                        break;
+                    case DragEvent.ACTION_DROP:
+
+                        PassObject passObj = (PassObject)event.getLocalState();
+                        int position = passObj.position;
+                        View view = passObj.view;
+                        final Artifact passedItem = passObj.artifact;
+                        List<Artifact> srcList = passObj.srcList;
+
+                        AbsListView oldParent = (AbsListView)view.getParent();
+                        ArtifactAdapter srcAdapter = (ArtifactAdapter) oldParent.getAdapter();
+                        if(v==trashLayout){
+                            srcList.remove(position);}
+                        else if (v==editLayout){
+                            titre.setText(passedItem.getTitle());
+                            message.setText(passedItem.getContenu());
+                            artifactLayout.setVisibility(View.VISIBLE);
+                            button.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+
+                                    if (titre.getText().toString().equals("")) {
+                                        Clink.show(EspacePersonnelActivity.this, "veuillez saisir le titre de l'article");
+
+                                    } else if ((message.getText().toString().equals(""))) {
+                                        Clink.show(EspacePersonnelActivity.this, "veuillez inserer un message");
+
+                                    } else {
+                                        DateFormat df = new SimpleDateFormat("dd-MM-yyyy 'à 'HH:mm");
+                                        String date = df.format(Calendar.getInstance().getTime());
+                                        Modificateurs mod = new Modificateurs(pseudo,date);
+                                        if(passedItem.getModificateurs().isEmpty())
+                                        {List<Modificateurs> listModificateurs = new ArrayList<>();}
+                                        List<Modificateurs> listModificateurs = passedItem.getModificateurs();
+                                        listModificateurs.add(mod);
+                                        passedItem.setModificateurs(listModificateurs);
+                                        passedItem.setTitle(titre.getText().toString());
+                                        passedItem.setContenu(message.getText().toString());
+                                        passedItem.setDateDerniereModification(date);
+                                        artifactAdapter.notifyDataSetChanged();
+                                        // socket.emit("EVTReceptionArtefactIntoZE",artefact.toJSONMessage());
+                                        //Log.i("art json msg ",artefact.toJSONMessage().toString());
+                                        message.setText("");
+                                        titre.setText("");
+                                        artifactLayout.setVisibility(View.INVISIBLE);
+
+
+                                    }
+
+                                }
+                                    });
+                        }
+                        srcAdapter.notifyDataSetChanged();
+                        trashEditLayout.setVisibility(View.INVISIBLE);
+
+
+                        break;
+                    case DragEvent.ACTION_DRAG_ENDED:
+                        v.setBackgroundColor(Color.parseColor("#e9e8dd"));
 
                     default:
                         break;
@@ -185,6 +277,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
                 view.startDrag(data, shadowBuilder, passObj, 0);
                 view.setVisibility(View.INVISIBLE);
+                trashEditLayout.setVisibility(View.VISIBLE);
 
                 return true;
             }
@@ -200,6 +293,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
         listArtifactLayout.setOnDragListener(myOnDragListener);
         artifactZEPLayout.setOnDragListener(myOnDragListener);
+        trashLayout.setOnDragListener(myArtefactOnDragListener);
+        editLayout.setOnDragListener(myArtefactOnDragListener);
+
 
         listArtifactLayout.setAbsListView(listArtifactView);
         artifactZEPLayout.setAbsListView(listArtifactZEPView);
@@ -221,6 +317,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     intent.putExtra("message", artifact.getContenu());
                     intent.putExtra("pseudo", artifact.getCreator());
                     intent.putExtra("date", artifact.getDateCreation());
+                    intent.putExtra("dateDerniereModification", artifact.getDateDerniereModification());
+                    intent.putExtra("modificateurs", (Serializable) artifact.getModificateurs());
                     intent.putExtra("avatarPosition", selectedPosition);
                     //Start details activity
                     startActivity(intent);
@@ -240,7 +338,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         final ImageButton buttonLoadImage = (ImageButton) findViewById(R.id.buttonLoadPicture);
         final ImageButton buttonTakeImage = (ImageButton) this.findViewById(R.id.buttonTakePicture);
         final ImageButton addArtifactBtn = (ImageButton) this.findViewById(R.id.addArtifact);
-        final RelativeLayout artifactLayout = (RelativeLayout) this.findViewById(R.id.artifact);
         addArtifactBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -252,9 +349,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
 
         //ajout de article
-        final EditText titre = (EditText) EspacePersonnelActivity.this.findViewById(R.id.titre);
-        final EditText message = (EditText) EspacePersonnelActivity.this.findViewById(R.id.message_input);
-        ImageButton button = (ImageButton) this.findViewById(R.id.send_button);
+
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -269,10 +364,12 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     Artifact artefact = new Artifact(getPseudo());
                     artefact.setTitle(titre.getText().toString());
                     artefact.setContenu(message.getText().toString());
-                    DateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+                    DateFormat df = new SimpleDateFormat("dd-MM-yyyy 'à 'HH:mm");
                     String date = df.format(Calendar.getInstance().getTime());
                     artefact.setDateCreation(date);
                     artefact.setType("message");
+                    List<Modificateurs> listModificateurs = new ArrayList<>();
+                    artefact.setModificateurs(listModificateurs);
                     listArtifact.add(artefact);
                     artifactAdapter.notifyDataSetChanged();
                     // socket.emit("EVTReceptionArtefactIntoZE",artefact.toJSONMessage());
@@ -513,7 +610,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             Artifact artifact = new Artifact(getPseudo());
             artifact.setContenu(picturePath);
             artifact.setType("image");
-            DateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+            DateFormat df = new SimpleDateFormat("dd-MM-yyyy 'à 'HH:mm");
             String date = df.format(Calendar.getInstance().getTime());
             artifact.setDateCreation(date);
             listArtifact.add(artifact);
@@ -545,7 +642,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             Artifact artifact = new Artifact(getPseudo());
             artifact.setContenu(destination.getAbsolutePath());
             artifact.setType("image");
-            DateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+            DateFormat df = new SimpleDateFormat("dd-MM-yyyy 'à 'HH:mm");
             String date = df.format(Calendar.getInstance().getTime());
             artifact.setDateCreation(date);
             listArtifact.add(artifact);

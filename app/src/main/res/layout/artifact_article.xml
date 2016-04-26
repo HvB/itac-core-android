@@ -41,11 +41,26 @@
 
     </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="#90caf9"
+            android:layout_gravity="bottom"
+            android:id="@+id/modificateurs"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical"
+            android:layout_below="@id/creation">
 
 
 
 
-    <EditText
+            </LinearLayout>
+
+
+
+
+
+    <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/titre"
@@ -53,12 +68,12 @@
         android:textStyle="bold"
         android:maxLines="1"
         android:background="#ffffff"
-        android:layout_below="@id/creation"
+        android:layout_below="@id/modificateurs"
         android:textSize="30sp"
         android:gravity="center"
         />
 
-    <EditText
+    <TextView
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:background="#ffffff"
