@@ -1,9 +1,19 @@
 package fr.learning_adventure.android.itac.model;
 
+import android.annotation.TargetApi;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Build;
+import android.util.Base64;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.Serializable;
 import java.util.List;
 
@@ -12,7 +22,7 @@ import java.util.List;
  */
 public class Artifact implements Serializable{
 
-    private Integer idAr;
+    private String idAr;
     private String title;
     private String creator;
     private String contenu;
@@ -29,16 +39,16 @@ public class Artifact implements Serializable{
 
 
     private final static String JSON_IDAR = "idAr";
-    private final static String JSON_CREATOR = "creator";
+    private final static String JSON_CREATOR = "createur";
     private final static String JSON_PROPRIETAIRE = "proprietaire";
     private final static String JSON_TYPEARTEFACT = "typeArtefact";
     private final static String JSON_IDCONTENEUR = "idConteneur";
     private final static String JSON_TYPECONTENEUR = "typeConteneur";
     private final static String JSON_DATECREATION = "dateCreation";
-    private final static String JSON_DATEDERNIEREMODIFICATION= "dateDerniereModification ";
+    private final static String JSON_DATEDERNIEREMODIFICATION= "derniereModification";
     private final static String JSON_MODIFICATEURS= "modificateurs";
-    private final static String JSON_MODIFICATEUR= "modificateur";
-    private final static String JSON_DATEMODIFICATION= "dateModification ";
+    private final static String JSON_MODIFICATEUR= "modifier";
+    private final static String JSON_DATEMODIFICATION= "modifiedDate";
     private final static String JSON_TITLE = "titre";
     private final static String JSON_CONTENU = "contenu";
 
@@ -99,11 +109,11 @@ public class Artifact implements Serializable{
         this.title = title;
     }
 
-    public Integer getIdAr() {
+    public String getIdAr() {
         return idAr;
     }
 
-    public void setIdAr(Integer idAr) {
+    public void setIdAr(String idAr) {
         this.idAr = idAr;
     }
 
@@ -163,7 +173,7 @@ public class Artifact implements Serializable{
             object.putOpt(Artifact.JSON_IDCONTENEUR, this.idConteneur);
             object.putOpt(Artifact.JSON_TYPECONTENEUR, this.typeConteneur);
             object.putOpt(Artifact.JSON_DATECREATION, this.dateCreation);
-            object.putOpt(Artifact.JSON_DATEDERNIEREMODIFICATION, this.typeConteneur);
+            object.putOpt(Artifact.JSON_DATEDERNIEREMODIFICATION, this.dateDerniereModification);
             JSONArray jsonArr = new JSONArray();
 
             for (Modificateurs mod : this.getModificateurs() ) {
@@ -199,7 +209,7 @@ public class Artifact implements Serializable{
             object.putOpt(Artifact.JSON_IDCONTENEUR, this.idConteneur);
             object.putOpt(Artifact.JSON_TYPECONTENEUR, this.typeConteneur);
             object.putOpt(Artifact.JSON_DATECREATION, this.dateCreation);
-            object.putOpt(Artifact.JSON_CONTENU, this.contenu);
+            object.putOpt(Artifact.JSON_CONTENU, encodeImage(this.contenu));
 
 
         } catch (JSONException e) {
@@ -222,7 +232,25 @@ public class Artifact implements Serializable{
         }
     }
 
+    //encoder image en base 64
+    @TargetApi(Build.VERSION_CODES.FROYO)
+    private String encodeImage(String path) {
+        File imagefile = new File(path);
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(imagefile);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        Bitmap bm = BitmapFactory.decodeStream(fis);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bm.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        byte[] b = baos.toByteArray();
+        String encImage = Base64.encodeToString(b, Base64.DEFAULT);
+        //Base64.de
+        return encImage;
 
+    }
 
 }
 

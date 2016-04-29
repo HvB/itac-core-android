@@ -13,15 +13,18 @@
         android:layout_gravity="center"
         android:layout_marginTop="30px"
         android:id="@+id/ip"
-        android:hint="Saisissez l'adresse IP"/>
+        android:hint="Saisissez l'adresse IP"
+        android:digits="0123456789."
+        android:inputType="number"/>
 
     <EditText
         android:layout_width="500px"
         android:layout_height="80px"
         android:layout_gravity="center"
-        android:layout_marginTop="30px"
+        android:layout_marginTop="20px"
         android:id="@+id/port"
-        android:hint="Saisissez le numero de port"/>
+        android:hint="Saisissez le numero de port"
+        android:inputType="number"/>
 
     <Button
         android:layout_width="500px"

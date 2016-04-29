@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/zp_Layout"
@@ -85,7 +85,8 @@
         android:id="@+id/listArtifactLayout"
         android:layout_width="match_parent"
         android:layout_height="450dp"
-        android:padding="5dp">
+        android:padding="5dp"
+        android:layout_below="@id/zep_layout">
 
         <GridView
             android:id="@+id/listArtifactView"
@@ -109,14 +110,14 @@
         android:id="@+id/artifact"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:layout_marginTop="17dp"
         android:background="#007fff"
+        android:layout_below="@id/listArtifactLayout"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
-        android:visibility="visible">
+        android:visibility="invisible">
 
         <ImageButton
             android:id="@+id/exit_button"
@@ -162,6 +163,19 @@
             android:contentDescription="Send"
             android:padding="5dp"
             android:src="@drawable/sent"></ImageButton>
+        <ImageButton
+            android:id="@+id/send_modified_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/message_input"
+            android:background="@null"
+            android:contentDescription="Send"
+            android:padding="5dp"
+            android:visibility="gone"
+            android:src="@drawable/sent">
+
+        </ImageButton>
 
 
     </RelativeLayout>
@@ -170,9 +184,9 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_gravity="bottom"
         android:layout_margin="5dp"
-        android:orientation="horizontal">
+        android:layout_below="@id/artifact"
+        android:id="@+id/optionsArtifactLayout">
 
         <ImageButton
             android:id="@+id/addArtifact"
@@ -201,13 +215,15 @@
             android:layout_toRightOf="@+id/buttonLoadPicture"
             android:background="@null"
             android:src="@drawable/camera"></ImageButton>
+    </RelativeLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
+            android:layout_centerHorizontal="true"
             android:id="@+id/trashEditLayout"
-            android:visibility="invisible">
+            android:layout_below="@+id/artifact"
+            android:visibility="gone">
 
             <LinearLayout
                 android:id="@+id/editLayout"
@@ -240,6 +256,6 @@
                     android:src="@drawable/trash"></ImageButton>
             </LinearLayout>
         </LinearLayout>
-    </RelativeLayout>
-</LinearLayout>
+
+</RelativeLayout>
 
