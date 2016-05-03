@@ -81,6 +81,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     ArtifactAdapter artifactZEPAdapter = new ArtifactAdapter(this, listArtifactZEP);
     private int selectedPosition;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,7 +106,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         final EditText titre = (EditText) EspacePersonnelActivity.this.findViewById(R.id.titre);
         final EditText message = (EditText) EspacePersonnelActivity.this.findViewById(R.id.message_input);
         final RelativeLayout artifactLayout = (RelativeLayout) this.findViewById(R.id.artifact);
-        final RelativeLayout optionsArtifactLayout  = (RelativeLayout) this.findViewById(R.id.optionsArtifactLayout);
+        final RelativeLayout optionsArtifactLayout = (RelativeLayout) this.findViewById(R.id.optionsArtifactLayout);
         final ImageButton modifiedButton = (ImageButton) this.findViewById(R.id.send_modified_button);
         final ImageButton button = (ImageButton) this.findViewById(R.id.send_button);
 
@@ -147,14 +148,15 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
                             srcList.remove(position);
                             destList.add(passedItem);
-                            if(destList==listArtifactZEP)
-                            {   Log.i("Mon json :",passedItem.toJSONMessage().toString());
+                            if (destList == listArtifactZEP) {
                                 passedItem.setIdAr("");
                                 passedItem.setProprietaire(pseudo);
                                 passedItem.setTypeConteneur("ZE");
-                                passedItem.setIdConteneur("test"+String.valueOf(selectedPosition));
-                                if (passedItem.getType()=="message") socket.emit("EVT_ReceptionArtefactIntoZE",pseudo,String.valueOf(selectedPosition),"test"+String.valueOf(selectedPosition),passedItem.toJSONMessage().toString());
-                                else socket.emit("EVT_ReceptionArtefactIntoZE",pseudo,String.valueOf(selectedPosition),"test"+String.valueOf(selectedPosition),passedItem.toJSONImage().toString());
+                                passedItem.setIdConteneur("test" + String.valueOf(selectedPosition));
+                                if (passedItem.getType() == "message")
+                                    socket.emit("EVT_ReceptionArtefactIntoZE", pseudo, String.valueOf(selectedPosition), "test" + String.valueOf(selectedPosition), passedItem.toJSONMessage().toString());
+                                else
+                                    socket.emit("EVT_ReceptionArtefactIntoZE", pseudo, String.valueOf(selectedPosition), "test" + String.valueOf(selectedPosition), passedItem.toJSONImage().toString());
                             }
 
                         }
@@ -167,8 +169,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         newParent.absListView.smoothScrollToPosition(destAdapter.getCount() - 1);
                         trashEditLayout.setVisibility(View.GONE);
                         optionsArtifactLayout.setVisibility(View.VISIBLE);
-
-
 
 
                         break;
@@ -205,17 +205,17 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         break;
                     case DragEvent.ACTION_DROP:
 
-                        PassObject passObj = (PassObject)event.getLocalState();
+                        PassObject passObj = (PassObject) event.getLocalState();
                         int position = passObj.position;
                         View view = passObj.view;
                         final Artifact passedItem = passObj.artifact;
                         List<Artifact> srcList = passObj.srcList;
 
-                        AbsListView oldParent = (AbsListView)view.getParent();
+                        AbsListView oldParent = (AbsListView) view.getParent();
                         ArtifactAdapter srcAdapter = (ArtifactAdapter) oldParent.getAdapter();
-                        if(v==trashLayout){
-                            srcList.remove(position);}
-                        else if (v==editLayout && passedItem.getType()=="message"){
+                        if (v == trashLayout) {
+                            srcList.remove(position);
+                        } else if (v == editLayout && passedItem.getType() == "message") {
                             titre.setText(passedItem.getTitle());
                             message.setText(passedItem.getContenu());
                             artifactLayout.setVisibility(View.VISIBLE);
@@ -232,30 +232,33 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                         Clink.show(EspacePersonnelActivity.this, "veuillez inserer un message");
 
                                     } else {
-                                        if(!(passedItem.getCreator().isEmpty())){
-                                        DateFormat df = new SimpleDateFormat("dd-MM-yyyy 'à 'HH:mm");
-                                        String date = df.format(Calendar.getInstance().getTime());
-                                        Modificateurs mod = new Modificateurs(pseudo,date);
-                                        if(passedItem.getModificateurs().isEmpty())
-                                        {List<Modificateurs> listModificateurs = new ArrayList<>();}
-                                        List<Modificateurs> listModificateurs = passedItem.getModificateurs();
-                                        listModificateurs.add(mod);
-                                        passedItem.setModificateurs(listModificateurs);
-                                        passedItem.setTitle(titre.getText().toString());
-                                        passedItem.setContenu(message.getText().toString());
-                                        passedItem.setDateDerniereModification(date);
-                                        artifactAdapter.notifyDataSetChanged();
+                                        if (!(passedItem.getCreator().isEmpty())) {
+                                            DateFormat df = new SimpleDateFormat("dd-MM-yyyy 'à 'HH:mm");
+                                            String date = df.format(Calendar.getInstance().getTime());
+                                            Modificateurs mod = new Modificateurs(pseudo, date);
+                                            if (passedItem.getModificateurs().isEmpty()) {
+                                                List<Modificateurs> listModificateurs = new ArrayList<>();
+                                            }
+                                            List<Modificateurs> listModificateurs = passedItem.getModificateurs();
+                                            listModificateurs.add(mod);
+                                            passedItem.setModificateurs(listModificateurs);
+                                            passedItem.setTitle(titre.getText().toString());
+                                            passedItem.setContenu(message.getText().toString());
+                                            passedItem.setDateDerniereModification(date);
+                                            artifactAdapter.notifyDataSetChanged();
                                             message.setText("");
-                                        titre.setText("");
-                                        artifactLayout.setVisibility(View.INVISIBLE);
-                                        modifiedButton.setVisibility(View.GONE);
-                                        button.setVisibility(View.VISIBLE);}
+                                            titre.setText("");
+                                            artifactLayout.setVisibility(View.INVISIBLE);
+                                            modifiedButton.setVisibility(View.GONE);
+                                            button.setVisibility(View.VISIBLE);
+                                        }
 
 
                                     }
 
                                 }
-                                    });}
+                            });
+                        }
 
                         srcAdapter.notifyDataSetChanged();
                         trashEditLayout.setVisibility(View.GONE);
@@ -294,7 +297,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 view.setVisibility(View.INVISIBLE);
                 trashEditLayout.setVisibility(View.VISIBLE);
                 optionsArtifactLayout.setVisibility(View.GONE);
-
 
 
                 return true;
@@ -519,7 +521,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
     //Creation et connection de Socket
     public void initialize() {
-
+        final RelativeLayout zepLayout = (RelativeLayout) findViewById(R.id.zep_layout);
 
         try {
             socket = IO.socket(getUriSocket().toString());
@@ -527,8 +529,15 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 @Override
                 public void call(Object... args) {
                     Log.i("Socket", "connection");
-                    socket.emit("EVT_DemandeConnexionZEP", EspacePersonnelActivity.this.getPseudo(),String.valueOf(selectedPosition));
+                    socket.emit("EVT_DemandeConnexionZEP", EspacePersonnelActivity.this.getPseudo(), String.valueOf(selectedPosition));
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            zepLayout.setBackgroundResource(R.drawable.rounded_corner_green);
 
+
+                        }
+                    });
                 }
             });
             socket.on(Socket.EVENT_MESSAGE, new Emitter.Listener() {
@@ -568,7 +577,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     //gerer interface selon état de connexion
     public void setInterface() {
 
-        RelativeLayout zepLayout = (RelativeLayout) findViewById(R.id.zep_layout);
+        final RelativeLayout zepLayout = (RelativeLayout) findViewById(R.id.zep_layout);
         ImageButton login_logout_btn = (ImageButton) this.findViewById(R.id.login_logout_btn);
         if (socket.connected() && connected == true) {
 
@@ -589,13 +598,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             login_logout_btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
-
                     connected = true;
                     initialize();
-                    if (socket.connected() == false) {
-                        Clink.show(EspacePersonnelActivity.this, "réessayez une autre fois si non configurer l'adresse ip et le port depuis le menu paramètres de connexion");
-                    }
                     setInterface();
                 }
 
@@ -632,8 +636,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             listArtifact.add(artifact);
 
             artifactAdapter.notifyDataSetChanged();
-            // socket.emit("EVT_ReceptionArtefactIntoZE", artifact.toJSONImage());
-            // Log.i("json :",artifact.toJSONImage().toString());
+
 
         }
 
@@ -669,9 +672,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     }
 
 
-
-
-
     //get & set pseudo, ip
     String pseudo;
 
@@ -694,7 +694,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
         return hasImage;
     }
-
 
 
 }

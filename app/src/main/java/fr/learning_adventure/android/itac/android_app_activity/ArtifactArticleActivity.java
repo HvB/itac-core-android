@@ -25,21 +25,22 @@ public class ArtifactArticleActivity extends ActionBarActivity {
         String date = getIntent().getStringExtra("date");
         List<Modificateurs> listModificateurs = (List<Modificateurs>) getIntent().getSerializableExtra("modificateurs");
 
-        LinearLayout modificateursLayout = (LinearLayout)findViewById(R.id.modificateurs);
-        TextView pseudoView =(TextView) findViewById(R.id.pseudo);
+        LinearLayout modificateursLayout = (LinearLayout) findViewById(R.id.modificateurs);
+        TextView pseudoView = (TextView) findViewById(R.id.pseudo);
         TextView titleTextView = (TextView) findViewById(R.id.titre);
         TextView messageTextView = (TextView) findViewById(R.id.message_input);
 
-        for(int i=0;i<listModificateurs.size();i++)
-        {   TextView modificateurTextView = new TextView(ArtifactArticleActivity.this);
+        for (int i = 0; i < listModificateurs.size(); i++) {
+            TextView modificateurTextView = new TextView(ArtifactArticleActivity.this);
             modificateurTextView.setText("modifié par " + listModificateurs.get(i).getModificateur() + "  le " + listModificateurs.get(i).getDateModification());
             modificateursLayout.addView(modificateurTextView);
+
         }
 
 
         titleTextView.setText(title);
         messageTextView.setText(message);
-        pseudoView.setText("Crée par "+pseudo+" le "+date);
+        pseudoView.setText("Crée par " + pseudo + " le " + date);
 
     }
 }

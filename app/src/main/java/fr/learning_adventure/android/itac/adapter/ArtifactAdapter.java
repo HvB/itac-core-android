@@ -25,12 +25,10 @@ public class ArtifactAdapter extends BaseAdapter {
     public int count;
 
 
-    public ArtifactAdapter(Context context, List<Artifact> artifacts)
-    {
-        this.context =context;
+    public ArtifactAdapter(Context context, List<Artifact> artifacts) {
+        this.context = context;
         this.artifacts = artifacts;
     }
-
 
 
     @Override
@@ -46,9 +44,10 @@ public class ArtifactAdapter extends BaseAdapter {
         return artifacts.get(position);
     }
 
-    public List<Artifact> getList(){
+    public List<Artifact> getList() {
         return artifacts;
     }
+
     @Override
     public long getItemId(int position) {
 
@@ -64,8 +63,7 @@ public class ArtifactAdapter extends BaseAdapter {
         Artifact artifact = artifacts.get(position);
 
 
-
-        if (artifact.getType()=="message") {
+        if (artifact.getType() == "message") {
             convertView = inflater.inflate(R.layout.artifact_article_adapter, null);
             mTitle = (TextView) convertView.findViewById(R.id.titre);
             mTitle.setText(artifact.getTitle());
@@ -73,10 +71,9 @@ public class ArtifactAdapter extends BaseAdapter {
             mDate.setText(artifact.getDateCreation());
 
 
-        }
-        else{
-            convertView  = inflater.inflate(R.layout.artifact_image_adapter, null);
-            mImage = (ImageView) convertView .findViewById(R.id.image);
+        } else {
+            convertView = inflater.inflate(R.layout.artifact_image_adapter, null);
+            mImage = (ImageView) convertView.findViewById(R.id.image);
             mImage.setImageBitmap(BitmapFactory.decodeFile(artifact.getContenu()));
             mDate = (TextView) convertView.findViewById(R.id.date);
             mDate.setText(artifact.getDateCreation());
@@ -84,7 +81,7 @@ public class ArtifactAdapter extends BaseAdapter {
 
         }
         //convertView.setOnDragListener(new MyArtifactDragListener(artifacts.get(position)));
-        return convertView ;
+        return convertView;
     }
 
 

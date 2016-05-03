@@ -20,22 +20,19 @@ import java.util.List;
 /**
  * Created by learninglab on 03/03/16.
  */
-public class Artifact implements Serializable{
+public class Artifact implements Serializable {
 
     private String idAr;
     private String title;
     private String creator;
     private String contenu;
-    private String typeConteneur ;
-    private String idConteneur ;
+    private String typeConteneur;
+    private String idConteneur;
     private String proprietaire;
     private String dateCreation;
     private String dateDerniereModification;
     private List<Modificateurs> modificateurs;
     private String type;
-
-
-
 
 
     private final static String JSON_IDAR = "idAr";
@@ -45,10 +42,10 @@ public class Artifact implements Serializable{
     private final static String JSON_IDCONTENEUR = "idConteneur";
     private final static String JSON_TYPECONTENEUR = "typeConteneur";
     private final static String JSON_DATECREATION = "dateCreation";
-    private final static String JSON_DATEDERNIEREMODIFICATION= "derniereModification";
-    private final static String JSON_MODIFICATEURS= "modificateurs";
-    private final static String JSON_MODIFICATEUR= "modifier";
-    private final static String JSON_DATEMODIFICATION= "modifiedDate";
+    private final static String JSON_DATEDERNIEREMODIFICATION = "derniereModification";
+    private final static String JSON_MODIFICATEURS = "modificateurs";
+    private final static String JSON_MODIFICATEUR = "modifier";
+    private final static String JSON_DATEMODIFICATION = "modifiedDate";
     private final static String JSON_TITLE = "titre";
     private final static String JSON_CONTENU = "contenu";
 
@@ -118,7 +115,6 @@ public class Artifact implements Serializable{
     }
 
 
-
     public String getType() {
         return type;
     }
@@ -126,6 +122,7 @@ public class Artifact implements Serializable{
     public void setType(String type) {
         this.type = type;
     }
+
     public String getTypeConteneur() {
         return typeConteneur;
     }
@@ -143,8 +140,7 @@ public class Artifact implements Serializable{
     }
 
 
-
-    public Artifact( String creator) {
+    public Artifact(String creator) {
         this.idAr = null;
         this.creator = creator;
         this.proprietaire = null;
@@ -153,14 +149,10 @@ public class Artifact implements Serializable{
         this.typeConteneur = null;
         this.dateCreation = null;
         this.dateDerniereModification = null;
-        this.modificateurs=null;
+        this.modificateurs = null;
         this.title = null;
         this.contenu = null;
     }
-
-
-
-
 
 
     public JSONObject toJSONMessage() {
@@ -176,11 +168,11 @@ public class Artifact implements Serializable{
             object.putOpt(Artifact.JSON_DATEDERNIEREMODIFICATION, this.dateDerniereModification);
             JSONArray jsonArr = new JSONArray();
 
-            for (Modificateurs mod : this.getModificateurs() ) {
+            for (Modificateurs mod : this.getModificateurs()) {
 
                 JSONObject pnObj = new JSONObject();
 
-                pnObj.put(Artifact.JSON_MODIFICATEUR,mod.getModificateur());
+                pnObj.put(Artifact.JSON_MODIFICATEUR, mod.getModificateur());
 
                 pnObj.put(Artifact.JSON_DATEMODIFICATION, mod.getDateModification());
 
@@ -199,6 +191,7 @@ public class Artifact implements Serializable{
         }
         return object;
     }
+
     public JSONObject toJSONImage() {
         JSONObject object = new JSONObject();
         try {

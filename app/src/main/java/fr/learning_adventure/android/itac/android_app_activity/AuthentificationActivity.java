@@ -17,10 +17,8 @@ import fr.learning_adventure.android.itac.widget.Clink;
 public class AuthentificationActivity extends ActionBarActivity {
 
 
-
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_authentification);
         final AvatarAdapter avatarAdapter = new AvatarAdapter(this);
@@ -50,19 +48,16 @@ public class AuthentificationActivity extends ActionBarActivity {
                                           //saisie des coordonnés personnels : à ajouter les controles de saisie
                                           if (pseudoText.getText().toString().equals("")) {
                                               Clink.show(AuthentificationActivity.this, "veuillez saisir un pseudo");
-                                          }
-                                         else if(avatarAdapter.getSelectedPosition()<0){
+                                          } else if (avatarAdapter.getSelectedPosition() < 0) {
                                               Clink.show(AuthentificationActivity.this, "veuillez choisir un avatar");
 
-                                          }
-
-                                              else {
+                                          } else {
                                               //passer à l'activité connexion en envoyant le parametre pseudo
                                               Intent intent = new Intent(AuthentificationActivity.this, EspacePersonnelActivity.class);
                                               intent.putExtra("pseudoName", pseudoText.getText().toString());
-                                              intent.putExtra("avatarPosition",avatarAdapter.getSelectedPosition());
+                                              intent.putExtra("avatarPosition", avatarAdapter.getSelectedPosition());
                                               intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                                                                                AuthentificationActivity.this.startActivity(intent);
+                                              AuthentificationActivity.this.startActivity(intent);
                                           }
 
                                       }

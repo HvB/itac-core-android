@@ -23,10 +23,10 @@ public class ArtifactImageActivity extends ActionBarActivity {
         String pseudo = getIntent().getStringExtra("pseudo");
 
 
-        TextView pseudoView =(TextView) findViewById(R.id.pseudo);
+        TextView pseudoView = (TextView) findViewById(R.id.pseudo);
         ImageView imageView = (ImageView) findViewById(R.id.image);
 
-        pseudoView.setText("Crée par "+pseudo+" le "+date);
+        pseudoView.setText("Crée par " + pseudo + " le " + date);
         imageView.setImageBitmap(BitmapFactory.decodeFile(imagepath));
     }
 }

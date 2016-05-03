@@ -17,42 +17,41 @@ import fr.learning_adventure.android.itac.model.PassObject;
 public class MyDragListenerZP implements View.OnDragListener {
 
 
+    LinearLayout trashEditLayout;
 
-    LinearLayout trashEditLayout ;
+    @Override
+    public boolean onDrag(View v, DragEvent event) {
+        switch (event.getAction()) {
+            case DragEvent.ACTION_DRAG_STARTED:
+                break;
+            case DragEvent.ACTION_DRAG_ENTERED:
+                break;
+            case DragEvent.ACTION_DRAG_EXITED:
+                break;
+            case DragEvent.ACTION_DROP:
 
-        @Override
-        public boolean onDrag(View v, DragEvent event) {
-            switch (event.getAction()) {
-                case DragEvent.ACTION_DRAG_STARTED:
-                    break;
-                case DragEvent.ACTION_DRAG_ENTERED:
-                    break;
-                case DragEvent.ACTION_DRAG_EXITED:
-                    break;
-                case DragEvent.ACTION_DROP:
+                PassObject passObj = (PassObject) event.getLocalState();
+                int position = passObj.position;
+                View view = passObj.view;
+                Artifact passedItem = passObj.artifact;
+                List<Artifact> srcList = passObj.srcList;
 
-                    PassObject passObj = (PassObject)event.getLocalState();
-                    int position = passObj.position;
-                    View view = passObj.view;
-                    Artifact passedItem = passObj.artifact;
-                    List<Artifact> srcList = passObj.srcList;
-
-                    AbsListView oldParent = (AbsListView)view.getParent();
-                    ArtifactAdapter srcAdapter = (ArtifactAdapter) oldParent.getAdapter();
-                    srcList.remove(position);
-                    srcAdapter.notifyDataSetChanged();
+                AbsListView oldParent = (AbsListView) view.getParent();
+                ArtifactAdapter srcAdapter = (ArtifactAdapter) oldParent.getAdapter();
+                srcList.remove(position);
+                srcAdapter.notifyDataSetChanged();
 
 
-                    break;
-                case DragEvent.ACTION_DRAG_ENDED:
+                break;
+            case DragEvent.ACTION_DRAG_ENDED:
 
-                default:
-                    break;
-            }
-
-            return true;
+            default:
+                break;
         }
 
-
+        return true;
     }
+
+
+}
 

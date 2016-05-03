@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="fr.learning_adventure.android.itac">
-    <uses-sdk android:minSdkVersion="15"
-              android:targetSdkVersion="17"/>
+
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -40,13 +39,9 @@
 
         <activity
             android:name=".android_app_activity.ArtifactArticleActivity"
-            android:label="@string/app_name" >
+            android:label="ITAC" >
         </activity>
 
-        <activity
-            android:name=".android_app_activity.AuthenificationExterneActivity"
-            android:label="@string/app_name" >
-        </activity>
 
         <activity
             android:name=".android_app_activity.EspacePersonnelActivity"

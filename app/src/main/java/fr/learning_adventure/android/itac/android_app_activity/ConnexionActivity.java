@@ -37,8 +37,8 @@ public class ConnexionActivity extends Activity {
                                               Clink.show(ConnexionActivity.this, "veuillez saisir l'adresse IP");
                                           } else if (port.getText().toString().equals("")) {
                                               Clink.show(ConnexionActivity.this, "veuillez saisir le numero de port");
-                                          }
-                                          else {ecrireFicher("http://" + ip.getText().toString() + ":" + port.getText().toString());
+                                          } else {
+                                              ecrireFicher("http://" + ip.getText().toString() + ":" + port.getText().toString());
                                               ConnexionActivity.this.finish();
                                           }
 
@@ -48,6 +48,7 @@ public class ConnexionActivity extends Activity {
         );
 
     }
+
     private void ecrireFicher(String monText) {
 
         File file = new File(

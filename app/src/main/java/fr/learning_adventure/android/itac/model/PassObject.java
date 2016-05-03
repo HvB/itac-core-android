@@ -11,8 +11,9 @@ public class PassObject {
     public View view;
     public Artifact artifact;
     public List<Artifact> srcList;
-    public  int position;
-    public PassObject(View v, Artifact i, List<Artifact> s,int position){
+    public int position;
+
+    public PassObject(View v, Artifact i, List<Artifact> s, int position) {
         view = v;
         artifact = i;
         srcList = s;

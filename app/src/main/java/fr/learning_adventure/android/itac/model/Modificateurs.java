@@ -5,8 +5,7 @@ import java.io.Serializable;
 /**
  * Created by learninglab on 26/04/16.
  */
-public class Modificateurs implements Serializable
-{
+public class Modificateurs implements Serializable {
     private String modificateur;
     private String dateModification;
 

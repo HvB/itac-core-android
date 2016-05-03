@@ -27,7 +27,7 @@ public class AvatarAdapter extends BaseAdapter {
     // Constructor
     public AvatarAdapter(Context c) {
         mContext = c;
-        this.selectedPosition= -1;
+        this.selectedPosition = -1;
     }
 
     public int getCount() {
@@ -42,24 +42,24 @@ public class AvatarAdapter extends BaseAdapter {
         return 0;
     }
 
-    public Integer getSelectedAvatar(){
-        if(this.selectedPosition<0){
+    public Integer getSelectedAvatar() {
+        if (this.selectedPosition < 0) {
             return 0;
+        } else {
+            return this.mThumbIds[this.selectedPosition];
         }
-        else {return this.mThumbIds[this.selectedPosition];}
     }
+
     // create a new ImageView for each item referenced by the Adapter
     public View getView(int position, View convertView, ViewGroup parent) {
         ImageView imageView;
 
         if (convertView == null) {
             imageView = new ImageView(mContext);
-            imageView.setLayoutParams(new GridView.LayoutParams(85 , 85));
+            imageView.setLayoutParams(new GridView.LayoutParams(85, 85));
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
-        }
-        else
-        {
+        } else {
             imageView = (ImageView) convertView;
         }
         imageView.setImageResource(mThumbIds[position]);
