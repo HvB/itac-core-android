@@ -102,6 +102,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         pseudoView.setText(pseudo);
         final LinearLayout trashLayout = (LinearLayout) findViewById(R.id.trashLayout);
         final LinearLayout editLayout = (LinearLayout) findViewById(R.id.editLayout);
+        final LinearLayout zPLayout = (LinearLayout) findViewById(R.id.zp_Layout);
         final LinearLayout trashEditLayout = (LinearLayout) findViewById(R.id.trashEditLayout);
         final EditText titre = (EditText) EspacePersonnelActivity.this.findViewById(R.id.titre);
         final EditText message = (EditText) EspacePersonnelActivity.this.findViewById(R.id.message_input);
@@ -149,7 +150,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                             srcList.remove(position);
                             destList.add(passedItem);
                             if (destList == listArtifactZEP) {
-                                passedItem.setIdAr("");
                                 passedItem.setProprietaire(pseudo);
                                 passedItem.setTypeConteneur("ZE");
                                 passedItem.setIdConteneur("test" + String.valueOf(selectedPosition));
@@ -258,6 +258,13 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
                                 }
                             });
+                        } else if (v == zPLayout) {
+                            passedItem.setTypeConteneur("ZP");
+                            if (passedItem.getType() == "message")
+                                socket.emit("EVT_ReceptionArtefactIntoZP", pseudo, String.valueOf(selectedPosition), "test" + String.valueOf(selectedPosition), passedItem.toJSONMessage().toString());
+                            else
+                                socket.emit("EVT_ReceptionArtefactIntoZP", pseudo, String.valueOf(selectedPosition), "test" + String.valueOf(selectedPosition), passedItem.toJSONImage().toString());
+
                         }
 
                         srcAdapter.notifyDataSetChanged();
@@ -365,7 +372,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
             }
         });
-
 
         //ajout de article
 
@@ -489,7 +495,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             case R.id.parametre:
                 Intent i = new Intent(EspacePersonnelActivity.this, ConnexionActivity.class);
                 EspacePersonnelActivity.this.startActivity(i);
-
                 return true;
 
 
@@ -543,8 +548,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             socket.on(Socket.EVENT_MESSAGE, new Emitter.Listener() {
                 @Override
                 public void call(Object... args) {
-
-
                     Log.i("Socket", "message");
                 }
             });
@@ -604,7 +607,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 }
 
             });
-
         }
     }
 

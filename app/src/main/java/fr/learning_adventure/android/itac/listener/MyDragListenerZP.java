@@ -35,7 +35,6 @@ public class MyDragListenerZP implements View.OnDragListener {
                 View view = passObj.view;
                 Artifact passedItem = passObj.artifact;
                 List<Artifact> srcList = passObj.srcList;
-
                 AbsListView oldParent = (AbsListView) view.getParent();
                 ArtifactAdapter srcAdapter = (ArtifactAdapter) oldParent.getAdapter();
                 srcList.remove(position);

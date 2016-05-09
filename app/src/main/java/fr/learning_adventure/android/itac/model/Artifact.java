@@ -114,7 +114,6 @@ public class Artifact implements Serializable {
         this.idAr = idAr;
     }
 
-
     public String getType() {
         return type;
     }

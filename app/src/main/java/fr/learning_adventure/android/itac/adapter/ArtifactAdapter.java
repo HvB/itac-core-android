@@ -18,11 +18,8 @@ public class ArtifactAdapter extends BaseAdapter {
     private List<Artifact> artifacts;
     private Context context;
     private TextView mTitle;
-    private TextView mPseudo;
-    private TextView mMessage;
     private ImageView mImage;
     private TextView mDate;
-    public int count;
 
 
     public ArtifactAdapter(Context context, List<Artifact> artifacts) {
