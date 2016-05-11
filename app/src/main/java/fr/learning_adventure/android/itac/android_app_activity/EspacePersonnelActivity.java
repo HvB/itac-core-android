@@ -260,6 +260,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                             });
                         } else if (v == zPLayout) {
                             passedItem.setTypeConteneur("ZP");
+                            srcList.remove(position);
                             if (passedItem.getType() == "message")
                                 socket.emit("EVT_ReceptionArtefactIntoZP", pseudo, String.valueOf(selectedPosition), "test" + String.valueOf(selectedPosition), passedItem.toJSONMessage().toString());
                             else
@@ -322,6 +323,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         artifactZEPLayout.setOnDragListener(myOnDragListener);
         trashLayout.setOnDragListener(myArtefactOnDragListener);
         editLayout.setOnDragListener(myArtefactOnDragListener);
+        zPLayout.setOnDragListener(myArtefactOnDragListener);
 
 
         listArtifactLayout.setAbsListView(listArtifactView);
