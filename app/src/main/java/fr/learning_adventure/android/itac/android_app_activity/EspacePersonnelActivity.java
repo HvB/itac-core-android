@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -15,7 +14,6 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Base64;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.Menu;
@@ -37,6 +35,8 @@ import android.widget.TextView;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
+
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -65,7 +65,7 @@ import fr.learning_adventure.android.itac.widget.LinearLayoutAbsListView;
 /**
  * Created by learninglab on 03/03/16.
  */
-public class EspacePersonnelActivity extends ActionBarActivity {
+public class  EspacePersonnelActivity extends ActionBarActivity {
     private static Socket socket;
     private final static String FILE_URI_SOCKET = "uri_socket.txt";
     Boolean connected = true;
@@ -305,8 +305,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 view.setVisibility(View.INVISIBLE);
                 trashEditLayout.setVisibility(View.VISIBLE);
                 optionsArtifactLayout.setVisibility(View.GONE);
-
-
                 return true;
             }
 
@@ -445,24 +443,60 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         });
 
 
-        //réception de l'image
-        socket.on("send_image", new Emitter.Listener() {
-
-            public void call(final Object... args) {
-                runOnUiThread(new Runnable() {
+        //envoie artefact de ZE vers ZP
+        socket.on("EVT_Envoie_ArtefactdeZEversZP", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                final JSONObject object = (JSONObject) args[0];
+                EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        String data = (String) args[0];
-                        byte[] decodedString = Base64.decode(data, Base64.DEFAULT);
-                        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                        //ImageView image = (ImageView) findViewById(R.id.imageReceived);
-                        //image.setImageBitmap(decodedByte);
+                        Artifact artifact = new Artifact(object);
+                        listArtifactZEP.remove(artifact);
+                        listArtifactZEPView.deferNotifyDataSetChanged();
+                    }
+                });
+            }
+        });
+
+
+        //envoie artefact de ZP vers ZE
+        socket.on("EVT_Envoie_ArtefactdeZPversZE", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                final JSONObject object = (JSONObject) args[0];
+                EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Artifact artifact = new Artifact(object);
+                        listArtifactZEP.add(artifact);
+                        listArtifactZEPView.deferNotifyDataSetChanged();
 
                     }
                 });
             }
-
         });
+
+
+
+        //réception de l'image
+//        socket.on("EVT_Envoie_ArtefactdeZEversZP", new Emitter.Listener() {
+//
+//            public void call(final Object... args) {
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        String data = (String) args[0];
+//                        byte[] decodedString = Base64.decode(data, Base64.DEFAULT);
+//                        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+//                        //ImageView image = (ImageView) findViewById(R.id.imageReceived);
+//                        //image.setImageBitmap(decodedByte);
+//
+//                    }
+//                });
+//            }
+//
+//        });
 
         //Réception message
         socket.on("EVT_ReponseOKConnexionZEP", new Emitter.Listener() {

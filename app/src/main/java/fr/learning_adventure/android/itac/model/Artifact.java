@@ -153,6 +153,24 @@ public class Artifact implements Serializable {
         this.contenu = null;
     }
 
+    public Artifact(JSONObject object) {
+        try {
+            this.idAr = object.getString(Artifact.JSON_IDAR);
+            this.creator = object.getString(Artifact.JSON_CREATOR);
+            this.proprietaire = object.getString(Artifact.JSON_PROPRIETAIRE);
+            this.type = object.getString(Artifact.JSON_TYPEARTEFACT);
+            this.idConteneur = object.getString(Artifact.JSON_IDCONTENEUR);
+            this.typeConteneur = object.getString(Artifact.JSON_TYPECONTENEUR);
+            this.dateCreation = object.getString(Artifact.JSON_DATECREATION);
+            this.dateDerniereModification = object.getString(Artifact.JSON_DATEDERNIEREMODIFICATION);
+            this.title = object.getString(Artifact.JSON_TITLE);
+            this.contenu = object.getString(Artifact.JSON_CONTENU);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public JSONObject toJSONMessage() {
         JSONObject object = new JSONObject();

@@ -12,8 +12,7 @@
         android:id="@+id/zp_Layout"
         android:layout_width="fill_parent"
         android:layout_height="25dp"
-        android:orientation="vertical">
-        </LinearLayout>
+        android:orientation="vertical"></LinearLayout>
 
 
     <RelativeLayout
@@ -91,8 +90,8 @@
         android:id="@+id/listArtifactLayout"
         android:layout_width="match_parent"
         android:layout_height="450dp"
-        android:padding="5dp"
-        android:layout_below="@id/zep_layout">
+        android:layout_below="@id/zep_layout"
+        android:padding="5dp">
 
         <GridView
             android:id="@+id/listArtifactView"
@@ -116,11 +115,11 @@
         android:id="@+id/artifact"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/listArtifactLayout"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:layout_marginTop="17dp"
         android:background="#007fff"
-        android:layout_below="@id/listArtifactLayout"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:visibility="invisible">
@@ -169,6 +168,7 @@
             android:contentDescription="Send"
             android:padding="5dp"
             android:src="@drawable/sent"></ImageButton>
+
         <ImageButton
             android:id="@+id/send_modified_button"
             android:layout_width="wrap_content"
@@ -178,8 +178,8 @@
             android:background="@null"
             android:contentDescription="Send"
             android:padding="5dp"
-            android:visibility="gone"
-            android:src="@drawable/sent">
+            android:src="@drawable/sent"
+            android:visibility="gone">
 
         </ImageButton>
 
@@ -187,81 +187,94 @@
     </RelativeLayout>
 
     <RelativeLayout
+        android:id="@+id/optionsArtifactLayout"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_margin="5dp"
         android:layout_below="@id/artifact"
-        android:id="@+id/optionsArtifactLayout">
+        android:layout_margin="5dp">
 
         <ImageButton
             android:id="@+id/addArtifact"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="75px"
             android:layout_marginLeft="16dp"
             android:background="@null"
-
             android:src="@drawable/images"></ImageButton>
 
         <ImageButton
             android:id="@+id/buttonLoadPicture"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="75px"
             android:layout_marginLeft="16dp"
             android:layout_toRightOf="@+id/addArtifact"
             android:background="@null"
-
             android:src="@drawable/gallery"></ImageButton>
 
         <ImageButton
             android:id="@+id/buttonTakePicture"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="75px"
             android:layout_marginLeft="16dp"
             android:layout_toRightOf="@+id/buttonLoadPicture"
             android:background="@null"
             android:src="@drawable/camera"></ImageButton>
     </RelativeLayout>
 
+    <LinearLayout
+        android:id="@+id/trashEditLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/artifact"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone">
+
         <LinearLayout
+            android:id="@+id/editLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:id="@+id/trashEditLayout"
-            android:layout_below="@+id/artifact"
-            android:visibility="gone">
+            android:orientation="horizontal">
 
-            <LinearLayout
-                android:id="@+id/editLayout"
+            <ImageButton
+                android:id="@+id/edit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toRightOf="@id/buttonTakePicture">
+                android:layout_marginLeft="16dp"
 
-                <ImageButton
-                    android:id="@+id/edit"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="16dp"
-
-                    android:background="@null"
-                    android:src="@drawable/edit"></ImageButton>
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/trashLayout"
+                android:background="@null"
+                android:src="@drawable/edit"></ImageButton>
+            <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <ImageButton
-                    android:id="@+id/trash"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="30dp"
-
-                    android:background="@null"
-                    android:src="@drawable/trash"></ImageButton>
-            </LinearLayout>
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:text="modifier" />
         </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/trashLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginLeft="30dp">
+
+            <ImageButton
+                android:id="@+id/trash"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+
+                android:background="@null"
+                android:src="@drawable/trash"></ImageButton>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:text="Supprimer" />
+        </LinearLayout>
+    </LinearLayout>
 
 </RelativeLayout>
 
