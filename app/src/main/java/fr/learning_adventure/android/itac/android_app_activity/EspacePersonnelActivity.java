@@ -36,6 +36,7 @@ import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -65,7 +66,7 @@ import fr.learning_adventure.android.itac.widget.LinearLayoutAbsListView;
 /**
  * Created by learninglab on 03/03/16.
  */
-public class  EspacePersonnelActivity extends ActionBarActivity {
+public class EspacePersonnelActivity extends ActionBarActivity {
     private static Socket socket;
     private final static String FILE_URI_SOCKET = "uri_socket.txt";
     Boolean connected = true;
@@ -136,7 +137,7 @@ public class  EspacePersonnelActivity extends ActionBarActivity {
                         PassObject passObj = (PassObject) event.getLocalState();
                         int position = passObj.position;
                         View view = passObj.view;
-                        Artifact passedItem = passObj.artifact;
+                        final Artifact passedItem = passObj.artifact;
                         List<Artifact> srcList = passObj.srcList;
                         AbsListView oldParent = (AbsListView) view.getParent();
                         ArtifactAdapter srcAdapter = (ArtifactAdapter) oldParent.getAdapter();
@@ -162,11 +163,46 @@ public class  EspacePersonnelActivity extends ActionBarActivity {
                         }
 
 
+                        //Réponse envoie artefact vers ZE
+                        socket.on("EVT_NewArtefactInZE", new Emitter.Listener() {
+
+                            @Override
+                            public void call(Object... args) {
+
+                                final String chaineJson = (String) args[2];
+
+
+
+                                EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        JSONObject obj = null;
+                                        try {
+                                             obj = new JSONObject(chaineJson);
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                        Artifact artifact = new Artifact(obj);
+
+                                    }
+                                });
+                                Log.i("msg 1 :", (String) args[0]);
+                                Log.i("msg 2 :", (String) args[1]);
+                                Log.i("msg 3 :", (String) args[2]);
+                                Log.i("id :", passedItem.toJSONMessage().toString());
+
+
+                            }
+
+                        });
+
+
                         srcAdapter.notifyDataSetChanged();
                         destAdapter.notifyDataSetChanged();
 
                         //smooth scroll to bottom
                         newParent.absListView.smoothScrollToPosition(destAdapter.getCount() - 1);
+                        zPLayout.setVisibility(View.GONE);
                         trashEditLayout.setVisibility(View.GONE);
                         optionsArtifactLayout.setVisibility(View.VISIBLE);
 
@@ -267,9 +303,28 @@ public class  EspacePersonnelActivity extends ActionBarActivity {
                                 socket.emit("EVT_ReceptionArtefactIntoZP", pseudo, String.valueOf(selectedPosition), "test" + String.valueOf(selectedPosition), passedItem.toJSONImage().toString());
 
                         }
+                        //Réponse envoie artefact vers ZE
+                        socket.on("EVT_NewArtefactInZP", new Emitter.Listener() {
+
+
+                            @Override
+                            public void call(Object... args) {
+
+                                final JSONObject object = (JSONObject) args[2];
+                                EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Artifact artifact = new Artifact(object);
+                                        passedItem.setIdAr(artifact.getIdAr());
+
+                                    }
+                                });
+                            }
+                        });
 
                         srcAdapter.notifyDataSetChanged();
                         trashEditLayout.setVisibility(View.GONE);
+                        zPLayout.setVisibility(View.GONE);
                         optionsArtifactLayout.setVisibility(View.VISIBLE);
 
 
@@ -303,6 +358,7 @@ public class  EspacePersonnelActivity extends ActionBarActivity {
                 View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
                 view.startDrag(data, shadowBuilder, passObj, 0);
                 view.setVisibility(View.INVISIBLE);
+                zPLayout.setVisibility(View.VISIBLE);
                 trashEditLayout.setVisibility(View.VISIBLE);
                 optionsArtifactLayout.setVisibility(View.GONE);
                 return true;
@@ -444,16 +500,24 @@ public class  EspacePersonnelActivity extends ActionBarActivity {
 
 
         //envoie artefact de ZE vers ZP
-        socket.on("EVT_Envoie_ArtefactdeZEversZP", new Emitter.Listener() {
+        socket.on("EVT_EnvoieArtefactdeZEversZP", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
                 final JSONObject object = (JSONObject) args[0];
+
+                final String id = (String) args[0];
                 EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         Artifact artifact = new Artifact(object);
-                        listArtifactZEP.remove(artifact);
-                        listArtifactZEPView.deferNotifyDataSetChanged();
+                        for (int i = 0; i < listArtifactZEP.size(); i++) {
+                            Artifact art = listArtifactZEP.get(i);
+                            if (art.getIdAr() == artifact.getIdAr()) {
+                                listArtifactZEP.remove(i);
+                                artifactZEPAdapter.notifyDataSetChanged();
+                            }
+                        }
+
                     }
                 });
             }
@@ -461,7 +525,7 @@ public class  EspacePersonnelActivity extends ActionBarActivity {
 
 
         //envoie artefact de ZP vers ZE
-        socket.on("EVT_Envoie_ArtefactdeZPversZE", new Emitter.Listener() {
+        socket.on("EVT_EnvoieArtefactdeZPversZE", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
                 final JSONObject object = (JSONObject) args[0];
@@ -470,13 +534,12 @@ public class  EspacePersonnelActivity extends ActionBarActivity {
                     public void run() {
                         Artifact artifact = new Artifact(object);
                         listArtifactZEP.add(artifact);
-                        listArtifactZEPView.deferNotifyDataSetChanged();
+                        artifactZEPAdapter.notifyDataSetChanged();
 
                     }
                 });
             }
         });
-
 
 
         //réception de l'image

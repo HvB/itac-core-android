@@ -154,6 +154,8 @@ public class Artifact implements Serializable {
     }
 
     public Artifact(JSONObject object) {
+        JSONArray jsonArr ;
+        Modificateurs mods;
         try {
             this.idAr = object.getString(Artifact.JSON_IDAR);
             this.creator = object.getString(Artifact.JSON_CREATOR);
@@ -165,6 +167,15 @@ public class Artifact implements Serializable {
             this.dateDerniereModification = object.getString(Artifact.JSON_DATEDERNIEREMODIFICATION);
             this.title = object.getString(Artifact.JSON_TITLE);
             this.contenu = object.getString(Artifact.JSON_CONTENU);
+
+            for (int i = 0; i < jsonArr.length(); i++) {
+                JSONObject obj = jsonArr.getJSONObject(i);
+                String modificateur = obj.optString(Artifact.JSON_MODIFICATEUR);
+                String date = obj.optString(Artifact.JSON_DATEMODIFICATION);
+                Modificateurs mod = new Modificateurs(modificateur, date);
+                mods.add(mod);
+            }
+
 
         } catch (JSONException e) {
             e.printStackTrace();
