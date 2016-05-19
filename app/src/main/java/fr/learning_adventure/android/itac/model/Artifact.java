@@ -154,8 +154,8 @@ public class Artifact implements Serializable {
     }
 
     public Artifact(JSONObject object) {
-        JSONArray jsonArr ;
-        Modificateurs mods;
+
+        List<Modificateurs> mods = null;
         try {
             this.idAr = object.getString(Artifact.JSON_IDAR);
             this.creator = object.getString(Artifact.JSON_CREATOR);
@@ -164,23 +164,28 @@ public class Artifact implements Serializable {
             this.idConteneur = object.getString(Artifact.JSON_IDCONTENEUR);
             this.typeConteneur = object.getString(Artifact.JSON_TYPECONTENEUR);
             this.dateCreation = object.getString(Artifact.JSON_DATECREATION);
-            this.dateDerniereModification = object.getString(Artifact.JSON_DATEDERNIEREMODIFICATION);
-            this.title = object.getString(Artifact.JSON_TITLE);
             this.contenu = object.getString(Artifact.JSON_CONTENU);
 
-            for (int i = 0; i < jsonArr.length(); i++) {
-                JSONObject obj = jsonArr.getJSONObject(i);
-                String modificateur = obj.optString(Artifact.JSON_MODIFICATEUR);
-                String date = obj.optString(Artifact.JSON_DATEMODIFICATION);
-                Modificateurs mod = new Modificateurs(modificateur, date);
-                mods.add(mod);
-            }
+                this.title = object.getString(Artifact.JSON_TITLE);
+                this.dateDerniereModification = object.getString(Artifact.JSON_DATEDERNIEREMODIFICATION);
+                JSONArray jsonArr = object.getJSONArray(Artifact.JSON_MODIFICATEURS);
+
+                for (int i = 0; i < jsonArr.length(); i++) {
+                    JSONObject objet = jsonArr.getJSONObject(i);
+                    String modificateur = objet.optString(Artifact.JSON_MODIFICATEUR);
+                    String date = objet.optString(Artifact.JSON_DATEMODIFICATION);
+                    Modificateurs mod = new Modificateurs(modificateur, date);
+                    mods.add(mod);
+
+                }
+            this.modificateurs=mods;
 
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
-    }
+
+        }
 
 
     public JSONObject toJSONMessage() {

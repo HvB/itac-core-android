@@ -60,7 +60,7 @@ public class ArtifactAdapter extends BaseAdapter {
         Artifact artifact = artifacts.get(position);
 
 
-        if (artifact.getType() == "message") {
+        if (artifact.getType().equals("message")) {
             convertView = inflater.inflate(R.layout.artifact_article_adapter, null);
             mTitle = (TextView) convertView.findViewById(R.id.titre);
             mTitle.setText(artifact.getTitle());
