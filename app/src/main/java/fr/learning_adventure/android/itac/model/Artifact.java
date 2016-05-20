@@ -34,6 +34,16 @@ public class Artifact implements Serializable {
     private List<Modificateurs> modificateurs;
     private String type;
 
+    public String getCreated() {
+        return created;
+    }
+
+    public void setCreated(String created) {
+        this.created = created;
+    }
+
+    private String created ;
+
 
     private final static String JSON_IDAR = "idAr";
     private final static String JSON_CREATOR = "createur";

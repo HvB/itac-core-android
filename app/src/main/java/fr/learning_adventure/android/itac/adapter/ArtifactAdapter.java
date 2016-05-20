@@ -1,7 +1,9 @@
 package fr.learning_adventure.android.itac.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,10 +72,21 @@ public class ArtifactAdapter extends BaseAdapter {
 
         } else {
             convertView = inflater.inflate(R.layout.artifact_image_adapter, null);
+            if(artifact.getCreated().equals("true"))
+            {
             mImage = (ImageView) convertView.findViewById(R.id.image);
             mImage.setImageBitmap(BitmapFactory.decodeFile(artifact.getContenu()));
-            mDate = (TextView) convertView.findViewById(R.id.date);
-            mDate.setText(artifact.getDateCreation());
+            }
+            else
+
+            {
+                byte[] decodedString = Base64.decode(artifact.getContenu(), Base64.DEFAULT);
+                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                mImage.setImageBitmap(decodedByte);
+            }
+
+           // mDate = (TextView) convertView.findViewById(R.id.date);
+           // mDate.setText(artifact.getDateCreation());
 
 
         }

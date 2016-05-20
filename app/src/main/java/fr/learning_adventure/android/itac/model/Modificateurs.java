@@ -14,7 +14,7 @@ public class Modificateurs implements Serializable {
         this.modificateur = modificateur;
         this.dateModification = dateModification;
     }
-
+    
     public String getModificateur() {
         return modificateur;
     }

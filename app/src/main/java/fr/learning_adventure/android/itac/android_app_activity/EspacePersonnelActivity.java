@@ -151,10 +151,11 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                             destList.add(passedItem);
 
                             if (destList == listArtifactZEP) {
+
                                 passedItem.setProprietaire(pseudo);
                                 passedItem.setTypeConteneur("ZE");
                                 passedItem.setIdConteneur("test" + String.valueOf(selectedPosition));
-                                if (passedItem.getType() == "message")
+                                if (passedItem.getType().equals("message"))
                                     socket.emit("EVT_ReceptionArtefactIntoZE", pseudo, String.valueOf(selectedPosition), "test" + String.valueOf(selectedPosition), passedItem.toJSONMessage().toString());
                                 else
                                     socket.emit("EVT_ReceptionArtefactIntoZE", pseudo, String.valueOf(selectedPosition), "test" + String.valueOf(selectedPosition), passedItem.toJSONImage().toString());
@@ -394,6 +395,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     intent.putExtra("dateDerniereModification", artifact.getDateDerniereModification());
                     intent.putExtra("modificateurs", (Serializable) artifact.getModificateurs());
                     intent.putExtra("avatarPosition", selectedPosition);
+                    intent.putExtra("created", artifact.getCreated());
+
+
                     //Start details activity
                     startActivity(intent);
                 } else {
@@ -534,9 +538,10 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         }
 
                         Artifact artifact = new Artifact(object);
-                        Log.i("titre",artifact.getTitle().toString());
+                        //Log.i("titre",artifact.getTitle().toString());
                        // Log.i("modificateurs",artifact.getModificateurs().toString());
-                        Log.i("contenu",artifact.getContenu().toString());
+                        //Log.i("contenu",artifact.getContenu().toString());
+                        artifact.setCreated("false");
                         listArtifactZEP.add(artifact);
                         artifactZEPAdapter.notifyDataSetChanged();
 
@@ -556,8 +561,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 //                        String data = (String) args[0];
 //                        byte[] decodedString = Base64.decode(data, Base64.DEFAULT);
 //                        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-//                        //ImageView image = (ImageView) findViewById(R.id.imageReceived);
-//                        //image.setImageBitmap(decodedByte);
+//                        ImageView image = (ImageView) findViewById(R.id.imageReceived);
+//                        image.setImageBitmap(decodedByte);
 //
 //                    }
 //                });
@@ -735,6 +740,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             Artifact artifact = new Artifact(getPseudo());
             artifact.setContenu(picturePath);
             artifact.setType("image");
+            artifact.setCreated("true");
+
+
             DateFormat df = new SimpleDateFormat("dd-MM-yyyy 'à 'HH:mm");
             String date = df.format(Calendar.getInstance().getTime());
             artifact.setDateCreation(date);
@@ -766,6 +774,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             Artifact artifact = new Artifact(getPseudo());
             artifact.setContenu(destination.getAbsolutePath());
             artifact.setType("image");
+            artifact.setCreated("true");
+
             DateFormat df = new SimpleDateFormat("dd-MM-yyyy 'à 'HH:mm");
             String date = df.format(Calendar.getInstance().getTime());
             artifact.setDateCreation(date);
