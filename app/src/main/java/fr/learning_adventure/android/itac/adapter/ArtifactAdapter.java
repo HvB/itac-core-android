@@ -77,6 +77,7 @@ public class ArtifactAdapter extends BaseAdapter {
             mImage = (ImageView) convertView.findViewById(R.id.image);
             mImage.setImageBitmap(BitmapFactory.decodeFile(artifact.getContenu()));
             }
+
             else
 
             {
