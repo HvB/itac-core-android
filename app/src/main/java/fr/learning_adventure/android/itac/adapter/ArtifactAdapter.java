@@ -72,7 +72,7 @@ public class ArtifactAdapter extends BaseAdapter {
 
         } else {
             convertView = inflater.inflate(R.layout.artifact_image_adapter, null);
-            if(artifact.getCreated().equals("true"))
+            if(artifact.getCreated()=="true")
             {
             mImage = (ImageView) convertView.findViewById(R.id.image);
             mImage.setImageBitmap(BitmapFactory.decodeFile(artifact.getContenu()));
@@ -83,7 +83,9 @@ public class ArtifactAdapter extends BaseAdapter {
             {
                 byte[] decodedString = Base64.decode(artifact.getContenu(), Base64.DEFAULT);
                 Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                mImage.setImageBitmap(decodedByte);
+                mImage.setImageBitmap(Bitmap.createScaledBitmap(decodedByte, mImage.getWidth(), mImage.getHeight(), false));
+                mImage.setVisibility(View.VISIBLE);
+
             }
 
            // mDate = (TextView) convertView.findViewById(R.id.date);
