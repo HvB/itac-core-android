@@ -59,6 +59,7 @@ public class AvatarAdapter extends BaseAdapter {
             imageView.setLayoutParams(new GridView.LayoutParams(85, 85));
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
+
         } else {
             imageView = (ImageView) convertView;
         }

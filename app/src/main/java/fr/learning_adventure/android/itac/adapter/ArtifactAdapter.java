@@ -15,6 +15,7 @@ import java.util.List;
 
 import fr.learning_adventure.android.itac.R;
 import fr.learning_adventure.android.itac.model.Artifact;
+import fr.learning_adventure.android.itac.model.RoundedImage;
 
 public class ArtifactAdapter extends BaseAdapter {
     private List<Artifact> artifacts;
@@ -22,6 +23,7 @@ public class ArtifactAdapter extends BaseAdapter {
     private TextView mTitle;
     private ImageView mImage;
     private TextView mDate;
+    RoundedImage roundedImage;
 
 
     public ArtifactAdapter(Context context, List<Artifact> artifacts) {
@@ -66,34 +68,34 @@ public class ArtifactAdapter extends BaseAdapter {
             convertView = inflater.inflate(R.layout.artifact_article_adapter, null);
             mTitle = (TextView) convertView.findViewById(R.id.titre);
             mTitle.setText(artifact.getTitle());
-            mDate = (TextView) convertView.findViewById(R.id.date);
-            mDate.setText(artifact.getDateCreation());
+//            mDate = (TextView) convertView.findViewById(R.id.date);
+//            mDate.setText(artifact.getDateCreation());
+
 
 
         } else {
             convertView = inflater.inflate(R.layout.artifact_image_adapter, null);
-            if(artifact.getCreated()=="true")
+            if(artifact.getCreated().equals("true"))
             {
             mImage = (ImageView) convertView.findViewById(R.id.image);
-            mImage.setImageBitmap(BitmapFactory.decodeFile(artifact.getContenu()));
+                roundedImage = new RoundedImage(BitmapFactory.decodeFile(artifact.getContenu()));
+                mImage.setImageDrawable(roundedImage);
+            //mImage.setImageBitmap(BitmapFactory.decodeFile(artifact.getContenu()));
             }
 
             else
 
             {
+                mImage = (ImageView) convertView.findViewById(R.id.image);
                 byte[] decodedString = Base64.decode(artifact.getContenu(), Base64.DEFAULT);
                 Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                mImage.setImageBitmap(Bitmap.createScaledBitmap(decodedByte, mImage.getWidth(), mImage.getHeight(), false));
-                mImage.setVisibility(View.VISIBLE);
+                roundedImage = new RoundedImage(decodedByte);
 
+                mImage.setImageDrawable(roundedImage);
             }
-
-           // mDate = (TextView) convertView.findViewById(R.id.date);
-           // mDate.setText(artifact.getDateCreation());
 
 
         }
-        //convertView.setOnDragListener(new MyArtifactDragListener(artifacts.get(position)));
         return convertView;
     }
 

@@ -24,6 +24,7 @@ import android.view.View.OnDragListener;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
@@ -109,8 +110,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         final EditText message = (EditText) EspacePersonnelActivity.this.findViewById(R.id.message_input);
         final RelativeLayout artifactLayout = (RelativeLayout) this.findViewById(R.id.artifact);
         final RelativeLayout optionsArtifactLayout = (RelativeLayout) this.findViewById(R.id.optionsArtifactLayout);
-        final ImageButton modifiedButton = (ImageButton) this.findViewById(R.id.send_modified_button);
-        final ImageButton button = (ImageButton) this.findViewById(R.id.send_button);
+        final Button modifiedButton = (Button) this.findViewById(R.id.send_modified_button);
+        final Button button = (Button) this.findViewById(R.id.send_button);
 
         //apel aux méthodes initialize et setinterface: initialiser socket et gerer interface
         initialize();
@@ -243,7 +244,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         ArtifactAdapter srcAdapter = (ArtifactAdapter) oldParent.getAdapter();
                         if (v == trashLayout) {
                             srcList.remove(position);
-                        } else if (v == editLayout && passedItem.getType() == "message") {
+                        } else if (v == editLayout && passedItem.getType().equals("message")) {
                             titre.setText(passedItem.getTitle());
                             message.setText(passedItem.getContenu());
                             artifactLayout.setVisibility(View.VISIBLE);
@@ -290,9 +291,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                             passedItem.setTypeConteneur("ZP");
                             srcList.remove(position);
                             if (passedItem.getType() == "message")
-                                socket.emit("EVT_ReceptionArtefactIntoZP", pseudo, String.valueOf(selectedPosition), "test" + String.valueOf(selectedPosition), passedItem.toJSONMessage().toString());
+                                socket.emit("EVT_ReceptionArtefactIntoZP", pseudo, String.valueOf(selectedPosition), "zoneEchange" + String.valueOf(selectedPosition), passedItem.toJSONMessage().toString());
                             else
-                                socket.emit("EVT_ReceptionArtefactIntoZP", pseudo, String.valueOf(selectedPosition), "test" + String.valueOf(selectedPosition), passedItem.toJSONImage().toString());
+                                socket.emit("EVT_ReceptionArtefactIntoZP", pseudo, String.valueOf(selectedPosition), "zoneEchange" + String.valueOf(selectedPosition), passedItem.toJSONImage().toString());
 
                         }
                         //Réponse envoie artefact vers ZE
@@ -395,7 +396,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     intent.putExtra("dateDerniereModification", artifact.getDateDerniereModification());
                     intent.putExtra("modificateurs", (Serializable) artifact.getModificateurs());
                     intent.putExtra("avatarPosition", selectedPosition);
-                    intent.putExtra("created", artifact.getCreated());
 
 
                     //Start details activity
@@ -405,6 +405,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     intent.putExtra("pseudo", artifact.getCreator());
                     intent.putExtra("image", artifact.getContenu());
                     intent.putExtra("date", artifact.getDateCreation());
+                    intent.putExtra("created", artifact.getCreated());
+
                     startActivity(intent);
                 }
             }
@@ -412,9 +414,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
 
         //gestion de l'affichage du layout d'ajout aartifact
-        final ImageButton buttonLoadImage = (ImageButton) findViewById(R.id.buttonLoadPicture);
-        final ImageButton buttonTakeImage = (ImageButton) this.findViewById(R.id.buttonTakePicture);
-        final ImageButton addArtifactBtn = (ImageButton) this.findViewById(R.id.addArtifact);
+        final Button buttonLoadImage = (Button) findViewById(R.id.buttonLoadPicture);
+        final Button buttonTakeImage = (Button) this.findViewById(R.id.buttonTakePicture);
+        final Button addArtifactBtn = (Button) this.findViewById(R.id.addArtifact);
         addArtifactBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -459,7 +461,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             }
         });
 
-        ImageButton exitButton = (ImageButton) this.findViewById(R.id.exit_button);
+        Button exitButton = (Button) this.findViewById(R.id.exit_button);
         exitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -544,6 +546,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         artifact.setCreated("false");
                         listArtifactZEP.add(artifact);
                         artifactZEPAdapter.notifyDataSetChanged();
+                        Log.i("artifact :",artifact.toJSONMessage().toString());
 
                     }
                 });

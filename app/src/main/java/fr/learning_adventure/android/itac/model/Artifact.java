@@ -160,12 +160,10 @@ public class Artifact implements Serializable {
         this.dateDerniereModification = null;
         this.modificateurs = null;
         this.title = null;
-        this.contenu = null;
-    }
+        this.contenu = null;    }
 
     public Artifact(JSONObject object) {
 
-        List<Modificateurs> mods = null;
         try {
             this.idAr = object.getString(Artifact.JSON_IDAR);
             this.creator = object.getString(Artifact.JSON_CREATOR);
@@ -175,21 +173,20 @@ public class Artifact implements Serializable {
             this.typeConteneur = object.getString(Artifact.JSON_TYPECONTENEUR);
             this.dateCreation = object.getString(Artifact.JSON_DATECREATION);
             this.contenu = object.getString(Artifact.JSON_CONTENU);
-
+            if (this.type.equals("message")) {
                 this.title = object.getString(Artifact.JSON_TITLE);
                 this.dateDerniereModification = object.getString(Artifact.JSON_DATEDERNIEREMODIFICATION);
                 JSONArray jsonArr = object.getJSONArray(Artifact.JSON_MODIFICATEURS);
 
                 for (int i = 0; i < jsonArr.length(); i++) {
                     JSONObject objet = jsonArr.getJSONObject(i);
-                    String modificateur = objet.optString(Artifact.JSON_MODIFICATEUR);
-                    String date = objet.optString(Artifact.JSON_DATEMODIFICATION);
+                    String modificateur = objet.getString(Artifact.JSON_MODIFICATEUR);
+                    String date = objet.getString(Artifact.JSON_DATEMODIFICATION);
                     Modificateurs mod = new Modificateurs(modificateur, date);
-                    mods.add(mod);
+                    this.modificateurs.add(mod);
 
                 }
-            this.modificateurs=mods;
-
+            }
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -210,19 +207,19 @@ public class Artifact implements Serializable {
             object.putOpt(Artifact.JSON_DATECREATION, this.dateCreation);
             object.putOpt(Artifact.JSON_DATEDERNIEREMODIFICATION, this.dateDerniereModification);
             JSONArray jsonArr = new JSONArray();
+            if (this.getModificateurs() != null) {
+                for (Modificateurs mod : this.getModificateurs()) {
 
-            for (Modificateurs mod : this.getModificateurs()) {
+                    JSONObject pnObj = new JSONObject();
 
-                JSONObject pnObj = new JSONObject();
+                    pnObj.put(Artifact.JSON_MODIFICATEUR, mod.getModificateur());
 
-                pnObj.put(Artifact.JSON_MODIFICATEUR, mod.getModificateur());
+                    pnObj.put(Artifact.JSON_DATEMODIFICATION, mod.getDateModification());
 
-                pnObj.put(Artifact.JSON_DATEMODIFICATION, mod.getDateModification());
+                    jsonArr.put(pnObj);
 
-                jsonArr.put(pnObj);
-
+                }
             }
-
 
             object.putOpt(Artifact.JSON_MODIFICATEURS, jsonArr);
             object.putOpt(Artifact.JSON_TITLE, this.title);
@@ -245,7 +242,9 @@ public class Artifact implements Serializable {
             object.putOpt(Artifact.JSON_IDCONTENEUR, this.idConteneur);
             object.putOpt(Artifact.JSON_TYPECONTENEUR, this.typeConteneur);
             object.putOpt(Artifact.JSON_DATECREATION, this.dateCreation);
-            object.putOpt(Artifact.JSON_CONTENU, encodeImage(this.contenu));
+            if(this.getCreated().equals("true"))
+            {object.putOpt(Artifact.JSON_CONTENU, encodeImage(this.contenu));}
+            else {object.putOpt(Artifact.JSON_CONTENU, encodeImage(this.contenu));}
 
 
         } catch (JSONException e) {

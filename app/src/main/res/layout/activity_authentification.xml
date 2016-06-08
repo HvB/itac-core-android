@@ -40,4 +40,6 @@
         android:layout_marginTop="30px"
         android:textAlignment="center"
         android:text="Se connecter"/>
+
+
     </LinearLayout>

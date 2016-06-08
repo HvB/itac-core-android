@@ -30,12 +30,13 @@ public class ArtifactArticleActivity extends ActionBarActivity {
         TextView titleTextView = (TextView) findViewById(R.id.titre);
         TextView messageTextView = (TextView) findViewById(R.id.message_input);
 
-        for (int i = 0; i < listModificateurs.size(); i++) {
-            TextView modificateurTextView = new TextView(ArtifactArticleActivity.this);
-            modificateurTextView.setText("modifié par " + listModificateurs.get(i).getModificateur() + "  le " + listModificateurs.get(i).getDateModification());
-            modificateursLayout.addView(modificateurTextView);
+//            for (int i = 0; i < listModificateurs.size(); i++) {
+//                TextView modificateurTextView = new TextView(ArtifactArticleActivity.this);
+//                modificateurTextView.setText("modifié par " + listModificateurs.get(i).getModificateur() + "  le " + listModificateurs.get(i).getDateModification());
+//                modificateursLayout.addView(modificateurTextView);
+//            }
 
-        }
+
 
 
         titleTextView.setText(title);

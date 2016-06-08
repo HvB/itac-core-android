@@ -3,9 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#e9e8dd"
+    android:background="@drawable/background"
     android:orientation="vertical"
     android:weightSum="1"
+
     tools:context=".android_app_activity.EspacePersonnelActivity">
 
     <LinearLayout
@@ -20,7 +21,7 @@
             android:id="@+id/partage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="30dp"
+            android:layout_marginLeft="10dp"
             android:background="@null"
             android:src="@drawable/partage">
 
@@ -31,7 +32,7 @@
             android:layout_height="wrap_content"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:text=" Zone de partage" />
+            android:text="  Zone de partage  " />
     </LinearLayout>
 
 
@@ -97,6 +98,7 @@
                 android:layout_margin="5dp"
                 android:clickable="true"
                 android:columnWidth="100dp"
+                android:horizontalSpacing="8dp"
                 android:drawSelectorOnTop="true"
                 android:focusable="true"
                 android:gravity="center"
@@ -112,7 +114,9 @@
         android:layout_width="match_parent"
         android:layout_height="450dp"
         android:layout_below="@id/zep_layout"
-        android:padding="5dp">
+        android:padding="5dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp">
 
         <GridView
             android:id="@+id/listArtifactView"
@@ -123,7 +127,7 @@
             android:drawSelectorOnTop="true"
             android:focusable="true"
             android:gravity="center"
-            android:horizontalSpacing="5dp"
+            android:horizontalSpacing="8dp"
             android:numColumns="auto_fit"
             android:stretchMode="columnWidth"
             android:verticalSpacing="5dp" />
@@ -140,29 +144,21 @@
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:layout_marginTop="17dp"
-        android:background="#007fff"
+        android:background="@drawable/rounded_corner"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:visibility="invisible">
 
-        <ImageButton
-            android:id="@+id/exit_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:background="@null"
-            android:contentDescription="Exit"
-            android:padding="5dp"
-            android:src="@drawable/exit"></ImageButton>
 
         <EditText
             android:id="@+id/titre"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/exit_button"
             android:layout_weight="1"
             android:background="#ffffff"
+            android:layout_marginTop="10dp"
             android:hint="Titre"
+            android:textSize="25dp"
             android:maxLines="1"
             android:textStyle="bold" />
 
@@ -176,33 +172,59 @@
             android:background="#ffffff"
             android:gravity="top"
             android:hint="Message"
+
             android:inputType="text" />
 
+        <Button
+            android:id="@+id/exit_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:contentDescription="Exit"
+            android:drawableLeft="@drawable/exit"
+            android:text="Annuler"
+            android:textStyle="bold"
+            android:layout_below="@+id/message_input"
+            android:layout_marginLeft="250dp"
+            android:layout_marginRight="30dp"
+            android:padding="5dp">
+            </Button>
 
-        <ImageButton
+
+        <Button
             android:id="@+id/send_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
             android:layout_below="@+id/message_input"
             android:background="@null"
             android:contentDescription="Send"
+            android:drawableLeft="@drawable/check"
+            android:layout_toRightOf="@+id/exit_button"
+            android:layout_marginLeft="10dp"
             android:padding="5dp"
-            android:src="@drawable/sent"></ImageButton>
+            android:text="Valider"
+            android:textStyle="bold"
+            >
 
-        <ImageButton
+                       </Button>
+
+        <Button
+            android:padding="5dp"
+            android:layout_marginLeft="10dp"
             android:id="@+id/send_modified_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
+            android:layout_toRightOf="@+id/exit_button"
             android:layout_below="@+id/message_input"
             android:background="@null"
             android:contentDescription="Send"
-            android:padding="5dp"
-            android:src="@drawable/sent"
-            android:visibility="gone">
+            android:text="Valider"
+            android:drawableLeft="@drawable/check"
+            android:visibility="gone"
+            android:textStyle="bold"
+            >
 
-        </ImageButton>
+        </Button>
 
 
     </RelativeLayout>
@@ -212,34 +234,43 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
         android:layout_below="@id/artifact"
         android:layout_margin="5dp">
 
-        <ImageButton
+        <Button
             android:id="@+id/addArtifact"
             android:layout_width="wrap_content"
             android:layout_height="75px"
-            android:layout_marginLeft="16dp"
-            android:background="@null"
-            android:src="@drawable/images"></ImageButton>
+            android:layout_marginLeft="50dp"
+            android:drawableLeft="@drawable/article_add"
+            android:text=" Ajouter un article  "
+            android:textStyle="bold"
+            android:background="@drawable/rounded_corner_blue">
+            </Button>
 
-        <ImageButton
+        <Button
             android:id="@+id/buttonLoadPicture"
             android:layout_width="wrap_content"
             android:layout_height="75px"
-            android:layout_marginLeft="16dp"
+            android:layout_marginLeft="25dp"
+            android:textStyle="bold"
             android:layout_toRightOf="@+id/addArtifact"
-            android:background="@null"
-            android:src="@drawable/gallery"></ImageButton>
+            android:background="@drawable/rounded_corner_blue"
+            android:text=" Charger une image "
+            android:drawableLeft="@drawable/picture_download"
+            ></Button>
 
-        <ImageButton
+        <Button
             android:id="@+id/buttonTakePicture"
             android:layout_width="wrap_content"
+            android:textStyle="bold"
             android:layout_height="75px"
-            android:layout_marginLeft="16dp"
+            android:layout_marginLeft="25dp"
             android:layout_toRightOf="@+id/buttonLoadPicture"
-            android:background="@null"
-            android:src="@drawable/camera"></ImageButton>
+            android:background="@drawable/rounded_corner_blue"
+            android:drawableLeft="@drawable/camera"
+            android:text=" Prendre une photo "></Button>
     </RelativeLayout>
 
     <LinearLayout
@@ -248,6 +279,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/artifact"
         android:layout_centerHorizontal="true"
+        android:background="@null"
         android:visibility="gone">
 
         <LinearLayout
@@ -269,7 +301,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                android:text="modifier" />
+                android:text=" Modifier" />
         </LinearLayout>
 
         <LinearLayout
