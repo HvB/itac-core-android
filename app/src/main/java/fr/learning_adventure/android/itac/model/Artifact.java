@@ -244,7 +244,7 @@ public class Artifact implements Serializable {
             object.putOpt(Artifact.JSON_DATECREATION, this.dateCreation);
             if(this.getCreated().equals("true"))
             {object.putOpt(Artifact.JSON_CONTENU, encodeImage(this.contenu));}
-            else {object.putOpt(Artifact.JSON_CONTENU, encodeImage(this.contenu));}
+            else {object.putOpt(Artifact.JSON_CONTENU, this.contenu);}
 
 
         } catch (JSONException e) {

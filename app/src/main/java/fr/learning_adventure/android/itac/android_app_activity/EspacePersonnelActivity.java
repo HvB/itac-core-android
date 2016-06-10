@@ -454,8 +454,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     message.setText("");
                     titre.setText("");
                     artifactLayout.setVisibility(View.INVISIBLE);
-
-
                 }
 
             }
@@ -540,38 +538,16 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         }
 
                         Artifact artifact = new Artifact(object);
-                        //Log.i("titre",artifact.getTitle().toString());
-                       // Log.i("modificateurs",artifact.getModificateurs().toString());
-                        //Log.i("contenu",artifact.getContenu().toString());
                         artifact.setCreated("false");
                         listArtifactZEP.add(artifact);
                         artifactZEPAdapter.notifyDataSetChanged();
                         Log.i("artifact :",artifact.toJSONMessage().toString());
-
                     }
                 });
             }
         });
 
 
-        //réception de l'image
-//        socket.on("EVT_Envoie_ArtefactdeZEversZP", new Emitter.Listener() {
-//
-//            public void call(final Object... args) {
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        String data = (String) args[0];
-//                        byte[] decodedString = Base64.decode(data, Base64.DEFAULT);
-//                        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-//                        ImageView image = (ImageView) findViewById(R.id.imageReceived);
-//                        image.setImageBitmap(decodedByte);
-//
-//                    }
-//                });
-//            }
-//
-//        });
 
         //Réception message
         socket.on("EVT_ReponseOKConnexionZEP", new Emitter.Listener() {
@@ -581,11 +557,11 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
                 String data = (String) args[0];
                 Log.i("message :", data);
+
             }
 
 
         });
-
 
     }
 
@@ -672,12 +648,14 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 @Override
                 public void call(Object... args) {
                     Log.i("Socket", "disconnection " + args[0]);
+
                 }
             });
             socket.on(Socket.EVENT_ERROR, new Emitter.Listener() {
                 @Override
                 public void call(Object... args) {
                     Log.i("Socket", "error " + args[0]);
+
                 }
             });
             socket.connect();
@@ -699,6 +677,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             login_logout_btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    socket.emit("EVT_Deconnexion", EspacePersonnelActivity.this.getPseudo(),"test"+String.valueOf(selectedPosition));
                     socket.disconnect();
                     connected = false;
                     setInterface();
@@ -713,6 +692,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 @Override
                 public void onClick(View view) {
                     connected = true;
+
                     initialize();
                     setInterface();
                 }
@@ -750,7 +730,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             String date = df.format(Calendar.getInstance().getTime());
             artifact.setDateCreation(date);
             listArtifact.add(artifact);
-
             artifactAdapter.notifyDataSetChanged();
 
 

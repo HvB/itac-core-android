@@ -89,8 +89,8 @@ public class ArtifactAdapter extends BaseAdapter {
                 mImage = (ImageView) convertView.findViewById(R.id.image);
                 byte[] decodedString = Base64.decode(artifact.getContenu(), Base64.DEFAULT);
                 Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                roundedImage = new RoundedImage(decodedByte);
-
+                Bitmap resized = Bitmap.createScaledBitmap(decodedByte, 100, 100, true);
+                roundedImage = new RoundedImage(resized);
                 mImage.setImageDrawable(roundedImage);
             }
 
