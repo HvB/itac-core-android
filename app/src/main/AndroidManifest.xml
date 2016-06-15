@@ -17,9 +17,11 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        >
 
-        <activity android:name=".android_app_activity.AuthentificationActivity">
+        <activity android:name=".android_app_activity.AuthentificationActivity"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -28,9 +30,11 @@
         </activity>
 
         <activity
+            android:windowSoftInputMode="adjustResize"
             android:name=".android_app_activity.ConnexionActivity"
             android:label="@string/app_name" >
         </activity>
+
 
         <activity
             android:name=".android_app_activity.ArtifactImageActivity"
@@ -44,6 +48,7 @@
 
 
         <activity
+            android:windowSoftInputMode="adjustResize"
             android:name=".android_app_activity.EspacePersonnelActivity"
             android:label="@string/app_name" >
         </activity>

@@ -5,10 +5,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.List;
-
 import fr.learning_adventure.android.itac.R;
-import fr.learning_adventure.android.itac.model.Modificateurs;
 
 /**
  * Created by yassine on 12/04/2016.
@@ -23,7 +20,7 @@ public class ArtifactArticleActivity extends ActionBarActivity {
         String pseudo = getIntent().getStringExtra("pseudo");
         String message = getIntent().getStringExtra("message");
         String date = getIntent().getStringExtra("date");
-        List<Modificateurs> listModificateurs = (List<Modificateurs>) getIntent().getSerializableExtra("modificateurs");
+       // List<Modificateurs> listModificateurs = (List<Modificateurs>) getIntent().getSerializableExtra("modificateurs");
 
         LinearLayout modificateursLayout = (LinearLayout) findViewById(R.id.modificateurs);
         TextView pseudoView = (TextView) findViewById(R.id.pseudo);
