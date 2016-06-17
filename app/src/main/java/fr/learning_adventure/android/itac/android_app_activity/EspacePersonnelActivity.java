@@ -31,6 +31,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.github.nkzawa.emitter.Emitter;
@@ -105,6 +106,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         final LinearLayout editLayout = (LinearLayout) findViewById(R.id.editLayout);
         final LinearLayout zPLayout = (LinearLayout) findViewById(R.id.zp_Layout);
         final LinearLayout trashEditLayout = (LinearLayout) findViewById(R.id.trashEditLayout);
+        final ScrollView espacePersonnelLayout = (ScrollView)findViewById(R.id.espacePersonnelLayout);
         final EditText titre = (EditText) EspacePersonnelActivity.this.findViewById(R.id.titre);
         final EditText message = (EditText) EspacePersonnelActivity.this.findViewById(R.id.message_input);
         final RelativeLayout artifactLayout = (RelativeLayout) this.findViewById(R.id.artifact);
@@ -115,7 +117,15 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         final ImageButton logout_btn = (ImageButton) this.findViewById(R.id.logout_btn);
         final ImageButton login_btn = (ImageButton) this.findViewById(R.id.login_btn);
 
+
+        //mettre arriere plans transparent
+        espacePersonnelLayout.getBackground().setAlpha(200);
+
+
+
+
         //initialiser socket
+
         initialize();
 
 
@@ -140,8 +150,13 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         login_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                socket.connect();
 
+                initialize();
+                if (login_btn.getVisibility() == View.VISIBLE)
+                {
+                    Clink.show(EspacePersonnelActivity.this, "veuillez verifier les paramètres de connexion pour se connecter");
+
+                }
             }
 
         });
@@ -160,6 +175,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     case DragEvent.ACTION_DRAG_STARTED:
                         break;
                     case DragEvent.ACTION_DRAG_ENTERED:
+
                         break;
                     case DragEvent.ACTION_DRAG_EXITED:
 
@@ -178,12 +194,17 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         ArtifactAdapter destAdapter = (ArtifactAdapter) (newParent.absListView.getAdapter());
                         final List<Artifact> destList = destAdapter.getList();
 
-                        if (srcList != destList) {
-                            srcList.remove(position);
-                            destList.add(passedItem);
 
-                            if (destList == listArtifactZEP) {
 
+                         if (srcList != destList) {
+                            if(login_btn.getVisibility()==View.VISIBLE){
+                                Clink.show(EspacePersonnelActivity.this, "veuillez vous connecter");
+
+                            }
+                            else if (destList == listArtifactZEP  ) {
+
+                                srcList.remove(position);
+                                destList.add(passedItem);
                                 passedItem.setProprietaire(pseudo);
                                 passedItem.setTypeConteneur("ZE");
                                 passedItem.setIdConteneur("test" + String.valueOf(selectedPosition));
@@ -194,7 +215,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                             }
 
                            if (destList==listArtifact)
-                           {if (passedItem.getType().equals("message"))
+                           {    srcList.remove(position);
+                               destList.add(passedItem);
+                               if (passedItem.getType().equals("message"))
                                socket.emit("EVT_EnvoieArtefactdeZEPversEP",passedItem.getIdAr().toString(),"test" + String.valueOf(selectedPosition),String.valueOf(selectedPosition));
                            else
                                 socket.emit("EVT_EnvoieArtefactdeZEPversEP",passedItem.getIdAr().toString(),"test" + String.valueOf(selectedPosition),String.valueOf(selectedPosition));
@@ -237,6 +260,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         view = passObj.view;
                         view.setVisibility(View.VISIBLE);
 
+
                     default:
                         break;
                 }
@@ -258,10 +282,14 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     case DragEvent.ACTION_DRAG_STARTED:
                         break;
                     case DragEvent.ACTION_DRAG_ENTERED:
-                        v.setBackgroundColor(Color.parseColor("#ef9a9a"));
+                        if(v!=espacePersonnelLayout)
+
+                        {v.setBackgroundColor(Color.parseColor("#70eac8"));}
                         break;
                     case DragEvent.ACTION_DRAG_EXITED:
-                        v.setBackgroundColor(Color.parseColor("#e9e8dd"));
+                        if(v!=espacePersonnelLayout) {
+                            v.setBackgroundColor(Color.parseColor("#323232"));
+                        }
                         break;
                     case DragEvent.ACTION_DROP:
 
@@ -288,7 +316,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                     if (titre.getText().toString().equals("")) {
                                         Clink.show(EspacePersonnelActivity.this, "veuillez saisir le titre de l'article");}
 
-                                        else if (titre.getText().toString().length()>15) {
+                                        else if (titre.getText().toString().length()>25) {
                                         Clink.show(EspacePersonnelActivity.this, "le titre de l'article est trés grand");
 
 
@@ -323,13 +351,18 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                 }
                             });
                         } else if (v == zPLayout) {
-                            passedItem.setTypeConteneur("ZP");
-                            srcList.remove(position);
-                            if (passedItem.getType() == "message")
-                                socket.emit("EVT_ReceptionArtefactIntoZP", pseudo, String.valueOf(selectedPosition), "zoneEchange" + String.valueOf(selectedPosition), passedItem.toJSONMessage().toString());
-                            else
-                                socket.emit("EVT_ReceptionArtefactIntoZP", pseudo, String.valueOf(selectedPosition), "zoneEchange" + String.valueOf(selectedPosition), passedItem.toJSONImage().toString());
+                            if (login_btn.getVisibility() == View.VISIBLE) {
+                                Clink.show(EspacePersonnelActivity.this, "veuillez vous connecter");
 
+                            } else {
+                                passedItem.setTypeConteneur("ZP");
+                                srcList.remove(position);
+                                if (passedItem.getType() == "message")
+                                    socket.emit("EVT_ReceptionArtefactIntoZP", pseudo, String.valueOf(selectedPosition), "zoneEchange" + String.valueOf(selectedPosition), passedItem.toJSONMessage().toString());
+                                else
+                                    socket.emit("EVT_ReceptionArtefactIntoZP", pseudo, String.valueOf(selectedPosition), "zoneEchange" + String.valueOf(selectedPosition), passedItem.toJSONImage().toString());
+
+                            }
                         }
                         //Réponse envoie artefact vers ZE
                         socket.on("EVT_NewArtefactInZP", new Emitter.Listener() {
@@ -358,8 +391,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
                         break;
                     case DragEvent.ACTION_DRAG_ENDED:
-                        v.setBackgroundColor(Color.parseColor("#e9e8dd"));
-
+                        if(v!=espacePersonnelLayout) {
+                            v.setBackgroundColor(Color.parseColor("#323232"));
+                        }
                     default:
                         break;
                 }
@@ -400,12 +434,12 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         listArtifactView = (GridView) findViewById(R.id.listArtifactView);
         listArtifactLayout = (LinearLayoutAbsListView) findViewById(R.id.listArtifactLayout);
 
-
         listArtifactLayout.setOnDragListener(myOnDragListener);
         artifactZEPLayout.setOnDragListener(myOnDragListener);
         trashLayout.setOnDragListener(myArtefactOnDragListener);
         editLayout.setOnDragListener(myArtefactOnDragListener);
         zPLayout.setOnDragListener(myArtefactOnDragListener);
+        espacePersonnelLayout.setOnDragListener(myArtefactOnDragListener);
 
 
         listArtifactLayout.setAbsListView(listArtifactView);
@@ -472,7 +506,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
 
 
-                } else if (titre.getText().toString().length()>20) {
+                } else if (titre.getText().toString().length()>25) {
                     Clink.show(EspacePersonnelActivity.this, "le titre de l'article est trés grand");
 
 
@@ -666,11 +700,12 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         final RelativeLayout zepLayout = (RelativeLayout) findViewById(R.id.zep_layout);
         final ImageButton logout_btn = (ImageButton) this.findViewById(R.id.logout_btn);
         final ImageButton login_btn = (ImageButton) this.findViewById(R.id.login_btn);
-
-
+        Log.i("initialiser","effectué");
 
         try {
+            Log.i("geturi",getUriSocket().toString());
             socket = IO.socket(getUriSocket().toString());
+
             socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
                 @Override
                 public void call(Object... args) {
@@ -709,6 +744,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
         } catch (URISyntaxException e) {
             e.printStackTrace();
+            Log.i("error",e.toString());
         }
 
 

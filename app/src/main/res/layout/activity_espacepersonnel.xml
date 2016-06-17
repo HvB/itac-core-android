@@ -2,10 +2,10 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".android_app_activity.EspacePersonnelActivity"
-    android:layout_width="fill_parent"
-    android:background="@drawable/background"
-
-    android:layout_height="fill_parent">
+    android:layout_width="match_parent"
+    android:background="@drawable/ep_background"
+    android:id="@+id/espacePersonnelLayout"
+    android:layout_height="match_parent">
 
 <RelativeLayout
     android:layout_width="match_parent"
@@ -14,7 +14,8 @@
 
     <LinearLayout
         android:id="@+id/zp_Layout"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
+        android:background="#323232"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
        android:layout_centerHorizontal="true"
@@ -24,17 +25,19 @@
             android:id="@+id/partage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="180dp"
             android:background="@null"
-            android:src="@drawable/partage">
+            android:src="@drawable/groupe"
+            >
         </ImageButton>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="20sp"
+            android:textSize="40sp"
             android:textStyle="bold"
-            android:text="  Zone de partage  " />
+            android:text="  Zone de partage  "
+            android:textColor="@color/abc_primary_text_disable_only_material_dark"/>
     </LinearLayout>
 
 
@@ -46,7 +49,7 @@
         android:layout_marginBottom="10dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="5dp"
         android:layout_below="@id/zp_Layout"
         android:background="@drawable/rounded_corner_red">
 
@@ -54,11 +57,11 @@
         <ImageButton
             android:id="@+id/login_btn"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="fill_parent"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
             android:background="@null"
-            android:src="@drawable/login"
+            android:src="@drawable/connect"
             android:textColor="#ffffff" />
 
         <ImageButton
@@ -68,7 +71,7 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
             android:background="@null"
-            android:src="@drawable/login"
+            android:src="@drawable/logout"
             android:textColor="#ffffff"
             android:visibility="gone"/>
 
@@ -124,27 +127,32 @@
 
 
     <fr.learning_adventure.android.itac.widget.LinearLayoutAbsListView
+        android:layout_marginTop="40dp"
         android:id="@+id/listArtifactLayout"
         android:layout_width="match_parent"
-        android:layout_height="450dp"
-        android:layout_below="@id/zep_layout"
+        android:layout_height="300dp"
         android:padding="5dp"
+        android:layout_below="@+id/zep_layout"
         android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp">
+        android:layout_marginRight="10dp"
+        >
 
         <GridView
             android:id="@+id/listArtifactView"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="5dp"
             android:clickable="true"
             android:columnWidth="100dp"
+            android:horizontalSpacing="8dp"
             android:drawSelectorOnTop="true"
             android:focusable="true"
             android:gravity="center"
-            android:horizontalSpacing="8dp"
             android:numColumns="auto_fit"
             android:stretchMode="columnWidth"
             android:verticalSpacing="5dp" />
+
+
 
 
     </fr.learning_adventure.android.itac.widget.LinearLayoutAbsListView>
@@ -152,13 +160,13 @@
 
     <RelativeLayout
         android:id="@+id/artifact"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/listArtifactLayout"
+        android:layout_below="@+id/listArtifactLayout"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:layout_weight="1"
-        android:layout_marginTop="17dp"
+
+        android:layout_marginTop="40dp"
         android:background="@drawable/rounded_corner"
         android:fitsSystemWindows="true"
         android:paddingLeft="16dp"
@@ -175,7 +183,7 @@
             android:layout_marginTop="10dp"
             android:hint="Titre"
             android:textSize="25dp"
-                        android:maxLines="1"
+            android:maxLines="1"
             android:textStyle="bold" />
 
         <EditText
@@ -203,7 +211,7 @@
             android:layout_marginLeft="250dp"
             android:layout_marginRight="30dp"
             android:padding="5dp">
-            </Button>
+        </Button>
 
 
         <Button
@@ -220,7 +228,7 @@
             android:text="Valider"
             android:textStyle="bold">
 
-                       </Button>
+        </Button>
 
         <Button
             android:padding="5dp"
@@ -243,16 +251,17 @@
 
     </RelativeLayout>
 
+
     <RelativeLayout
         android:id="@+id/optionsArtifactLayout"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_below="@id/artifact"
+        android:layout_below="@+id/artifact"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
-        android:layout_marginTop="5dp">
+        android:layout_marginTop="130dp">
 
         <Button
             android:id="@+id/addArtifact"
@@ -291,47 +300,52 @@
 
     <LinearLayout
         android:id="@+id/trashEditLayout"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/artifact"
         android:layout_centerHorizontal="true"
-        android:background="@null"
+        android:layout_marginTop="100dp"
+        android:background="#323232"
         android:visibility="gone">
 
         <LinearLayout
             android:id="@+id/editLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+           >
 
             <ImageButton
                 android:id="@+id/edit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
+                android:layout_marginLeft="100dp"
 
                 android:background="@null"
                 android:src="@drawable/edit"></ImageButton>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="20sp"
+                android:textSize="30sp"
                 android:textStyle="bold"
-                android:text=" Modifier" />
+                android:text=" Modifier"
+                android:gravity="center"
+                android:textColor="@color/abc_primary_text_material_dark"
+                android:layout_marginRight="100dp"/>
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/trashLayout"
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginLeft="30dp">
+            >
 
             <ImageButton
                 android:id="@+id/trash"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="30dp"
+                android:layout_marginLeft="100dp"
 
                 android:background="@null"
                 android:src="@drawable/trash"></ImageButton>
@@ -339,74 +353,16 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="20sp"
+                android:textSize="30sp"
                 android:textStyle="bold"
-                android:text="Supprimer" />
+                android:text=" Supprimer"
+                android:gravity="center"
+                android:textColor="@color/abc_primary_text_material_dark"/>
         </LinearLayout>
     </LinearLayout>
 
 
-    <RelativeLayout
-        android:id="@+id/artifact_image"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="17dp"
-        android:background="@drawable/rounded_corner"
-        android:layout_alignParentBottom="true"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:visibility="gone">
 
-
-        <EditText
-            android:id="@+id/titre_image"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="#ffffff"
-            android:layout_marginTop="10dp"
-            android:hint="Titre"
-            android:textSize="25dp"
-            android:maxLines="1"
-            android:textStyle="bold" />
-
-
-        <Button
-            android:id="@+id/exit_button_image"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@null"
-            android:contentDescription="Exit"
-            android:drawableLeft="@drawable/exit"
-            android:text="Annuler"
-            android:textStyle="bold"
-            android:layout_below="@+id/titre_image"
-            android:layout_marginLeft="250dp"
-            android:layout_marginRight="30dp"
-            android:padding="5dp">
-        </Button>
-
-
-        <Button
-            android:id="@+id/send_button_image"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/titre_image"
-            android:background="@null"
-            android:contentDescription="Send"
-            android:drawableLeft="@drawable/check"
-            android:layout_toRightOf="@+id/exit_button_image"
-            android:layout_marginLeft="10dp"
-            android:padding="5dp"
-            android:text="Valider"
-            android:textStyle="bold"
-            >
-
-        </Button>
-
-        </RelativeLayout>
     </RelativeLayout>
 
 </ScrollView>
