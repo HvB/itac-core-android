@@ -1,16 +1,15 @@
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".android_app_activity.EspacePersonnelActivity"
-    android:layout_width="match_parent"
-    android:background="@drawable/ep_background"
-    android:id="@+id/espacePersonnelLayout"
-    android:layout_height="match_parent">
-
-<RelativeLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    >
+    android:background="@drawable/background"
+    android:orientation="vertical"
+    android:weightSum="1"
+    android:id="@+id/espacePersonnelLayout"
+    tools:context=".android_app_activity.EspacePersonnelActivity">
+
+
 
     <LinearLayout
         android:id="@+id/zp_Layout"
@@ -18,7 +17,7 @@
         android:background="#323232"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-       android:layout_centerHorizontal="true"
+        android:layout_centerHorizontal="true"
         android:visibility="gone">
 
         <ImageButton
@@ -49,15 +48,15 @@
         android:layout_marginBottom="10dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:layout_marginTop="5dp"
-        android:layout_below="@id/zp_Layout"
-        android:background="@drawable/rounded_corner_red">
+        android:layout_marginTop="20dp"
+        android:background="@drawable/rounded_corner_red"
+        android:layout_below="@id/zp_Layout">
 
 
         <ImageButton
             android:id="@+id/login_btn"
             android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
+            android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
             android:background="@null"
@@ -126,62 +125,71 @@
     </RelativeLayout>
 
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="800dp"
+        android:layout_marginTop="30dp"
+        android:id="@+id/artifactLayout"
+        android:layout_below="@id/zep_layout">
+
+
     <fr.learning_adventure.android.itac.widget.LinearLayoutAbsListView
-        android:layout_marginTop="40dp"
         android:id="@+id/listArtifactLayout"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_height="wrap_content"
         android:padding="5dp"
-        android:layout_below="@+id/zep_layout"
         android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        >
+        android:layout_marginRight="10dp">
 
         <GridView
             android:id="@+id/listArtifactView"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
             android:clickable="true"
             android:columnWidth="100dp"
-            android:horizontalSpacing="8dp"
             android:drawSelectorOnTop="true"
             android:focusable="true"
             android:gravity="center"
+            android:horizontalSpacing="8dp"
             android:numColumns="auto_fit"
             android:stretchMode="columnWidth"
             android:verticalSpacing="5dp" />
 
 
-
-
     </fr.learning_adventure.android.itac.widget.LinearLayoutAbsListView>
 
-
+<ScrollView
+    android:layout_below="@id/listArtifactLayout"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content">
     <RelativeLayout
         android:id="@+id/artifact"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/listArtifactLayout"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-
-        android:layout_marginTop="40dp"
-        android:background="@drawable/rounded_corner"
-        android:fitsSystemWindows="true"
+        android:layout_marginTop="25dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/rounded_corner_blue"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:visibility="invisible">
 
 
-        <EditText
 
+
+        <EditText
+            android:overScrollMode="always"
+            android:scrollbarStyle="insideInset"
+            android:scrollbars="vertical"
             android:id="@+id/titre"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:background="#ffffff"
             android:layout_marginTop="10dp"
             android:hint="Titre"
+            android:inputType="text"
             android:textSize="25dp"
             android:maxLines="1"
             android:textStyle="bold" />
@@ -192,6 +200,7 @@
             android:layout_height="250dp"
             android:layout_below="@id/titre"
             android:layout_marginTop="10dp"
+            android:layout_weight="1"
             android:background="#ffffff"
             android:gravity="top"
             android:hint="Message"
@@ -226,7 +235,8 @@
             android:layout_marginLeft="10dp"
             android:padding="5dp"
             android:text="Valider"
-            android:textStyle="bold">
+            android:textStyle="bold"
+            >
 
         </Button>
 
@@ -250,18 +260,17 @@
 
 
     </RelativeLayout>
-
+</ScrollView>
+        </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/optionsArtifactLayout"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/artifactLayout"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_below="@+id/artifact"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="130dp">
+        android:layout_margin="5dp">
 
         <Button
             android:id="@+id/addArtifact"
@@ -271,8 +280,8 @@
             android:drawableLeft="@drawable/article_add"
             android:text=" Ajouter un article  "
             android:textStyle="bold"
-            android:background="@drawable/rounded_corner_blue">
-            </Button>
+            android:background="@drawable/rounded_corner_yellow">
+        </Button>
 
         <Button
             android:id="@+id/buttonLoadPicture"
@@ -281,7 +290,7 @@
             android:layout_marginLeft="25dp"
             android:textStyle="bold"
             android:layout_toRightOf="@+id/addArtifact"
-            android:background="@drawable/rounded_corner_blue"
+            android:background="@drawable/rounded_corner_yellow"
             android:text=" Charger une image "
             android:drawableLeft="@drawable/picture_download"
             ></Button>
@@ -293,7 +302,7 @@
             android:layout_height="75px"
             android:layout_marginLeft="25dp"
             android:layout_toRightOf="@+id/buttonLoadPicture"
-            android:background="@drawable/rounded_corner_blue"
+            android:background="@drawable/rounded_corner_yellow"
             android:drawableLeft="@drawable/camera"
             android:text=" Prendre une photo "></Button>
     </RelativeLayout>
@@ -302,18 +311,18 @@
         android:id="@+id/trashEditLayout"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/artifact"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="10dp"
         android:background="#323232"
-        android:visibility="gone">
+        android:visibility="gone"
+        android:layout_alignParentBottom="true">
 
         <LinearLayout
             android:id="@+id/editLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-           >
+            >
 
             <ImageButton
                 android:id="@+id/edit"
@@ -361,8 +370,4 @@
         </LinearLayout>
     </LinearLayout>
 
-
-
-    </RelativeLayout>
-
-</ScrollView>
+</RelativeLayout>

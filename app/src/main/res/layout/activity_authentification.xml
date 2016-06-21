@@ -3,18 +3,41 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#e9e8dd"
+    android:background="@drawable/background"
     tools:context=".android_app_activity.AuthentificationActivity" >
 
 
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ITAC"
+        android:textSize="60sp"
+        android:textStyle="bold"
+        android:textColor="#f6f055"
+        android:id="@+id/textView2"
+        android:layout_marginTop="16dp"
+        android:layout_gravity="center" />
+
+
+<RelativeLayout
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="80px"
+    android:layout_marginLeft="10dp"
+    android:layout_marginRight="10dp"
+    android:paddingBottom="20dp"
+    android:background="@drawable/rounded_corner_blue">
+
     <EditText
-        android:layout_width="440px"
-        android:layout_height="80px"
-        android:layout_gravity="center"
-        android:layout_marginTop="80px"
+        android:layout_width="200px"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:padding="10dp"
+        android:layout_marginTop="25sp"
         android:id="@+id/pseudo"
         android:hint="pseudo"
+        android:background="#90caf9"
         android:inputType="textVisiblePassword|textNoSuggestions"
         />
 
@@ -26,23 +49,30 @@
         android:columnWidth="128px"
         android:numColumns="4"
         android:verticalSpacing="10dp"
+        android:layout_marginTop="25dp"
         android:horizontalSpacing="2dp"
         android:layout_gravity="center"
         android:stretchMode="columnWidth"
         android:gravity="center"
+        android:layout_below="@+id/pseudo"
         />
     <Button
-        android:layout_width="300px"
-        android:layout_height="60px"
-        android:layout_gravity="center"
+        android:layout_below="@+id/avatarGridView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:layout_centerHorizontal="true"
         android:id="@+id/loginbtn"
         android:textColor="#ffffff"
-        android:background="@drawable/rounded_corner_blue"
-        android:layout_marginTop="16dp"
+        android:background="@drawable/rounded_corner_yellow"
+        android:layout_marginTop="25dp"
         android:textAlignment="center"
         android:text="Se connecter"
-        android:textSize="20dp"
+        android:textSize="25dp"
+        android:layout_marginBottom="20dp"
         android:textStyle="bold"/>
+
+</RelativeLayout>
 
 
 

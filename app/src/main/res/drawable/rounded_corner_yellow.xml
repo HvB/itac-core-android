@@ -4,16 +4,11 @@
     android:shape="rectangle">
 
 
-    <gradient
-        android:startColor="#b7f4e3"
-        android:endColor="#44a7c4"
-        android:angle="90"/>
 
-    <!-- view border color and width -->
-    <stroke
-        android:width="3dp"
-        android:color="#FFFFFF" >
-    </stroke>
+    <gradient
+        android:startColor="#faf7aa"
+        android:endColor="#f6f055"
+        android:angle="90"/>
 
     <!-- If you want to add some padding -->
     <padding

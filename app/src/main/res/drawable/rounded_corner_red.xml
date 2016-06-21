@@ -3,11 +3,11 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
 
-    <!-- view background color -->
-    <solid
-        android:color="#f03a3a"
-        >
-    </solid>
+    <gradient
+        android:startColor="#EDA59D"
+        android:endColor="#d31f0a"
+        android:angle="90"/>
+
 
     <!-- view border color and width -->
     <stroke

@@ -1,5 +1,6 @@
 package fr.learning_adventure.android.itac.android_app_activity;
 
+import android.app.Activity;
 import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -21,6 +22,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnDragListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
@@ -31,7 +33,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.github.nkzawa.emitter.Emitter;
@@ -106,7 +107,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         final LinearLayout editLayout = (LinearLayout) findViewById(R.id.editLayout);
         final LinearLayout zPLayout = (LinearLayout) findViewById(R.id.zp_Layout);
         final LinearLayout trashEditLayout = (LinearLayout) findViewById(R.id.trashEditLayout);
-        final ScrollView espacePersonnelLayout = (ScrollView)findViewById(R.id.espacePersonnelLayout);
+        final RelativeLayout espacePersonnelLayout = (RelativeLayout)findViewById(R.id.espacePersonnelLayout);
         final EditText titre = (EditText) EspacePersonnelActivity.this.findViewById(R.id.titre);
         final EditText message = (EditText) EspacePersonnelActivity.this.findViewById(R.id.message_input);
         final RelativeLayout artifactLayout = (RelativeLayout) this.findViewById(R.id.artifact);
@@ -197,33 +198,34 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
 
                          if (srcList != destList) {
-                            if(login_btn.getVisibility()==View.VISIBLE){
-                                Clink.show(EspacePersonnelActivity.this, "veuillez vous connecter");
+                             if (destList == listArtifactZEP  ) {
+                                 if (login_btn.getVisibility() == View.VISIBLE) {
+                                     Clink.show(EspacePersonnelActivity.this, "veuillez verifier les paramètres de connexion pour se connecter");
 
-                            }
-                            else if (destList == listArtifactZEP  ) {
+                                 } else {
+                                     srcList.remove(position);
+                                     destList.add(passedItem);
+                                     passedItem.setProprietaire(pseudo);
+                                     passedItem.setTypeConteneur("ZE");
+                                     passedItem.setIdConteneur("test" + String.valueOf(selectedPosition));
+                                     if (passedItem.getType().equals("message"))
+                                         socket.emit("EVT_ReceptionArtefactIntoZE", pseudo, String.valueOf(selectedPosition), "test" + String.valueOf(selectedPosition), passedItem.toJSONMessage().toString());
+                                     else
+                                         socket.emit("EVT_ReceptionArtefactIntoZE", pseudo, String.valueOf(selectedPosition), "test" + String.valueOf(selectedPosition), passedItem.toJSONImage().toString());
+                                 }
 
-                                srcList.remove(position);
-                                destList.add(passedItem);
-                                passedItem.setProprietaire(pseudo);
-                                passedItem.setTypeConteneur("ZE");
-                                passedItem.setIdConteneur("test" + String.valueOf(selectedPosition));
-                                if (passedItem.getType().equals("message"))
-                                    socket.emit("EVT_ReceptionArtefactIntoZE", pseudo, String.valueOf(selectedPosition), "test" + String.valueOf(selectedPosition), passedItem.toJSONMessage().toString());
-                                else
-                                    socket.emit("EVT_ReceptionArtefactIntoZE", pseudo, String.valueOf(selectedPosition), "test" + String.valueOf(selectedPosition), passedItem.toJSONImage().toString());
-                            }
+                                 if (destList == listArtifact) {
+                                     srcList.remove(position);
+                                     destList.add(passedItem);
+                                     if (listArtifactView.getHeight() > 400)
+                                         listArtifactView.getLayoutParams().height = 400;
+                                     if (passedItem.getType().equals("message"))
+                                         socket.emit("EVT_EnvoieArtefactdeZEPversEP", passedItem.getIdAr().toString(), "test" + String.valueOf(selectedPosition), String.valueOf(selectedPosition));
+                                     else
+                                         socket.emit("EVT_EnvoieArtefactdeZEPversEP", passedItem.getIdAr().toString(), "test" + String.valueOf(selectedPosition), String.valueOf(selectedPosition));
+                                 }
 
-                           if (destList==listArtifact)
-                           {    srcList.remove(position);
-                               destList.add(passedItem);
-                               if (passedItem.getType().equals("message"))
-                               socket.emit("EVT_EnvoieArtefactdeZEPversEP",passedItem.getIdAr().toString(),"test" + String.valueOf(selectedPosition),String.valueOf(selectedPosition));
-                           else
-                                socket.emit("EVT_EnvoieArtefactdeZEPversEP",passedItem.getIdAr().toString(),"test" + String.valueOf(selectedPosition),String.valueOf(selectedPosition));
-                         }
-
-
+                             }
                         }
 
                         //Réponse envoie artefact vers ZE
@@ -343,6 +345,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                             artifactLayout.setVisibility(View.INVISIBLE);
                                             modifiedButton.setVisibility(View.GONE);
                                             button.setVisibility(View.VISIBLE);
+                                            hideSoftKeyboard(EspacePersonnelActivity.this);
                                         }
 
 
@@ -514,6 +517,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     Clink.show(EspacePersonnelActivity.this, "veuillez saisir un message");
 
                 } else {
+                    hideSoftKeyboard(EspacePersonnelActivity.this);
                     Artifact artefact = new Artifact(getPseudo());
                     artefact.setTitle(titre.getText().toString());
                     artefact.setContenu(message.getText().toString());
@@ -525,6 +529,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     artefact.setModificateurs(listModificateurs);
                     listArtifact.add(artefact);
                     artifactAdapter.notifyDataSetChanged();
+                    if (listArtifactView.getHeight() > 400)
+                        listArtifactView.getLayoutParams().height = 400;
 
                     message.setText("");
                     titre.setText("");
@@ -538,6 +544,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         exitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                hideSoftKeyboard(EspacePersonnelActivity.this);
                 message.setText("");
                 titre.setText("");
                 artifactLayout.setVisibility(View.INVISIBLE);
@@ -786,6 +793,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             artifact.setDateCreation(date);
             listArtifact.add(artifact);
             artifactAdapter.notifyDataSetChanged();
+            if (listArtifactView.getHeight() > 400)
+                listArtifactView.getLayoutParams().height = 400;
 
 
         }
@@ -818,7 +827,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             artifact.setDateCreation(date);
             listArtifact.add(artifact);
             artifactAdapter.notifyDataSetChanged();
-
+            if (listArtifactView.getHeight() > 400)
+                listArtifactView.getLayoutParams().height = 400;
         }
 
     }
@@ -846,6 +856,11 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
         return hasImage;
     }
+    public static void hideSoftKeyboard(Activity activity) {
+        InputMethodManager inputMethodManager = (InputMethodManager)  activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
+    }
+
 
 
 }

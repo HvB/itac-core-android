@@ -2,7 +2,6 @@ package fr.learning_adventure.android.itac.android_app_activity;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
@@ -35,11 +34,11 @@ public class AuthentificationActivity extends ActionBarActivity {
         gridview.setAdapter(avatarAdapter);
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                v.setBackgroundColor(Color.parseColor("#11db14"));
+                v.setBackgroundResource(R.drawable.rounded_corner_green);
                 avatarAdapter.setSelectedPosition(position);
                 for (int i = 0; i < 8; i++) {
                     if (avatarAdapter.getSelectedPosition() != i) {
-                        gridview.getChildAt(i).setBackgroundColor(Color.parseColor("#e9e8dd"));
+                        gridview.getChildAt(i).setBackgroundResource(0);
                     }
                 }
             }

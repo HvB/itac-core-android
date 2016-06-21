@@ -3,38 +3,64 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#e9e8dd"
+    android:background="@drawable/background"
     tools:context=".android_app_activity.ConnexionActivity" >
 
 
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="150px"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:paddingBottom="20dp"
+        android:background="@drawable/rounded_corner_blue">
+
+
     <EditText
-        android:layout_width="500px"
-        android:layout_height="80px"
-        android:layout_gravity="center"
-        android:layout_marginTop="30px"
+        android:layout_width="480px"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:padding="10dp"
+        android:layout_marginTop="25sp"
+        android:background="#90caf9"
         android:id="@+id/ip"
         android:hint="Saisissez l'adresse IP"
         android:digits="0123456789."
         android:inputType="number"/>
 
     <EditText
-        android:layout_width="500px"
-        android:layout_height="80px"
-        android:layout_gravity="center"
-        android:layout_marginTop="20px"
+
+        android:layout_width="480px"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:padding="10dp"
+        android:layout_marginTop="25sp"
+        android:background="#90caf9"
+        android:layout_below="@id/ip"
         android:id="@+id/port"
         android:hint="Saisissez le numero de port"
         android:inputType="number"/>
 
-    <Button
-        android:layout_width="500px"
-        android:layout_height="80px"
-        android:layout_gravity="center"
-        android:id="@+id/loginbtn"
-        android:textColor="#ffffff"
-        android:layout_marginTop="30px"
-        android:textAlignment="center"
-        android:text="Valider"/>
+        <Button
+            android:layout_below="@+id/port"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:layout_centerHorizontal="true"
+            android:id="@+id/loginbtn"
+            android:textColor="#ffffff"
+            android:background="@drawable/rounded_corner_yellow"
+            android:layout_marginTop="25dp"
+            android:textAlignment="center"
+            android:text="Valider"
+            android:textSize="25dp"
+            android:layout_marginBottom="20dp"
+            android:textStyle="bold"
+            />
 
+
+
+    </RelativeLayout>
 
 </LinearLayout>
