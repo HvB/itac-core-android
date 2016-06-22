@@ -155,7 +155,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 initialize();
                 if (login_btn.getVisibility() == View.VISIBLE)
                 {
-                    Clink.show(EspacePersonnelActivity.this, "veuillez verifier les paramètres de connexion pour se connecter");
+                    Clink.show(EspacePersonnelActivity.this, "veuillez vous connecter");
 
                 }
             }
@@ -218,10 +218,13 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                      srcList.remove(position);
                                      destList.add(passedItem);
                                      if (listArtifactView.getHeight() > 400)
-                                         listArtifactView.getLayoutParams().height = 400;
+                                     {listArtifactView.getLayoutParams().height = 400;}
                                      if (passedItem.getType().equals("message"))
+                                     {
                                          socket.emit("EVT_EnvoieArtefactdeZEPversEP", passedItem.getIdAr().toString(), "test" + String.valueOf(selectedPosition), String.valueOf(selectedPosition));
-                                     else
+                                     Log.i("aaa","aaaa");}
+
+                                         else
                                          socket.emit("EVT_EnvoieArtefactdeZEPversEP", passedItem.getIdAr().toString(), "test" + String.valueOf(selectedPosition), String.valueOf(selectedPosition));
                                  }
 
@@ -354,37 +357,42 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                 }
                             });
                         } else if (v == zPLayout) {
-                            if (login_btn.getVisibility() == View.VISIBLE) {
+
+                            if (login_btn.getVisibility() == View.VISIBLE)
+                            {
                                 Clink.show(EspacePersonnelActivity.this, "veuillez vous connecter");
 
-                            } else {
-                                passedItem.setTypeConteneur("ZP");
-                                srcList.remove(position);
-                                if (passedItem.getType() == "message")
-                                    socket.emit("EVT_ReceptionArtefactIntoZP", pseudo, String.valueOf(selectedPosition), "zoneEchange" + String.valueOf(selectedPosition), passedItem.toJSONMessage().toString());
-                                else
-                                    socket.emit("EVT_ReceptionArtefactIntoZP", pseudo, String.valueOf(selectedPosition), "zoneEchange" + String.valueOf(selectedPosition), passedItem.toJSONImage().toString());
+                            }
 
+                            else if (srcList != listArtifactZEP)
+
+                            {
+                                srcList.remove(position);
+                                if (passedItem.getType() == "message") {
+                                    Log.i("art : ", passedItem.toJSONMessage().toString());
+                                    socket.emit("EVT_ReceptionArtefactIntoZP", pseudo, String.valueOf(selectedPosition), "test" + String.valueOf(selectedPosition), passedItem.toJSONMessage().toString());
+                                } else {
+                                    socket.emit("EVT_ReceptionArtefactIntoZP", pseudo, String.valueOf(selectedPosition), "test" + String.valueOf(selectedPosition), passedItem.toJSONImage().toString());
+                                    Log.i("art : ", passedItem.toJSONMessage().toString());
+                                }
                             }
                         }
-                        //Réponse envoie artefact vers ZE
-                        socket.on("EVT_NewArtefactInZP", new Emitter.Listener() {
 
+                        else if (v==espacePersonnelLayout && (srcList != listArtifact))
+                        {
+                            if (passedItem.getType().equals("message"))
+                            {
+                                socket.emit("EVT_EnvoieArtefactdeZEPversEP", passedItem.getIdAr().toString(), "test" + String.valueOf(selectedPosition), String.valueOf(selectedPosition));
+                                Log.i("aaa","aaaa");}
 
-                            @Override
-                            public void call(Object... args) {
-
-                                final int id = (int) args[2];
-
-
-                                EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        listArtifactZEP.get(listArtifactZEP.size() - 1).setIdAr(String.valueOf(id));
-                                    }
-                                });
+                            else
+                            {socket.emit("EVT_EnvoieArtefactdeZEPversEP", passedItem.getIdAr().toString(), "test" + String.valueOf(selectedPosition), String.valueOf(selectedPosition));
                             }
-                        });
+                            srcList.remove(position);
+                            listArtifact.add(passedItem);
+                            artifactAdapter.notifyDataSetChanged();
+                        }
+
 
                         srcAdapter.notifyDataSetChanged();
                         trashEditLayout.setVisibility(View.GONE);

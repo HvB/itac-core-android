@@ -16,7 +16,6 @@
         android:layout_width="fill_parent"
         android:background="#323232"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:layout_centerHorizontal="true"
         android:visibility="gone">
 
@@ -48,7 +47,7 @@
         android:layout_marginBottom="10dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:background="@drawable/rounded_corner_red"
         android:layout_below="@id/zp_Layout">
 
@@ -128,7 +127,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="800dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="45dp"
         android:id="@+id/artifactLayout"
         android:layout_below="@id/zep_layout">
 
@@ -161,15 +160,17 @@
 <ScrollView
     android:layout_below="@id/listArtifactLayout"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+
+    >
     <RelativeLayout
         android:id="@+id/artifact"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:layout_marginTop="25dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginTop="3dp"
+        android:layout_marginBottom="25dp"
         android:background="@drawable/rounded_corner_blue"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
@@ -204,8 +205,7 @@
             android:background="#ffffff"
             android:gravity="top"
             android:hint="Message"
-
-            android:inputType="text" />
+            android:inputType="textMultiLine" />
 
         <Button
             android:id="@+id/exit_button"
