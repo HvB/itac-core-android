@@ -27,7 +27,7 @@
         android:id="@+id/ip"
         android:hint="Saisissez l'adresse IP"
         android:digits="0123456789."
-        android:inputType="number"/>
+        android:inputType="numberDecimal"/>
 
     <EditText
 
