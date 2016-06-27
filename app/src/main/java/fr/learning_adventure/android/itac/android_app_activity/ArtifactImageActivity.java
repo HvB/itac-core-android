@@ -30,8 +30,15 @@ public class ArtifactImageActivity extends ActionBarActivity {
         ImageView imageView = (ImageView) findViewById(R.id.image);
 
         pseudoView.setText("Crée par " + pseudo + " le " + date);
+
+        Bitmap bm = BitmapFactory.decodeFile(contenu);
         if (created.equals("true")) {
             imageView.setImageBitmap(BitmapFactory.decodeFile(contenu));
+            if(bm!=null)
+            {
+                bm.recycle();
+                bm=null;
+            }
         } else
 
         {

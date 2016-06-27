@@ -62,6 +62,8 @@ public class ArtifactAdapter extends BaseAdapter {
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = 8;
 
         // LayoutInflator to call external grid_item.xml file
 
@@ -78,17 +80,16 @@ public class ArtifactAdapter extends BaseAdapter {
 //            mDate.setText(artifact.getDateCreation());
 
 
-
         } else {
             convertView = inflater.inflate(R.layout.artifact_image_adapter, null);
-            if(artifact.getCreated().equals("true"))
-            {
-            mImage = (ImageView) convertView.findViewById(R.id.image);
-                mImage.setImageBitmap(getRoundedCornerBitmap(BitmapFactory.decodeFile(artifact.getContenu()), 30));
-            //mImage.setImageBitmap(BitmapFactory.decodeFile(artifact.getContenu()));
-            }
+            if (artifact.getCreated().equals("true")) {
+                Bitmap bm = BitmapFactory.decodeFile(artifact.getContenu(),options);
+                mImage = (ImageView) convertView.findViewById(R.id.image);
+                mImage.setImageBitmap(bm);
 
-            else
+
+                //mImage.setImageBitmap(BitmapFactory.decodeFile(artifact.getContenu()));
+            } else
 
             {
                 mImage = (ImageView) convertView.findViewById(R.id.image);
@@ -96,7 +97,7 @@ public class ArtifactAdapter extends BaseAdapter {
                 Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
 
 
-                mImage.setImageBitmap(getRoundedCornerBitmap(decodedByte, 30));
+                mImage.setImageBitmap(decodedByte);
             }
 
 
@@ -117,7 +118,6 @@ public class ArtifactAdapter extends BaseAdapter {
 
         paint.setAntiAlias(true);
         canvas.drawARGB(0, 0, 0, 0);
-
 
 
         paint.setColor(color);

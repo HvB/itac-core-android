@@ -2,6 +2,7 @@ package fr.learning_adventure.android.itac.android_app_activity;
 
 import android.app.Activity;
 import android.content.ClipData;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
@@ -43,10 +44,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Serializable;
@@ -86,7 +84,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     private String idZEP;
     private String idZE;
     private boolean connected = false;
-
+    private    ContentValues values;
+    private Uri imageUri;
 
 
     @Override
@@ -381,12 +380,11 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
                             {
                                 srcList.remove(position);
-                                if (passedItem.getType() == "message") {
+                                if (passedItem.getType().equals("message")) {
                                     Log.i("art : ", passedItem.toJSONMessage().toString());
                                     socket.emit("EVT_ReceptionArtefactIntoZP", pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
                                 } else {
                                     socket.emit("EVT_ReceptionArtefactIntoZP", pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
-                                    Log.i("art : ", passedItem.toJSONMessage().toString());
                                 }
                             }
                         } else if (v == espacePersonnelLayout && (srcList != listArtifact)) {
@@ -490,6 +488,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     intent.putExtra("avatarPosition", selectedPosition);
 
 
+
+
                     //Start details activity
                     startActivity(intent);
                 } else {
@@ -498,7 +498,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     intent.putExtra("image", artifact.getContenu());
                     intent.putExtra("date", artifact.getDateCreation());
                     intent.putExtra("created", artifact.getCreated());
-
                     startActivity(intent);
                 }
             }
@@ -589,7 +588,14 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
             @Override
             public void onClick(View arg0) {
+
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                values = new ContentValues();
+                values.put(MediaStore.Images.Media.TITLE, "New Picture");
+                values.put(MediaStore.Images.Media.DESCRIPTION, "From your Camera");
+                imageUri = getContentResolver().insert(
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
                 startActivityForResult(intent, REQUEST_CAMERA);
             }
         });
@@ -643,7 +649,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         artifact.setCreated("false");
                         listArtifactZEP.add(artifact);
                         artifactZEPAdapter.notifyDataSetChanged();
-                        //Log.i("artifact :",artifact.toJSONMessage().toString());
+                        Log.i("artifact :",artifact.toJSONMessage().toString());
                     }
                 });
             }
@@ -713,6 +719,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             //accés au parametre de connexion : saisie d'adresse ip et port
             case R.id.parametre:
                 Intent i = new Intent(EspacePersonnelActivity.this, ConnexionActivity.class);
+                i.putExtra("uri", getUriSocket().toString());
+
                 EspacePersonnelActivity.this.startActivity(i);
                 return true;
 
@@ -833,27 +841,24 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
 
         }
-
+        Bitmap thumbnail;
+        String imageurl = null;
         //prendre un photo
-        if (requestCode == REQUEST_CAMERA && resultCode == RESULT_OK && null != data) {
-            Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
-            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            thumbnail.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
-            File destination = new File(Environment.getExternalStorageDirectory(),
-                    System.currentTimeMillis() + ".jpg");
-            FileOutputStream fo;
+        if (requestCode == REQUEST_CAMERA && resultCode == RESULT_OK ) {
+        Log.i("aaaa","bbb");
             try {
-                destination.createNewFile();
-                fo = new FileOutputStream(destination);
-                fo.write(bytes.toByteArray());
-                fo.close();
-            } catch (FileNotFoundException e) {
+                 thumbnail = MediaStore.Images.Media.getBitmap(
+                        getContentResolver(), imageUri);
+                imageurl = getRealPathFromURI(imageUri);
+
+            } catch (Exception e) {
                 e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+
             }
+
+        }
             Artifact artifact = new Artifact(getPseudo());
-            artifact.setContenu(destination.getAbsolutePath());
+            artifact.setContenu(imageurl);
             artifact.setType("image");
             artifact.setCreated("true");
 
@@ -866,7 +871,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 listArtifactView.getLayoutParams().height = 400;
         }
 
-    }
 
 
     //get & set pseudo, ip
@@ -895,6 +899,15 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     public static void hideSoftKeyboard(Activity activity) {
         InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
+    }
+
+    public String getRealPathFromURI(Uri contentUri) {
+        String[] proj = { MediaStore.Images.Media.DATA };
+        Cursor cursor = managedQuery(contentUri, proj, null, null, null);
+        int column_index = cursor
+                .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        cursor.moveToFirst();
+        return cursor.getString(column_index);
     }
 
 

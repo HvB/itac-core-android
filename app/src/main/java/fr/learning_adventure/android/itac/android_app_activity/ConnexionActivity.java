@@ -6,6 +6,7 @@ import android.os.Environment;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -23,8 +24,11 @@ public class ConnexionActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_connexionzc);
+        String uri = getIntent().getStringExtra("uri");
 
         Button button = (Button) this.findViewById(R.id.loginbtn);
+        TextView uriTextView = (TextView) this.findViewById(R.id.uri);
+        uriTextView.setText("l'adresse actuelle : "+uri);
 
         //saisie de l'adresse IP et port, ajout dans le fichier, retour à EspacePersonnelActivity
         button.setOnClickListener(new View.OnClickListener() {
