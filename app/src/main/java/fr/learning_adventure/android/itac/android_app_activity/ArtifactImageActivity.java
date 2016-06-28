@@ -15,6 +15,7 @@ import fr.learning_adventure.android.itac.R;
  */
 public class ArtifactImageActivity extends ActionBarActivity {
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,21 +31,34 @@ public class ArtifactImageActivity extends ActionBarActivity {
         ImageView imageView = (ImageView) findViewById(R.id.image);
 
         pseudoView.setText("Crée par " + pseudo + " le " + date);
-
-        Bitmap bm = BitmapFactory.decodeFile(contenu);
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = 4;
         if (created.equals("true")) {
-            imageView.setImageBitmap(BitmapFactory.decodeFile(contenu));
-            if(bm!=null)
-            {
-                bm.recycle();
-                bm=null;
+            Bitmap bmOrigine = BitmapFactory.decodeFile(contenu);
+
+            if (bmOrigine.getHeight() > 2048 && bmOrigine.getWidth() > 2048){
+                Bitmap bm = BitmapFactory.decodeFile(contenu,options);
+                imageView.setImageBitmap(bm);
+
+            }else {
+
+                imageView.setImageBitmap(bmOrigine);
             }
-        } else
+           }
+             else
 
         {
             byte[] decodedString = Base64.decode(contenu, Base64.DEFAULT);
             Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-            imageView.setImageBitmap(decodedByte);
+
+            if (decodedByte.getHeight() > 2048 && decodedByte.getWidth() > 2048){
+                Bitmap bm = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length,options);
+                imageView.setImageBitmap(bm);
+
+            }else {
+
+                imageView.setImageBitmap(decodedByte);
+            }
         }
     }
 

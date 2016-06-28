@@ -11,7 +11,9 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.Base64;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
@@ -63,7 +65,7 @@ public class ArtifactAdapter extends BaseAdapter {
 
     public View getView(int position, View convertView, ViewGroup parent) {
         final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inSampleSize = 8;
+        options.inSampleSize = 4;
 
         // LayoutInflator to call external grid_item.xml file
 
@@ -83,9 +85,16 @@ public class ArtifactAdapter extends BaseAdapter {
         } else {
             convertView = inflater.inflate(R.layout.artifact_image_adapter, null);
             if (artifact.getCreated().equals("true")) {
-                Bitmap bm = BitmapFactory.decodeFile(artifact.getContenu(),options);
                 mImage = (ImageView) convertView.findViewById(R.id.image);
-                mImage.setImageBitmap(bm);
+                Bitmap bmOrigine = BitmapFactory.decodeFile(artifact.getContenu());
+                if (bmOrigine.getHeight() > 2048 && bmOrigine.getWidth() > 2048){
+                    Bitmap bm = BitmapFactory.decodeFile(artifact.getContenu(),options);
+                    mImage.setImageBitmap(bm);
+
+                }else {
+
+                    mImage.setImageBitmap(bmOrigine);
+                }
 
 
                 //mImage.setImageBitmap(BitmapFactory.decodeFile(artifact.getContenu()));
@@ -96,12 +105,70 @@ public class ArtifactAdapter extends BaseAdapter {
                 byte[] decodedString = Base64.decode(artifact.getContenu(), Base64.DEFAULT);
                 Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
 
+                if (decodedByte.getHeight() > 2048 && decodedByte.getWidth() > 2048){
+                    Bitmap bm =BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length,options);
+                    mImage.setImageBitmap(bm);
 
+                }else {
+
+                    mImage.setImageBitmap(decodedByte);
+                }
                 mImage.setImageBitmap(decodedByte);
             }
 
 
         }
+        convertView.setOnTouchListener(new View.OnTouchListener() {
+
+            boolean mHasPerformedLongPress;
+            Runnable mPendingCheckForLongPress;
+
+            @Override
+            public boolean onTouch(final View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_UP:
+                        if (!mHasPerformedLongPress) {
+                            // This is a tap, so remove the longpress check
+                            if (mPendingCheckForLongPress != null) {
+                                v.removeCallbacks(mPendingCheckForLongPress);
+                            }
+                            // v.performClick();
+                        }
+                        break;
+                    case MotionEvent.ACTION_DOWN:
+                        if (mPendingCheckForLongPress == null) {
+                            mPendingCheckForLongPress = new Runnable() {
+                                public void run() {
+
+                                            //updateOnItemCustomLongClickListener();
+                                }
+                            };
+                        }
+                        mHasPerformedLongPress = false;
+                        v.postDelayed(mPendingCheckForLongPress, 10);
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        final int x = (int) event.getX();
+                        final int y = (int) event.getY();
+
+                        // Be lenient about moving outside of buttons
+                        int slop = ViewConfiguration.get(v.getContext()).getScaledTouchSlop();
+                        if ((x < 0 - slop) || (x >= v.getWidth() + slop) || (y < 0 - slop)
+                                || (y >= v.getHeight() + slop)) {
+
+                            if (mPendingCheckForLongPress != null) {
+                                v.removeCallbacks(mPendingCheckForLongPress);
+                            }
+                        }
+                        break;
+                    default:
+                        return false;
+                }
+
+                return false;
+            }
+        });
+
         return convertView;
     }
 

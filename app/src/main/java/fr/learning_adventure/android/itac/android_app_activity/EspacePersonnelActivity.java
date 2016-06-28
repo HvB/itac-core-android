@@ -44,7 +44,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Serializable;
@@ -71,7 +74,11 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     private static Socket socket;
     private final static String FILE_URI_SOCKET = "uri_socket.txt";
     private static int RESULT_LOAD_IMAGE = 1;
-    private static int REQUEST_CAMERA = 0;
+    private static int REQUEST_CAMERA_haute =1;
+    private static int REQUEST_CAMERA_moyenne =0;
+    private    ContentValues values;
+    private Uri imageUri;
+
     GridView listArtifactView;
     GridView listArtifactZEPView;
     LinearLayoutAbsListView listArtifactLayout, artifactZEPLayout;
@@ -84,8 +91,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     private String idZEP;
     private String idZE;
     private boolean connected = false;
-    private    ContentValues values;
-    private Uri imageUri;
+
 
 
     @Override
@@ -130,8 +136,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         initialize();
 
         //set id eone d'echange et id ZEP
-        idZE = "test" + String.valueOf(selectedPosition);
-        idZEP = String.valueOf(selectedPosition);
+       // idZE = "test" + String.valueOf(selectedPosition);
+        //idZEP = String.valueOf(selectedPosition);
 
 
         //Boutton qui permet de gerer la deconnexion du serveur
@@ -145,7 +151,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     logout_btn.setVisibility(View.GONE);
                     login_btn.setVisibility(View.VISIBLE);
                     zepLayout.setBackgroundResource(R.drawable.rounded_corner_red);
-                    socket.emit("EVT_Deconnexion", EspacePersonnelActivity.this.getPseudo(), "test" + String.valueOf(selectedPosition));
+                    socket.emit("EVT_Deconnexion", EspacePersonnelActivity.this.getPseudo(), idZE);
                     socket.disconnect();
                 }
             }
@@ -209,7 +215,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                     destList.add(passedItem);
                                     passedItem.setProprietaire(pseudo);
                                     passedItem.setTypeConteneur("ZE");
-                                    passedItem.setIdConteneur("test" + String.valueOf(selectedPosition));
+                                    passedItem.setIdConteneur(idZE);
                                     if (passedItem.getType().equals("message"))
                                         socket.emit("EVT_ReceptionArtefactIntoZE", pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
                                     else
@@ -334,7 +340,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
 
                                     } else if ((message.getText().toString().equals(""))) {
-                                        Clink.show(EspacePersonnelActivity.this, "veuillez inserer un message");
+                                        Clink.show(EspacePersonnelActivity.this, "veuillez saisir un message");
 
                                     } else {
                                         if (!(passedItem.getCreator().isEmpty())) {
@@ -385,6 +391,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                     socket.emit("EVT_ReceptionArtefactIntoZP", pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
                                 } else {
                                     socket.emit("EVT_ReceptionArtefactIntoZP", pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
+                                    Log.i("art : ", passedItem.toJSONMessage().toString());
                                 }
                             }
                         } else if (v == espacePersonnelLayout && (srcList != listArtifact)) {
@@ -432,6 +439,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 List<Artifact> associatedList = associatedAdapter.getList();
 
                 PassObject passObj = new PassObject(view, selectedItem, associatedList, position);
+                Log.i("type :",selectedItem.getType().toString());
 
                 ClipData data = ClipData.newPlainText("", "");
                 View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
@@ -488,8 +496,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     intent.putExtra("avatarPosition", selectedPosition);
 
 
-
-
                     //Start details activity
                     startActivity(intent);
                 } else {
@@ -498,6 +504,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     intent.putExtra("image", artifact.getContenu());
                     intent.putExtra("date", artifact.getDateCreation());
                     intent.putExtra("created", artifact.getCreated());
+
                     startActivity(intent);
                 }
             }
@@ -588,15 +595,22 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
             @Override
             public void onClick(View arg0) {
-
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                values = new ContentValues();
-                values.put(MediaStore.Images.Media.TITLE, "New Picture");
-                values.put(MediaStore.Images.Media.DESCRIPTION, "From your Camera");
-                imageUri = getContentResolver().insert(
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-                startActivityForResult(intent, REQUEST_CAMERA);
+
+                if(REQUEST_CAMERA_haute == 0) {
+                    values = new ContentValues();
+                    values.put(MediaStore.Images.Media.TITLE, "New Picture");
+                    values.put(MediaStore.Images.Media.DESCRIPTION, "From your Camera");
+                    imageUri = getContentResolver().insert(
+                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                    startActivityForResult(intent, REQUEST_CAMERA_haute);
+
+                }
+                else {
+                    startActivityForResult(intent, REQUEST_CAMERA_moyenne);
+
+                }
             }
         });
 
@@ -649,7 +663,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         artifact.setCreated("false");
                         listArtifactZEP.add(artifact);
                         artifactZEPAdapter.notifyDataSetChanged();
-                        Log.i("artifact :",artifact.toJSONMessage().toString());
+                        //Log.i("artifact :",artifact.toJSONMessage().toString());
                     }
                 });
             }
@@ -662,15 +676,21 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             @Override
             public void call(final Object... args) {
 
-                String data = (String) args[0];
-                Log.i("message :", data);
+
+
+
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        int ZEP = (int) args[1];
+                        String ZE =(String) args[0];
+
                         connected = true;
                         zepLayout.setBackgroundResource(R.drawable.rounded_corner_green);
                         logout_btn.setVisibility(View.VISIBLE);
                         login_btn.setVisibility(View.GONE);
+                        idZE = ZE;
+                        idZEP = String.valueOf(ZEP);
 
                     }
                 });
@@ -687,8 +707,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             public void call(final Object... args) {
 
 
-                String idZep = (String) args[0];
-                Log.i("message :", idZep);
+
                 EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -719,9 +738,21 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             //accés au parametre de connexion : saisie d'adresse ip et port
             case R.id.parametre:
                 Intent i = new Intent(EspacePersonnelActivity.this, ConnexionActivity.class);
-                i.putExtra("uri", getUriSocket().toString());
-
                 EspacePersonnelActivity.this.startActivity(i);
+                return true;
+
+            case R.id.hauteResolution:
+                 REQUEST_CAMERA_haute= 0;
+                REQUEST_CAMERA_moyenne= 1;
+
+
+
+                return true;
+
+            case R.id.moyenneResolution:
+                REQUEST_CAMERA_haute= 1;
+                REQUEST_CAMERA_moyenne=0;
+
                 return true;
 
 
@@ -841,13 +872,47 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
 
         }
-        Bitmap thumbnail;
-        String imageurl = null;
+
         //prendre un photo
-        if (requestCode == REQUEST_CAMERA && resultCode == RESULT_OK ) {
-        Log.i("aaaa","bbb");
+        else if (requestCode == REQUEST_CAMERA_moyenne && resultCode == RESULT_OK && null != data) {
+            Log.i("cam","moyenne");
+            Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            thumbnail.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+            File destination = new File(Environment.getExternalStorageDirectory(),
+                    System.currentTimeMillis() + ".jpg");
+            FileOutputStream fo;
             try {
-                 thumbnail = MediaStore.Images.Media.getBitmap(
+                destination.createNewFile();
+                fo = new FileOutputStream(destination);
+                fo.write(bytes.toByteArray());
+                fo.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Artifact artifact = new Artifact(getPseudo());
+            artifact.setContenu(destination.getAbsolutePath());
+            artifact.setType("image");
+            artifact.setCreated("true");
+
+            DateFormat df = new SimpleDateFormat("dd-MM-yyyy 'à 'HH:mm");
+            String date = df.format(Calendar.getInstance().getTime());
+            artifact.setDateCreation(date);
+            listArtifact.add(artifact);
+            artifactAdapter.notifyDataSetChanged();
+            if (listArtifactView.getHeight() > 400)
+                listArtifactView.getLayoutParams().height = 400;
+        }
+        //prendre un photo
+       else if (requestCode == REQUEST_CAMERA_haute && resultCode == RESULT_OK ) {
+
+            Bitmap thumbnail;
+            String imageurl = null;
+            Log.i("aaaa","bbb");
+            try {
+                thumbnail = MediaStore.Images.Media.getBitmap(
                         getContentResolver(), imageUri);
                 imageurl = getRealPathFromURI(imageUri);
 
@@ -855,8 +920,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 e.printStackTrace();
 
             }
-
-        }
             Artifact artifact = new Artifact(getPseudo());
             artifact.setContenu(imageurl);
             artifact.setType("image");
@@ -870,6 +933,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             if (listArtifactView.getHeight() > 400)
                 listArtifactView.getLayoutParams().height = 400;
         }
+
+    }
+
 
 
 
@@ -909,6 +975,5 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         cursor.moveToFirst();
         return cursor.getString(column_index);
     }
-
 
 }
