@@ -3,17 +3,9 @@ package fr.learning_adventure.android.itac.adapter;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
-import android.graphics.RectF;
 import android.util.Base64;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
@@ -32,6 +24,8 @@ public class ArtifactAdapter extends BaseAdapter {
     private ImageView mImage;
     private TextView mDate;
     RoundedImage roundedImage;
+    private int mPosition;
+    private ViewGroup mParent;
 
 
     public ArtifactAdapter(Context context, List<Artifact> artifacts) {
@@ -66,6 +60,8 @@ public class ArtifactAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = 4;
+        mPosition=position;
+        mParent = parent;
 
         // LayoutInflator to call external grid_item.xml file
 
@@ -87,6 +83,9 @@ public class ArtifactAdapter extends BaseAdapter {
             if (artifact.getCreated().equals("true")) {
                 mImage = (ImageView) convertView.findViewById(R.id.image);
                 Bitmap bmOrigine = BitmapFactory.decodeFile(artifact.getContenu());
+
+                //2048 est la resolution maximale au dela de laquelle on ne peut pas afficher une image sur la tablet Asus, cette valeur differe d'une valeur à une autre
+
                 if (bmOrigine.getHeight() > 2048 && bmOrigine.getWidth() > 2048){
                     Bitmap bm = BitmapFactory.decodeFile(artifact.getContenu(),options);
                     mImage.setImageBitmap(bm);
@@ -118,81 +117,15 @@ public class ArtifactAdapter extends BaseAdapter {
 
 
         }
-        convertView.setOnTouchListener(new View.OnTouchListener() {
+        //convertView.setOnTouchListener(new OnTouchListener());
 
-            boolean mHasPerformedLongPress;
-            Runnable mPendingCheckForLongPress;
 
-            @Override
-            public boolean onTouch(final View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_UP:
-                        if (!mHasPerformedLongPress) {
-                            // This is a tap, so remove the longpress check
-                            if (mPendingCheckForLongPress != null) {
-                                v.removeCallbacks(mPendingCheckForLongPress);
-                            }
-                            // v.performClick();
-                        }
-                        break;
-                    case MotionEvent.ACTION_DOWN:
-                        if (mPendingCheckForLongPress == null) {
-                            mPendingCheckForLongPress = new Runnable() {
-                                public void run() {
-
-                                            //updateOnItemCustomLongClickListener();
-                                }
-                            };
-                        }
-                        mHasPerformedLongPress = false;
-                        v.postDelayed(mPendingCheckForLongPress, 10);
-                        break;
-                    case MotionEvent.ACTION_MOVE:
-                        final int x = (int) event.getX();
-                        final int y = (int) event.getY();
-
-                        // Be lenient about moving outside of buttons
-                        int slop = ViewConfiguration.get(v.getContext()).getScaledTouchSlop();
-                        if ((x < 0 - slop) || (x >= v.getWidth() + slop) || (y < 0 - slop)
-                                || (y >= v.getHeight() + slop)) {
-
-                            if (mPendingCheckForLongPress != null) {
-                                v.removeCallbacks(mPendingCheckForLongPress);
-                            }
-                        }
-                        break;
-                    default:
-                        return false;
-                }
-
-                return false;
-            }
-        });
 
         return convertView;
+
+
     }
 
-    public static Bitmap getRoundedCornerBitmap(Bitmap bitmap, int pixels) {
-        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(), bitmap
-                .getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(output);
-
-        final int color = 0xff424242;
-        final Paint paint = new Paint();
-        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
-        final RectF rectF = new RectF(rect);
-        final float roundPx = pixels;
-
-        paint.setAntiAlias(true);
-        canvas.drawARGB(0, 0, 0, 0);
 
 
-        paint.setColor(color);
-        canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
-
-        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-        canvas.drawBitmap(bitmap, rect, rect, paint);
-
-        return output;
-    }
 }

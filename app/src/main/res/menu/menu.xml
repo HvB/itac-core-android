@@ -13,12 +13,14 @@
         app:showAsAction="never">
 
         <menu >
-            <group>
+            <group
+                android:checkableBehavior="single">
             <item android:id="@+id/hauteResolution"
-                android:title="haute"   />
+                android:title="Haute résolution"   />
 
             <item android:id="@+id/moyenneResolution"
-                android:title="moyenne"  />
+                android:title="Résolution moyenne"
+                android:checked="true"/>
             </group>
         </menu>
     </item>

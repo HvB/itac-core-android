@@ -21,12 +21,12 @@ import android.view.DragEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnDragListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
@@ -290,6 +290,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
                 switch (event.getAction()) {
                     case DragEvent.ACTION_DRAG_STARTED:
+
+
                         break;
                     case DragEvent.ACTION_DRAG_ENTERED:
                         if (v != espacePersonnelLayout)
@@ -335,7 +337,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
                                     if (titre.getText().toString().equals("")) {
                                         Clink.show(EspacePersonnelActivity.this, "veuillez saisir le titre de l'article");
-                                    } else if (titre.getText().toString().length() > 20) {
+                                    } else if (titre.getText().toString().length() > 25) {
                                         Clink.show(EspacePersonnelActivity.this, "le titre de l'article est trés grand");
 
 
@@ -428,30 +430,48 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         };
 
         //drag artifact on long clic
-        OnItemLongClickListener myOnItemLongClickListener = new OnItemLongClickListener() {
+        AdapterView.OnItemClickListener myOnItemClickListener = new AdapterView.OnItemClickListener() {
 
             @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view,
+            public void onItemClick(AdapterView<?> parent, final View view,
                                            int position, long id) {
-
+                view.setBackgroundColor(Color.parseColor("#70eac8"));
                 Artifact selectedItem = (Artifact) (parent.getItemAtPosition(position));
                 ArtifactAdapter associatedAdapter = (ArtifactAdapter) (parent.getAdapter());
-                List<Artifact> associatedList = associatedAdapter.getList();
+                final List<Artifact> associatedList = associatedAdapter.getList();
+                for (int i=0;i<associatedList.size();i++)
+                {
+                   if( associatedList.get(i)!=selectedItem)
+                    {
+                        associatedAdapter.getView(i,null,parent).setBackgroundResource(0);
+                    }
+                }
 
-                PassObject passObj = new PassObject(view, selectedItem, associatedList, position);
-                Log.i("type :",selectedItem.getType().toString());
+                final PassObject passObj = new PassObject(view, selectedItem, associatedList, position);
 
-                ClipData data = ClipData.newPlainText("", "");
-                View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
-                view.startDrag(data, shadowBuilder, passObj, 0);
-                view.setVisibility(View.INVISIBLE);
+
+                view.setOnTouchListener((new View.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View view, MotionEvent event) {
+                        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                            view.setBackgroundResource(0);
+                            ClipData data = ClipData.newPlainText("", "");
+                            View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(
+                                    view);
+                            view.startDrag(data, shadowBuilder, passObj, 0);
+                            view.setVisibility(View.INVISIBLE);
+                            return true;
+                        } else {
+                            return false;
+                        }
+                      }
+                }));
                 zPLayout.setVisibility(View.VISIBLE);
                 if (associatedList == listArtifact) {
                     trashEditLayout.setVisibility(View.VISIBLE);
                     optionsArtifactLayout.setVisibility(View.GONE);
                 }
 
-                return true;
 
             }
 
@@ -477,13 +497,13 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         listArtifactZEPView.setAdapter(artifactZEPAdapter);
         listArtifactView.setAdapter(artifactAdapter);
 
-        listArtifactZEPView.setOnItemLongClickListener(myOnItemLongClickListener);
-        listArtifactView.setOnItemLongClickListener(myOnItemLongClickListener);
+        listArtifactZEPView.setOnItemClickListener(myOnItemClickListener);
+        listArtifactView.setOnItemClickListener(myOnItemClickListener);
 
 
         //Affichage de l'artifact
-        listArtifactView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+        listArtifactView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long id) {
                 Artifact artifact = (Artifact) parent.getItemAtPosition(position);
                 if (artifact.getType().equals("message")) {
                     Intent intent = new Intent(EspacePersonnelActivity.this, ArtifactArticleActivity.class);
@@ -507,6 +527,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
                     startActivity(intent);
                 }
+                return true;
             }
         });
 
@@ -733,11 +754,16 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
 
     public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.isChecked())
+            item.setChecked(false);
+        else
+            item.setChecked(true);
         switch (item.getItemId()) {
 
             //accés au parametre de connexion : saisie d'adresse ip et port
             case R.id.parametre:
                 Intent i = new Intent(EspacePersonnelActivity.this, ConnexionActivity.class);
+                i.putExtra("uri", getUriSocket().toString());
                 EspacePersonnelActivity.this.startActivity(i);
                 return true;
 
@@ -747,17 +773,20 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
 
 
+
                 return true;
 
             case R.id.moyenneResolution:
                 REQUEST_CAMERA_haute= 1;
                 REQUEST_CAMERA_moyenne=0;
 
+
                 return true;
 
 
             case R.id.quitter:
                 //Pour fermer l'application
+                socket.emit("EVT_Deconnexion", EspacePersonnelActivity.this.getPseudo(), idZE);
                 finish();
                 System.exit(0);
                 return true;
