@@ -212,14 +212,17 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
                                 } else {
                                     srcList.remove(position);
-                                    destList.add(passedItem);
+                                    //destList.add(passedItem);
                                     passedItem.setProprietaire(pseudo);
                                     passedItem.setTypeConteneur("ZE");
                                     passedItem.setIdConteneur(idZE);
                                     if (passedItem.getType().equals("message"))
-                                        socket.emit("EVT_ReceptionArtefactIntoZE", pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
+                                        socket.emit("EVT_NewArtefactInZE", pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
+//                                        socket.emit("EVT_ReceptionArtefactIntoZE", pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
                                     else
-                                        socket.emit("EVT_ReceptionArtefactIntoZE", pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
+                                        socket.emit("EVT_NewArtefactInZE", pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
+//                                        socket.emit("EVT_ReceptionArtefactIntoZE", pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
+                                    Log.i("myOnDragListener", "EVT_NewArtefactInZE : "+ pseudo + ", "+idZEP+", "+ idZE);
                                 }
 
                                 if (destList == listArtifact) {
@@ -232,27 +235,12 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                         socket.emit("EVT_EnvoieArtefactdeZEPversEP", passedItem.getIdAr().toString(), idZE, idZEP);
                                     } else
                                         socket.emit("EVT_EnvoieArtefactdeZEPversEP", passedItem.getIdAr().toString(), idZE, idZEP);
+                                    Log.i("myOnDragListener", "EVT_EnvoieArtefactdeZEPversEP : "+ pseudo + ", "+idZEP+", "+ idZE);
                                 }
 
                             }
                         }
 
-                        //Réponse envoie artefact vers ZE
-                        socket.on("EVT_NewArtefactInZE", new Emitter.Listener() {
-
-                            @Override
-                            public void call(Object... args) {
-
-                                final int id = (int) args[2];
-
-                                EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        listArtifactZEP.get(listArtifactZEP.size() - 1).setIdAr(String.valueOf(id));
-                                    }
-                                });
-                            }
-                        });
 
 
                         srcAdapter.notifyDataSetChanged();
@@ -390,19 +378,24 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                 srcList.remove(position);
                                 if (passedItem.getType().equals("message")) {
                                     Log.i("art : ", passedItem.toJSONMessage().toString());
-                                    socket.emit("EVT_ReceptionArtefactIntoZP", pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
+//                                    socket.emit("EVT_ReceptionArtefactIntoZP", pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
+                                    socket.emit("EVT_NewArtefactInZP", pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
                                 } else {
-                                    socket.emit("EVT_ReceptionArtefactIntoZP", pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
+//                                    socket.emit("EVT_ReceptionArtefactIntoZP", pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
+                                    socket.emit("EVT_NewArtefactInZP", pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
                                     Log.i("art : ", passedItem.toJSONMessage().toString());
                                 }
+//                                Log.i("myArtefactOnDrag", "EVT_ReceptionArtefactIntoZP : "+ pseudo + ", "+idZEP+", "+ idZE);
+                                Log.i("myArtefactOnDrag", "NewArtefactInZP : "+ pseudo + ", "+idZEP+", "+ idZE);
                             }
                         } else if (v == espacePersonnelLayout && (srcList != listArtifact)) {
                             if (passedItem.getType().equals("message")) {
-                                socket.emit("EVT_EnvoieArtefactdeZEPversEP", passedItem.getIdAr().toString(), idZE, idZEP);
+                                socket.emit("EVT_Envoie_ArtefactdeZEversEP", passedItem.getIdAr().toString(), idZE, idZEP);
                                 Log.i("aaa", "aaaa");
                             } else {
-                                socket.emit("EVT_EnvoieArtefactdeZEPversEP", passedItem.getIdAr().toString(), idZE, idZEP);
+                                socket.emit("EVT_Envoie_ArtefactdeZEversEP", passedItem.getIdAr().toString(), idZE, idZEP);
                             }
+                            Log.i("myArtefactOnDrag", "EVT_Envoie_ArtefactdeZEversEP : "+ pseudo + ", "+idZEP+", "+ idZE);
                             srcList.remove(position);
                             listArtifact.add(passedItem);
                             artifactAdapter.notifyDataSetChanged();
@@ -637,19 +630,18 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
 
         //envoie artefact de ZE vers ZP
-        socket.on("EVT_EnvoieArtefactdeZEversZP", new Emitter.Listener() {
+        socket.on("EVT_Envoie_ArtefactdeZEversZP", new Emitter.Listener() {
 
             @Override
             public void call(Object... args) {
                 //final JSONObject object = (JSONObject) args[0];
-                final String id = (String) args[0];
+                final String id = (String) (""+args[0]);
                 EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
 
                         for (int i = 0; i < listArtifactZEP.size(); i++) {
                             Artifact art = listArtifactZEP.get(i);
-
 
                             if (art.getIdAr().equals(id)) {
 
@@ -658,7 +650,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
                             }
                         }
-
+                        Log.i("evt", "EVT_Envoie_ArtefactdeZEversZP : "+ id);
                     }
                 });
             }
@@ -666,7 +658,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
 
         //envoie artefact de ZP vers ZE
-        socket.on("EVT_EnvoieArtefactdeZPversZE", new Emitter.Listener() {
+        socket.on("EVT_Envoie_ArtefactdeZPversZE", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
                 final String data = (String) args[0];
@@ -685,11 +677,45 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         listArtifactZEP.add(artifact);
                         artifactZEPAdapter.notifyDataSetChanged();
                         //Log.i("artifact :",artifact.toJSONMessage().toString());
+                        Log.i("evt", "EVT_Envoie_ArtefactdeZPversZE : "+ data);
+                        Log.i("evt", "EVT_Envoie_ArtefactdeZPversZE : "+ artifact.toJSONMessage().toString());
                     }
                 });
             }
         });
 
+        //Réponse envoie artefact vers ZE
+//        socket.on("EVT_NewArtefactInZE", new Emitter.Listener() {
+        socket.on("EVT_ReceptionArtefactIntoZE", new Emitter.Listener() {
+
+            @Override
+            public void call(Object... args) {
+
+                //final int id = (int) Integer.parseInt((String)args[2]);
+                final String data = (String)args[2];
+                JSONObject object = null;
+                int arId = 0;
+                try {
+                    object = new JSONObject(data);
+                    arId = object.getInt("idAr");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                final int id = arId;
+                Log.i("EVT_NewArtefactInZE : ", ""+id);
+                //listArtifact.add(passedItem);
+                Artifact artifact = new Artifact(object);
+                artifact.setCreated("false");
+                listArtifactZEP.add(artifact);
+                EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+//                        listArtifactZEP.get(listArtifactZEP.size() - 1).setIdAr(String.valueOf(id));
+                        artifactZEPAdapter.notifyDataSetChanged();
+                    }
+                });
+            }
+        });
 
         //Réception message
         socket.on("EVT_ReponseOKConnexionZEP", new Emitter.Listener() {
@@ -703,7 +729,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        int ZEP = (int) args[1];
+  //                      int ZEP = (int) Integer.parseInt(((Object)args[1]).toString());
+                        Object ZEP = args[1];
                         String ZE =(String) args[0];
 
                         connected = true;
