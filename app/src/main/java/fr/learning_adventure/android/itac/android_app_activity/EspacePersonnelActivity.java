@@ -71,7 +71,7 @@ import fr.learning_adventure.android.itac.widget.LinearLayoutAbsListView;
  * Created by learninglab on 03/03/16.
  */
 public class EspacePersonnelActivity extends ActionBarActivity {
-    private static Socket socket;
+    private  Socket socket;
     private final static String FILE_URI_SOCKET = "uri_socket.txt";
     private static int RESULT_LOAD_IMAGE = 1;
     private static int REQUEST_CAMERA_haute =1;
@@ -148,11 +148,14 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     Clink.show(EspacePersonnelActivity.this, "votre zone d'échange contient des élèments, veuiller la vider pour se déconnecter");
 
                 } else {
-                    logout_btn.setVisibility(View.GONE);
-                    login_btn.setVisibility(View.VISIBLE);
-                    zepLayout.setBackgroundResource(R.drawable.rounded_corner_red);
+//                    logout_btn.setVisibility(View.GONE);
+//                    login_btn.setVisibility(View.VISIBLE);
+//                    zepLayout.setBackgroundResource(R.drawable.rounded_corner_red);
+                    Log.i("btn logout", "deconnection du serveur...");
                     socket.emit("EVT_Deconnexion", EspacePersonnelActivity.this.getPseudo(), idZE);
+                    Log.i("Socket", "deconnexion...");
                     socket.disconnect();
+//                    connected=false;
                 }
             }
 
@@ -163,12 +166,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         login_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Log.i("btn login", "socket tentative de connection...");
                 socket.connect();
-                if (connected==false) {
-                    Clink.show(EspacePersonnelActivity.this, "veuillez verifier les parametres de connexion");
-                }
-                connected=false;
             }
 
         });
@@ -218,30 +217,13 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                     passedItem.setIdConteneur(idZE);
                                     if (passedItem.getType().equals("message"))
                                         socket.emit("EVT_NewArtefactInZE", pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
-//                                        socket.emit("EVT_ReceptionArtefactIntoZE", pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
                                     else
                                         socket.emit("EVT_NewArtefactInZE", pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
-//                                        socket.emit("EVT_ReceptionArtefactIntoZE", pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
                                     Log.i("myOnDragListener", "EVT_NewArtefactInZE : "+ pseudo + ", "+idZEP+", "+ idZE);
-                                }
-
-                                if (destList == listArtifact) {
-                                    srcList.remove(position);
-                                    destList.add(passedItem);
-                                    if (listArtifactView.getHeight() > 400) {
-                                        listArtifactView.getLayoutParams().height = 400;
-                                    }
-                                    if (passedItem.getType().equals("message")) {
-                                        socket.emit("EVT_EnvoieArtefactdeZEPversEP", passedItem.getIdAr().toString(), idZE, idZEP);
-                                    } else
-                                        socket.emit("EVT_EnvoieArtefactdeZEPversEP", passedItem.getIdAr().toString(), idZE, idZEP);
-                                    Log.i("myOnDragListener", "EVT_EnvoieArtefactdeZEPversEP : "+ pseudo + ", "+idZEP+", "+ idZE);
                                 }
 
                             }
                         }
-
-
 
                         srcAdapter.notifyDataSetChanged();
                         destAdapter.notifyDataSetChanged();
@@ -258,7 +240,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         view = passObj.view;
                         view.setVisibility(View.VISIBLE);
 
-
                     default:
                         break;
                 }
@@ -271,19 +252,13 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
         // Action Drop Artifact
         final OnDragListener myArtefactOnDragListener = new OnDragListener() {
-
             @Override
             public boolean onDrag(View v, DragEvent event) {
-
-
                 switch (event.getAction()) {
                     case DragEvent.ACTION_DRAG_STARTED:
-
-
                         break;
                     case DragEvent.ACTION_DRAG_ENTERED:
                         if (v != espacePersonnelLayout)
-
                         {
                             v.setBackgroundColor(Color.parseColor("#70eac8"));
                         }
@@ -294,7 +269,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         }
                         break;
                     case DragEvent.ACTION_DROP:
-
                         PassObject passObj = (PassObject) event.getLocalState();
                         int position = passObj.position;
                         View view = passObj.view;
@@ -305,13 +279,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         ArtifactAdapter srcAdapter = (ArtifactAdapter) oldParent.getAdapter();
                         if (v == trashLayout && srcList == listArtifact) {
                             srcList.remove(position);
-
-
                         }
                         else if ((v == editLayout && passedItem.getType().equals("image")) && srcList == listArtifact) {
                             Clink.show(EspacePersonnelActivity.this, "Ce type n'est pas modifiable");
-
-
                         }
                         else if ((v == editLayout && passedItem.getType().equals("message")) && srcList == listArtifact) {
                             titre.setText(passedItem.getTitle());
@@ -322,16 +292,12 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                             modifiedButton.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
-
                                     if (titre.getText().toString().equals("")) {
                                         Clink.show(EspacePersonnelActivity.this, "veuillez saisir le titre de l'article");
                                     } else if (titre.getText().toString().length() > 25) {
                                         Clink.show(EspacePersonnelActivity.this, "le titre de l'article est trés grand");
-
-
                                     } else if ((message.getText().toString().equals(""))) {
                                         Clink.show(EspacePersonnelActivity.this, "veuillez saisir un message");
-
                                     } else {
                                         if (!(passedItem.getCreator().isEmpty())) {
                                             DateFormat df = new SimpleDateFormat("dd-MM-yyyy 'à 'HH:mm");
@@ -354,26 +320,19 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                             button.setVisibility(View.VISIBLE);
                                             hideSoftKeyboard(EspacePersonnelActivity.this);
                                         }
-
-
                                     }
-
                                 }
                             });
                         } else if (v == zPLayout) {
-
                             if (login_btn.getVisibility() == View.VISIBLE) {
                                 Clink.show(EspacePersonnelActivity.this, "veuillez vous connecter");
-
                             }
                             else if (srcList == listArtifactZEP)
-
                             {
                                 Clink.show(EspacePersonnelActivity.this, "cette action est disponible depuis la table");
 
                             }
                             else if (srcList != listArtifactZEP)
-
                             {
                                 srcList.remove(position);
                                 if (passedItem.getType().equals("message")) {
@@ -401,12 +360,10 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                             artifactAdapter.notifyDataSetChanged();
                         }
 
-
                         srcAdapter.notifyDataSetChanged();
                         trashEditLayout.setVisibility(View.GONE);
                         zPLayout.setVisibility(View.GONE);
                         optionsArtifactLayout.setVisibility(View.VISIBLE);
-
 
                         break;
                     case DragEvent.ACTION_DRAG_ENDED:
@@ -416,10 +373,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     default:
                         break;
                 }
-
                 return true;
             }
-
         };
 
         //drag artifact on long clic
@@ -441,8 +396,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 }
 
                 final PassObject passObj = new PassObject(view, selectedItem, associatedList, position);
-
-
                 view.setOnTouchListener((new View.OnTouchListener() {
                     @Override
                     public boolean onTouch(View view, MotionEvent event) {
@@ -464,8 +417,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     trashEditLayout.setVisibility(View.VISIBLE);
                     optionsArtifactLayout.setVisibility(View.GONE);
                 }
-
-
             }
 
         };
@@ -717,58 +668,59 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             }
         });
 
-        //Réception message
+        //Reception message acquitant la connexion
         socket.on("EVT_ReponseOKConnexionZEP", new Emitter.Listener() {
 
             @Override
             public void call(final Object... args) {
-
-
-
-
+                Object ZEP = args[1];
+                String ZE =(String) args[0];
+                idZE = ZE;
+                idZEP = String.valueOf(ZEP);
+                connected = true;
+                // on met a jour l'interface
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-  //                      int ZEP = (int) Integer.parseInt(((Object)args[1]).toString());
-                        Object ZEP = args[1];
-                        String ZE =(String) args[0];
-
-                        connected = true;
                         zepLayout.setBackgroundResource(R.drawable.rounded_corner_green);
                         logout_btn.setVisibility(View.VISIBLE);
                         login_btn.setVisibility(View.GONE);
-                        idZE = ZE;
-                        idZEP = String.valueOf(ZEP);
-
                     }
                 });
-
             }
-
-
         });
 
-        //Réponse envoie artefact vers ZE non accepté
+        //Réponse message acquitant un refus de connexion
         socket.on("EVT_ReponseNOKConnexionZEP", new Emitter.Listener() {
 
             @Override
             public void call(final Object... args) {
-
-
-
                 EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         Clink.show(EspacePersonnelActivity.this, "le nombre maximal de connexion au serveur est dépassé");
                     }
                 });
-
             }
-
-
         });
 
     }
+
+    @Override
+    protected void onDestroy() {
+        if (socket.connected()) {
+            Log.i("onDestroy", "deconnection du serveur...");
+            socket.emit("EVT_Deconnexion", EspacePersonnelActivity.this.getPseudo(), idZE);
+        }
+        Log.i("OnDestroy", "deconnexion...");
+        Log.i("Socket", "deconnexion...");
+        socket.disconnect();
+        socket.off();
+ //       finish();
+ //       System.exit(0);
+        super.onDestroy();
+    }
+
 
 
     // Création du menu
@@ -778,7 +730,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         menuInflater.inflate(R.menu.menu, menu);
         return true;
     }
-
 
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.isChecked())
@@ -813,9 +764,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
             case R.id.quitter:
                 //Pour fermer l'application
-                socket.emit("EVT_Deconnexion", EspacePersonnelActivity.this.getPseudo(), idZE);
+//                socket.emit("EVT_Deconnexion", EspacePersonnelActivity.this.getPseudo(), idZE);
                 finish();
-                System.exit(0);
+//                System.exit(0);
                 return true;
         }
         return false;
@@ -838,8 +789,24 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         return uriSocket.toString();
     }
 
+    private void onDisconnection(){
+        final RelativeLayout zepLayout = (RelativeLayout) findViewById(R.id.zep_layout);
+        final ImageButton logout_btn = (ImageButton) this.findViewById(R.id.logout_btn);
+        final ImageButton login_btn = (ImageButton) this.findViewById(R.id.login_btn);
+        Log.i("onDisconnection", "on ete deconnecte du serveur...");
+        connected=false;
+        // on met a jour l'interface...
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                logout_btn.setVisibility(View.GONE);
+                login_btn.setVisibility(View.VISIBLE);
+                zepLayout.setBackgroundResource(R.drawable.rounded_corner_red);
+            }
+        });
+    }
     //Creation et connection de Socket
-    public void initialize() {
+    private void initialize() {
         final RelativeLayout zepLayout = (RelativeLayout) findViewById(R.id.zep_layout);
         final ImageButton logout_btn = (ImageButton) this.findViewById(R.id.logout_btn);
         final ImageButton login_btn = (ImageButton) this.findViewById(R.id.login_btn);
@@ -856,23 +823,47 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
                 }
             });
+            socket.on(Socket.EVENT_RECONNECTING, new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+                    Log.i("Socket", "reconnecting");
+                }
+            });
             socket.on(Socket.EVENT_MESSAGE, new Emitter.Listener() {
                 @Override
                 public void call(Object... args) {
                     Log.i("Socket", "message");
                 }
             });
+            socket.on(Socket.EVENT_CONNECT_ERROR, new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+                    Log.i("Socket", "connexion error");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Clink.show(EspacePersonnelActivity.this, "veuillez verifier les parametres de connexion");
+                        }
+                    });
+                }
+            });
             socket.on(Socket.EVENT_CONNECT_TIMEOUT, new Emitter.Listener() {
                 @Override
                 public void call(Object... args) {
                     Log.i("Socket", "timeout");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Clink.show(EspacePersonnelActivity.this, "veuillez verifier les parametres de connexion");
+                        }
+                    });
                 }
             });
             socket.on(Socket.EVENT_DISCONNECT, new Emitter.Listener() {
                 @Override
                 public void call(Object... args) {
                     Log.i("Socket", "disconnection " + args[0]);
-
+                    EspacePersonnelActivity.this.onDisconnection();
                 }
             });
             socket.on(Socket.EVENT_ERROR, new Emitter.Listener() {
@@ -882,6 +873,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
                 }
             });
+            Log.i("initialize", "socket tentative de connection...");
+            Log.i("Socket", "tentative de connection...");
             socket.connect();
 
         } catch (URISyntaxException e) {
