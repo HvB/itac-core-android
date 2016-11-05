@@ -582,20 +582,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
     @Override
     protected void onDestroy() {
-        if (socket.connected()) {
-            Log.i("onDestroy", "deconnection du serveur...");
-            socket.emit("EVT_Deconnexion", EspacePersonnelActivity.this.getPseudo(), idZE);
-        }
-        Log.i("OnDestroy", "deconnexion...");
-        Log.i("Socket", "deconnexion...");
-        socket.disconnect();
-        socket.off();
- //       finish();
- //       System.exit(0);
+        closeWebSocket();
         super.onDestroy();
     }
-
-
 
     // Création du menu
     @Override
@@ -883,6 +872,17 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
     }
 
+    //Fin de la connexion au srveur ITAC et fermeture de la WebSocket
+    private void closeWebSocket() {
+        if (socket.connected()) {
+            Log.i("onDestroy", "deconnection du serveur...");
+            socket.emit("EVT_Deconnexion", EspacePersonnelActivity.this.getPseudo(), idZE);
+        }
+        Log.i("closeWebSocket", "deconnexion du serveur et fermeture de la socket");
+        socket.disconnect();
+        // IMPERATIF : il faut supprimer les listeners attaches a la websocket
+        socket.off();
+    }
 
     //selectionner l'image depuis la galerie ou l'appareil photo
     @Override
