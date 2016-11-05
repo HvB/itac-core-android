@@ -234,12 +234,14 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                     passedItem.setProprietaire(pseudo);
                                     passedItem.setTypeConteneur("ZE");
                                     passedItem.setIdConteneur(idZE);
-                                    if (passedItem.getType().equals("message")) {
+                                    Log.i("myOnDragListener", "EVT_NewArtefactInZE : "+ pseudo + ", "+idZEP+", "+ idZE);
+                                    if (socket == null) {
+                                        Log.i("myOnDragListener", "socket is null, can't send EVT_NewArtefactInZE : " + pseudo + ", " + idZEP + ", " + idZE);
+                                    } else if (passedItem.getType().equals("message")) {
                                         socket.emit("EVT_NewArtefactInZE", pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
                                     } else {
                                         socket.emit("EVT_NewArtefactInZE", pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
                                     }
-                                    Log.i("myOnDragListener", "EVT_NewArtefactInZE : "+ pseudo + ", "+idZEP+", "+ idZE);
                                 }
                             }
                         }
@@ -347,22 +349,26 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                             }
                             else {
                                 srcList.remove(position);
-                                if (passedItem.getType().equals("message")) {
+                                Log.i("myArtefactOnDrag", "NewArtefactInZP : "+ pseudo + ", "+idZEP+", "+ idZE);
+                                if (socket == null) {
+                                    Log.i("myArtefactOnDrag", "socket is null, can't send NewArtefactInZP : "+ pseudo + ", "+idZEP+", "+ idZE);
+                                } else if (passedItem.getType().equals("message")) {
                                     Log.i("art : ", passedItem.toJSONMessage().toString());
                                     socket.emit("EVT_NewArtefactInZP", pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
                                 } else {
                                     socket.emit("EVT_NewArtefactInZP", pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
                                     Log.i("art : ", passedItem.toJSONMessage().toString());
                                 }
-                                Log.i("myArtefactOnDrag", "NewArtefactInZP : "+ pseudo + ", "+idZEP+", "+ idZE);
                             }
                         } else if (v == espacePersonnelLayout && (srcList != listArtifact)) {
-                            if (passedItem.getType().equals("message")) {
+                            Log.i("myArtefactOnDrag", "EVT_Envoie_ArtefactdeZEversEP : "+ pseudo + ", "+idZEP+", "+ idZE);
+                            if (socket == null) {
+                                Log.i("myArtefactOnDrag", "socket is null, can't send EVT_Envoie_ArtefactdeZEversEP : "+ pseudo + ", "+idZEP+", "+ idZE);
+                            } else if (passedItem.getType().equals("message")) {
                                 socket.emit("EVT_Envoie_ArtefactdeZEversEP", passedItem.getIdAr(), idZE, idZEP);
                             } else {
                                 socket.emit("EVT_Envoie_ArtefactdeZEversEP", passedItem.getIdAr(), idZE, idZEP);
                             }
-                            Log.i("myArtefactOnDrag", "EVT_Envoie_ArtefactdeZEversEP : "+ pseudo + ", "+idZEP+", "+ idZE);
                             srcList.remove(position);
                             listArtifact.add(passedItem);
                             artifactAdapter.notifyDataSetChanged();
@@ -587,12 +593,16 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         switch (item.getItemId()) {
             //accés au parametre de connexion : saisie d'adresse ip et port
             case R.id.parametre:
-                // fermeture de la connection actuelle
-                closeWebSocket();
-                // saisie nouvelle URL
-                Intent i = new Intent(EspacePersonnelActivity.this, ConnexionActivity.class);
-                i.putExtra("uri", getUriSocket());
-                EspacePersonnelActivity.this.startActivity(i);
+                if (listArtifactZEP.size() > 0) {
+                    Clink.show(EspacePersonnelActivity.this, "votre zone d'échange contient des élèments, veuiller la vider pour se déconnecter");
+                } else {
+                    // fermeture de la connection actuelle
+                    closeWebSocket();
+                    // saisie nouvelle URL
+                    Intent i = new Intent(EspacePersonnelActivity.this, ConnexionActivity.class);
+                    i.putExtra("uri", getUriSocket());
+                    EspacePersonnelActivity.this.startActivity(i);
+                }
                 return true;
             case R.id.hauteResolution:
                 REQUEST_CAMERA_haute= 0;
@@ -604,7 +614,11 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 return true;
             case R.id.quitter:
                 //Pour fermer l'application
-                finish();
+                if (listArtifactZEP.size() > 0) {
+                    Clink.show(EspacePersonnelActivity.this, "votre zone d'échange contient des élèments, veuiller la vider pour se déconnecter");
+                } else {
+                    finish();
+                }
                 return true;
         }
         return false;
@@ -644,9 +658,13 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
                     @Override
                     public void call(Object... args) {
-                        Log.i("Socket", "connection");
-                        socket.emit("EVT_DemandeConnexionZEP", pseudo, String.valueOf(selectedPosition));
+                        Log.i("Socket", "connected");
                         Log.i("initializeWebSocket", "EVT_DemandeConnexionZEP : " + pseudo + ", " + String.valueOf(selectedPosition));
+                        if (socket == null) {
+                            Log.i("initializeWebSocket", "socket is null, can't send EVT_DemandeConnexionZEP : " + pseudo + ", " + String.valueOf(selectedPosition));
+                        } else {
+                            socket.emit("EVT_DemandeConnexionZEP", pseudo, String.valueOf(selectedPosition));
+                        }
                     }
                 });
                 socket.on(Socket.EVENT_RECONNECTING, new Emitter.Listener() {
@@ -819,6 +837,10 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 socket.connect();
             } else {
                 Log.i("initializeWebSocket", "la socket est deja connectee...");
+                Log.i("initializeWebSocket", "fermeture de la socket...");
+                socket.close();
+                Log.i("initializeWebSocket", "reouverture de la socket...");
+                socket.connect();
             }
 
         } catch (URISyntaxException e) {
@@ -829,16 +851,19 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
     //Fin de la connexion au srveur ITAC et fermeture de la WebSocket
     private void closeWebSocket() {
-        if (socket.connected()) {
-            Log.i("closeWebSocket", "deconnection du serveur...");
-            socket.emit("EVT_Deconnexion", pseudo, idZE);
-            Log.i("closeWebSocket", "EVT_Deconnexion : "+ pseudo + ", " + idZE);
+        onDisconnection();
+        if (socket != null) {
+            if (socket.connected()) {
+                Log.i("closeWebSocket", "deconnection du serveur...");
+                socket.emit("EVT_Deconnexion", pseudo, idZE);
+                Log.i("closeWebSocket", "EVT_Deconnexion : " + pseudo + ", " + idZE);
+            }
+            Log.i("closeWebSocket", "fermeture de la socket");
+            socket.disconnect();
+            // IMPERATIF : il faut supprimer les listeners attaches a la websocket
+            socket.off();
+            socket = null;
         }
-        Log.i("closeWebSocket", "fermeture de la socket");
-        socket.disconnect();
-        // IMPERATIF : il faut supprimer les listeners attaches a la websocket
-        socket.off();
-        socket = null;
     }
 
     //selectionner l'image depuis la galerie ou l'appareil photo
