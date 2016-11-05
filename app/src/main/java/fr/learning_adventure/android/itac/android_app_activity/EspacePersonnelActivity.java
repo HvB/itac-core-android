@@ -79,21 +79,21 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     private    ContentValues values;
     private Uri imageUri;
 
-    GridView listArtifactView;
-    GridView listArtifactZEPView;
-    LinearLayoutAbsListView listArtifactLayout, artifactZEPLayout;
-    RelativeLayout optionsArtifactLayout;
-    List<Artifact> listArtifact = new ArrayList<>();
-    ArtifactAdapter artifactAdapter = new ArtifactAdapter(this, listArtifact);
-    List<Artifact> listArtifactZEP = new ArrayList<>();
-    ArtifactAdapter artifactZEPAdapter = new ArtifactAdapter(this, listArtifactZEP);
+    private GridView listArtifactView;
+    private GridView listArtifactZEPView;
+    private LinearLayoutAbsListView listArtifactLayout, artifactZEPLayout;
+    private RelativeLayout optionsArtifactLayout;
+    private List<Artifact> listArtifact = new ArrayList<>();
+    private ArtifactAdapter artifactAdapter = new ArtifactAdapter(this, listArtifact);
+    private List<Artifact> listArtifactZEP = new ArrayList<>();
+    private ArtifactAdapter artifactZEPAdapter = new ArtifactAdapter(this, listArtifactZEP);
     private int selectedPosition;
     private String idZEP;
     private String idZE;
     private boolean connected = false;
 
     //get & set pseudo, ip
-    String pseudo;
+    private String pseudo;
 
     public String getPseudo() {
         return this.pseudo;
@@ -144,7 +144,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_espacepersonnel);
 
-
         //récuperer le pseudo
         Intent intent = getIntent();
         final String pseudo = intent.getStringExtra("pseudoName");
@@ -184,10 +183,10 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             public void onClick(View view) {
                 if (listArtifactZEP.size() > 0) {
                     Clink.show(EspacePersonnelActivity.this, "votre zone d'échange contient des élèments, veuiller la vider pour se déconnecter");
-
                 } else {
                     Log.i("btn logout", "deconnection du serveur...");
-                    socket.emit("EVT_Deconnexion", EspacePersonnelActivity.this.getPseudo(), idZE);
+                    socket.emit("EVT_Deconnexion", pseudo, idZE);
+                    Log.i("myOnDragListener", "EVT_Deconnexion : "+ pseudo + ", "+ idZE);
                     Log.i("Socket", "deconnexion...");
                     socket.disconnect();
                 }
@@ -238,10 +237,11 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                     passedItem.setProprietaire(pseudo);
                                     passedItem.setTypeConteneur("ZE");
                                     passedItem.setIdConteneur(idZE);
-                                    if (passedItem.getType().equals("message"))
+                                    if (passedItem.getType().equals("message")) {
                                         socket.emit("EVT_NewArtefactInZE", pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
-                                    else
+                                    } else {
                                         socket.emit("EVT_NewArtefactInZE", pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
+                                    }
                                     Log.i("myOnDragListener", "EVT_NewArtefactInZE : "+ pseudo + ", "+idZEP+", "+ idZE);
                                 }
                             }
@@ -318,7 +318,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                         Clink.show(EspacePersonnelActivity.this, "veuillez saisir un message");
                                     } else {
                                         if (!(passedItem.getCreator().isEmpty())) {
-                                            DateFormat df = new SimpleDateFormat("dd-MM-yyyy 'à 'HH:mm");
+//                                            DateFormat df = new SimpleDateFormat("dd-MM-yyyy 'à 'HH:mm");
 //                                            String date = df.format(Calendar.getInstance().getTime());
 //                                            Modificateurs mod = new Modificateurs(pseudo, date);
 //                                            if (passedItem.getModificateurs().isEmpty()) {
@@ -347,9 +347,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                             }
                             else if (srcList == listArtifactZEP) {
                                 Clink.show(EspacePersonnelActivity.this, "cette action est disponible depuis la table");
-
                             }
-                            else if (srcList != listArtifactZEP) {
+                            else {
                                 srcList.remove(position);
                                 if (passedItem.getType().equals("message")) {
                                     Log.i("art : ", passedItem.toJSONMessage().toString());
@@ -362,9 +361,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                             }
                         } else if (v == espacePersonnelLayout && (srcList != listArtifact)) {
                             if (passedItem.getType().equals("message")) {
-                                socket.emit("EVT_Envoie_ArtefactdeZEversEP", passedItem.getIdAr().toString(), idZE, idZEP);
+                                socket.emit("EVT_Envoie_ArtefactdeZEversEP", passedItem.getIdAr(), idZE, idZEP);
                             } else {
-                                socket.emit("EVT_Envoie_ArtefactdeZEversEP", passedItem.getIdAr().toString(), idZE, idZEP);
+                                socket.emit("EVT_Envoie_ArtefactdeZEversEP", passedItem.getIdAr(), idZE, idZEP);
                             }
                             Log.i("myArtefactOnDrag", "EVT_Envoie_ArtefactdeZEversEP : "+ pseudo + ", "+idZEP+", "+ idZE);
                             srcList.remove(position);
@@ -592,7 +591,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             //accés au parametre de connexion : saisie d'adresse ip et port
             case R.id.parametre:
                 Intent i = new Intent(EspacePersonnelActivity.this, ConnexionActivity.class);
-                i.putExtra("uri", getUriSocket().toString());
+                i.putExtra("uri", getUriSocket());
                 EspacePersonnelActivity.this.startActivity(i);
                 return true;
             case R.id.hauteResolution:
@@ -633,9 +632,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         final ImageButton logout_btn = (ImageButton) this.findViewById(R.id.logout_btn);
         final ImageButton login_btn = (ImageButton) this.findViewById(R.id.login_btn);
         try {
-            Log.i("geturi", getUriSocket().toString());
+            Log.i("geturi", getUriSocket());
             // creation de la socket
-            socket = IO.socket(getUriSocket().toString());
+            socket = IO.socket(getUriSocket());
 
             // gestion des evenements lies au foctionnement de la websocket
             socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
@@ -703,7 +702,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 @Override
                 public void call(Object... args) {
                     //final JSONObject object = (JSONObject) args[0];
-                    final String id = (String) (""+args[0]);
+                    final String id = (""+args[0]);
                     EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -781,8 +780,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 @Override
                 public void call(final Object... args) {
                     Object ZEP = args[1];
-                    String ZE =(String) args[0];
-                    idZE = ZE;
+                    idZE = (String) args[0];
                     idZEP = String.valueOf(ZEP);
                     connected = true;
                     // on met a jour l'interface
@@ -905,7 +903,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 thumbnail = MediaStore.Images.Media.getBitmap(
                         getContentResolver(), imageUri);
                 imageurl = getRealPathFromURI(imageUri);
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -919,8 +916,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             artifact.setDateCreation(date);
             listArtifact.add(artifact);
             artifactAdapter.notifyDataSetChanged();
-            if (listArtifactView.getHeight() > 400)
+            if (listArtifactView.getHeight() > 400) {
                 listArtifactView.getLayoutParams().height = 400;
+            }
         }
     }
 
