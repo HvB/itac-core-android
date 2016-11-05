@@ -587,6 +587,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         switch (item.getItemId()) {
             //accés au parametre de connexion : saisie d'adresse ip et port
             case R.id.parametre:
+                // fermeture de la connection actuelle
+                closeWebSocket();
+                // saisie nouvelle URL
                 Intent i = new Intent(EspacePersonnelActivity.this, ConnexionActivity.class);
                 i.putExtra("uri", getUriSocket());
                 EspacePersonnelActivity.this.startActivity(i);
@@ -631,184 +634,193 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         try {
             Log.i("WebSocket URL", getUriSocket());
             // creation de la socket
-            socket = IO.socket(getUriSocket());
+            if (socket != null){
+                Log.i("initializeWebSocket", "reutilisation de la socket existante");
+            } else {
+                Log.i("initializeWebSocket", "creation de la socket");
+                socket = IO.socket(getUriSocket());
 
-            // gestion des evenements lies au foctionnement de la websocket
-            socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
-                @Override
-                public void call(Object... args) {
-                    Log.i("Socket", "connection");
-                    socket.emit("EVT_DemandeConnexionZEP", pseudo, String.valueOf(selectedPosition));
-                    Log.i("initializeWebSocket", "EVT_DemandeConnexionZEP : "+ pseudo + ", " + String.valueOf(selectedPosition));
-                }
-            });
-            socket.on(Socket.EVENT_RECONNECTING, new Emitter.Listener() {
-                @Override
-                public void call(Object... args) {
-                    Log.i("Socket", "reconnecting");
-                }
-            });
-            socket.on(Socket.EVENT_MESSAGE, new Emitter.Listener() {
-                @Override
-                public void call(Object... args) {
-                    Log.i("Socket", "message");
-                }
-            });
-            socket.on(Socket.EVENT_CONNECT_ERROR, new Emitter.Listener() {
-                @Override
-                public void call(Object... args) {
-                    Log.i("Socket", "connexion error");
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Clink.show(EspacePersonnelActivity.this, "veuillez verifier les parametres de connexion");
-                        }
-                    });
-                }
-            });
-            socket.on(Socket.EVENT_CONNECT_TIMEOUT, new Emitter.Listener() {
-                @Override
-                public void call(Object... args) {
-                    Log.i("Socket", "timeout");
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Clink.show(EspacePersonnelActivity.this, "veuillez verifier les parametres de connexion");
-                        }
-                    });
-                }
-            });
-            socket.on(Socket.EVENT_DISCONNECT, new Emitter.Listener() {
-                @Override
-                public void call(Object... args) {
-                    Log.i("Socket", "disconnection " + args[0]);
-                    EspacePersonnelActivity.this.onDisconnection();
-                }
-            });
-            socket.on(Socket.EVENT_ERROR, new Emitter.Listener() {
-                @Override
-                public void call(Object... args) {
-                    Log.i("Socket", "error " + args[0]);
-
-                }
-            });
-
-            // gestion des evenements lies au fonctionnement du serveur ITAC
-            //envoie artefact de ZE vers ZP
-            socket.on("EVT_Envoie_ArtefactdeZEversZP", new Emitter.Listener() {
-
-                @Override
-                public void call(Object... args) {
-                    //final JSONObject object = (JSONObject) args[0];
-                    final String id = (""+args[0]);
-                    EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            for (int i = 0; i < listArtifactZEP.size(); i++) {
-                                Artifact art = listArtifactZEP.get(i);
-                                if (art.getIdAr().equals(id)) {
-                                    listArtifactZEP.remove(i);
-                                    artifactZEPAdapter.notifyDataSetChanged();
-                                }
-                            }
-                            Log.i("evt", "EVT_Envoie_ArtefactdeZEversZP : "+ id);
-                        }
-                    });
-                }
-            });
-
-            //envoie artefact de ZP vers ZE
-            socket.on("EVT_Envoie_ArtefactdeZPversZE", new Emitter.Listener() {
-                @Override
-                public void call(Object... args) {
-                    final String data = (String) args[0];
-                    EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            JSONObject object = null;
-                            try {
-                                object = new JSONObject(data);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                            Artifact artifact = new Artifact(object);
-                            artifact.setCreated("false");
-                            listArtifactZEP.add(artifact);
-                            artifactZEPAdapter.notifyDataSetChanged();
-                            //Log.i("artifact :",artifact.toJSONMessage().toString());
-                            Log.i("evt", "EVT_Envoie_ArtefactdeZPversZE : "+ data);
-                        }
-                    });
-                }
-            });
-
-            //Réponse envoie artefact vers ZE
-            socket.on("EVT_ReceptionArtefactIntoZE", new Emitter.Listener() {
-
-                @Override
-                public void call(Object... args) {
-                    final String data = (String)args[2];
-                    JSONObject object = null;
-                    int arId = 0;
-                    try {
-                        object = new JSONObject(data);
-                        arId = object.getInt("idAr");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                // gestion des evenements lies au foctionnement de la websocket
+                socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
+                    @Override
+                    public void call(Object... args) {
+                        Log.i("Socket", "connection");
+                        socket.emit("EVT_DemandeConnexionZEP", pseudo, String.valueOf(selectedPosition));
+                        Log.i("initializeWebSocket", "EVT_DemandeConnexionZEP : " + pseudo + ", " + String.valueOf(selectedPosition));
                     }
-                    final int id = arId;
-                    Log.i("EVT_NewArtefactInZE : ", ""+id);
-                    //listArtifact.add(passedItem);
-                    Artifact artifact = new Artifact(object);
-                    artifact.setCreated("false");
-                    listArtifactZEP.add(artifact);
-                    EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-    //                        listArtifactZEP.get(listArtifactZEP.size() - 1).setIdAr(String.valueOf(id));
-                            artifactZEPAdapter.notifyDataSetChanged();
+                });
+                socket.on(Socket.EVENT_RECONNECTING, new Emitter.Listener() {
+                    @Override
+                    public void call(Object... args) {
+                        Log.i("Socket", "reconnecting");
+                    }
+                });
+                socket.on(Socket.EVENT_MESSAGE, new Emitter.Listener() {
+                    @Override
+                    public void call(Object... args) {
+                        Log.i("Socket", "message");
+                    }
+                });
+                socket.on(Socket.EVENT_CONNECT_ERROR, new Emitter.Listener() {
+                    @Override
+                    public void call(Object... args) {
+                        Log.i("Socket", "connexion error");
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Clink.show(EspacePersonnelActivity.this, "veuillez verifier les parametres de connexion");
+                            }
+                        });
+                    }
+                });
+                socket.on(Socket.EVENT_CONNECT_TIMEOUT, new Emitter.Listener() {
+                    @Override
+                    public void call(Object... args) {
+                        Log.i("Socket", "timeout");
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Clink.show(EspacePersonnelActivity.this, "veuillez verifier les parametres de connexion");
+                            }
+                        });
+                    }
+                });
+                socket.on(Socket.EVENT_DISCONNECT, new Emitter.Listener() {
+                    @Override
+                    public void call(Object... args) {
+                        Log.i("Socket", "disconnection " + args[0]);
+                        EspacePersonnelActivity.this.onDisconnection();
+                    }
+                });
+                socket.on(Socket.EVENT_ERROR, new Emitter.Listener() {
+                    @Override
+                    public void call(Object... args) {
+                        Log.i("Socket", "error " + args[0]);
+
+                    }
+                });
+
+                // gestion des evenements lies au fonctionnement du serveur ITAC
+                //envoie artefact de ZE vers ZP
+                socket.on("EVT_Envoie_ArtefactdeZEversZP", new Emitter.Listener() {
+
+                    @Override
+                    public void call(Object... args) {
+                        //final JSONObject object = (JSONObject) args[0];
+                        final String id = ("" + args[0]);
+                        EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                for (int i = 0; i < listArtifactZEP.size(); i++) {
+                                    Artifact art = listArtifactZEP.get(i);
+                                    if (art.getIdAr().equals(id)) {
+                                        listArtifactZEP.remove(i);
+                                        artifactZEPAdapter.notifyDataSetChanged();
+                                    }
+                                }
+                                Log.i("evt", "EVT_Envoie_ArtefactdeZEversZP : " + id);
+                            }
+                        });
+                    }
+                });
+
+                //envoie artefact de ZP vers ZE
+                socket.on("EVT_Envoie_ArtefactdeZPversZE", new Emitter.Listener() {
+                    @Override
+                    public void call(Object... args) {
+                        final String data = (String) args[0];
+                        EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                JSONObject object = null;
+                                try {
+                                    object = new JSONObject(data);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                Artifact artifact = new Artifact(object);
+                                artifact.setCreated("false");
+                                listArtifactZEP.add(artifact);
+                                artifactZEPAdapter.notifyDataSetChanged();
+                                //Log.i("artifact :",artifact.toJSONMessage().toString());
+                                Log.i("evt", "EVT_Envoie_ArtefactdeZPversZE : " + data);
+                            }
+                        });
+                    }
+                });
+
+                //Réponse envoie artefact vers ZE
+                socket.on("EVT_ReceptionArtefactIntoZE", new Emitter.Listener() {
+
+                    @Override
+                    public void call(Object... args) {
+                        final String data = (String) args[2];
+                        JSONObject object = null;
+                        int arId = 0;
+                        try {
+                            object = new JSONObject(data);
+                            arId = object.getInt("idAr");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-                    });
-                }
-            });
+                        final int id = arId;
+                        Log.i("EVT_NewArtefactInZE : ", "" + id);
+                        //listArtifact.add(passedItem);
+                        Artifact artifact = new Artifact(object);
+                        artifact.setCreated("false");
+                        listArtifactZEP.add(artifact);
+                        EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                //                        listArtifactZEP.get(listArtifactZEP.size() - 1).setIdAr(String.valueOf(id));
+                                artifactZEPAdapter.notifyDataSetChanged();
+                            }
+                        });
+                    }
+                });
 
-            //Reception message acquitant la connexion
-            socket.on("EVT_ReponseOKConnexionZEP", new Emitter.Listener() {
+                //Reception message acquitant la connexion
+                socket.on("EVT_ReponseOKConnexionZEP", new Emitter.Listener() {
 
-                @Override
-                public void call(final Object... args) {
-                    Object ZEP = args[1];
-                    idZE = (String) args[0];
-                    idZEP = String.valueOf(ZEP);
-                    connected = true;
-                    // on met a jour l'interface
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            zepLayout.setBackgroundResource(R.drawable.rounded_corner_green);
-                            logout_btn.setVisibility(View.VISIBLE);
-                            login_btn.setVisibility(View.GONE);
-                        }
-                    });
-                }
-            });
+                    @Override
+                    public void call(final Object... args) {
+                        Object ZEP = args[1];
+                        idZE = (String) args[0];
+                        idZEP = String.valueOf(ZEP);
+                        connected = true;
+                        // on met a jour l'interface
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                zepLayout.setBackgroundResource(R.drawable.rounded_corner_green);
+                                logout_btn.setVisibility(View.VISIBLE);
+                                login_btn.setVisibility(View.GONE);
+                            }
+                        });
+                    }
+                });
 
-            //Réponse message acquitant un refus de connexion
-            socket.on("EVT_ReponseNOKConnexionZEP", new Emitter.Listener() {
-                @Override
-                public void call(final Object... args) {
-                    EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Clink.show(EspacePersonnelActivity.this, "le nombre maximal de connexion au serveur est dépassé");
-                        }
-                    });
-                  }
-            });
-
+                //Réponse message acquitant un refus de connexion
+                socket.on("EVT_ReponseNOKConnexionZEP", new Emitter.Listener() {
+                    @Override
+                    public void call(final Object... args) {
+                        EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Clink.show(EspacePersonnelActivity.this, "le nombre maximal de connexion au serveur est dépassé");
+                            }
+                        });
+                    }
+                });
+            }
             // connexion a la websocket
-            Log.i("initializeWebSocket", "initialisation de la connection");
-            socket.connect();
+            if (! socket.connected()){
+                Log.i("initializeWebSocket", "initialisation de la connection");
+                socket.connect();
+            } else {
+                Log.i("initializeWebSocket", "la socket est deja connectee...");
+            }
+
         } catch (URISyntaxException e) {
             e.printStackTrace();
             Log.i("error", e.toString());
@@ -826,6 +838,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         socket.disconnect();
         // IMPERATIF : il faut supprimer les listeners attaches a la websocket
         socket.off();
+        socket = null;
     }
 
     //selectionner l'image depuis la galerie ou l'appareil photo
