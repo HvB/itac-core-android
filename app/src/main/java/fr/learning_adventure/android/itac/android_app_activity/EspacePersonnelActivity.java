@@ -629,7 +629,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         final ImageButton logout_btn = (ImageButton) this.findViewById(R.id.logout_btn);
         final ImageButton login_btn = (ImageButton) this.findViewById(R.id.login_btn);
         try {
-            Log.i("geturi", getUriSocket());
+            Log.i("WebSocket URL", getUriSocket());
             // creation de la socket
             socket = IO.socket(getUriSocket());
 
@@ -638,7 +638,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 @Override
                 public void call(Object... args) {
                     Log.i("Socket", "connection");
-                    socket.emit("EVT_DemandeConnexionZEP", EspacePersonnelActivity.this.getPseudo(), String.valueOf(selectedPosition));
+                    socket.emit("EVT_DemandeConnexionZEP", pseudo, String.valueOf(selectedPosition));
+                    Log.i("initializeWebSocket", "EVT_DemandeConnexionZEP : "+ pseudo + ", " + String.valueOf(selectedPosition));
                 }
             });
             socket.on(Socket.EVENT_RECONNECTING, new Emitter.Listener() {
@@ -817,10 +818,11 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     //Fin de la connexion au srveur ITAC et fermeture de la WebSocket
     private void closeWebSocket() {
         if (socket.connected()) {
-            Log.i("onDestroy", "deconnection du serveur...");
-            socket.emit("EVT_Deconnexion", EspacePersonnelActivity.this.getPseudo(), idZE);
+            Log.i("closeWebSocket", "deconnection du serveur...");
+            socket.emit("EVT_Deconnexion", pseudo, idZE);
+            Log.i("closeWebSocket", "EVT_Deconnexion : "+ pseudo + ", " + idZE);
         }
-        Log.i("closeWebSocket", "deconnexion du serveur et fermeture de la socket");
+        Log.i("closeWebSocket", "fermeture de la socket");
         socket.disconnect();
         // IMPERATIF : il faut supprimer les listeners attaches a la websocket
         socket.off();
