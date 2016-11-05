@@ -185,10 +185,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     Clink.show(EspacePersonnelActivity.this, "votre zone d'échange contient des élèments, veuiller la vider pour se déconnecter");
                 } else {
                     Log.i("btn logout", "deconnection du serveur...");
-                    socket.emit("EVT_Deconnexion", pseudo, idZE);
-                    Log.i("myOnDragListener", "EVT_Deconnexion : "+ pseudo + ", "+ idZE);
-                    Log.i("Socket", "deconnexion...");
-                    socket.disconnect();
+                    closeWebSocket();
                 }
             }
 
@@ -199,7 +196,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             @Override
             public void onClick(View view) {
                 Log.i("btn login", "socket tentative de connection...");
-                socket.connect();
+                initializeWebSocket();
             }
         });
 
