@@ -97,7 +97,16 @@
                 android:textStyle="bold" />
 
         </LinearLayout>
-
+        <ProgressBar
+            android:id="@+id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/login_btn"
+            style="@android:style/Widget.ProgressBar.Large"
+            android:visibility="gone"
+            android:indeterminateOnly="true"
+            />
         <fr.learning_adventure.android.itac.widget.LinearLayoutAbsListView
             android:id="@+id/artifactZEPLayout"
             android:layout_width="fill_parent"
