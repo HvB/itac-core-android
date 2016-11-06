@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -13,6 +14,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBarActivity;
@@ -52,6 +54,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -114,20 +117,15 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         return cursor.getString(column_index);
     }
 
-    //lire depuis le fichier FILI_URI_SOCKET
+    //lire l'URL de la ssocket depuis les preferences
     private String getUriSocket() {
-        File file = new File(
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                FILE_URI_SOCKET);
-        StringBuilder uriSocket = new StringBuilder();
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(file));
-            uriSocket.append(br.readLine());
-            br.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return uriSocket.toString();
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String serverAddr = sharedPreferences.getString(getString(R.string.pref_key_server_addr),"127.0.0.1");
+        String serverPort = sharedPreferences.getString(getString(R.string.pref_key_server_port),"8080");
+        Log.i("initializeWebSocket", "server address : "+serverAddr);
+        Log.i("initializeWebSocket", "server port : "+serverPort);
+        String urlSocket = "http://"+serverAddr+":"+ serverPort;
+        return urlSocket;
     }
 
     //retourner si l'imageview contient une image ou non
@@ -145,7 +143,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_espacepersonnel);
-
         //récuperer le pseudo
         Intent intent = getIntent();
         final String pseudo = intent.getStringExtra("pseudoName");
@@ -178,6 +175,14 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
         //initialiser socket
         initializeWebSocket();
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPreferences.registerOnSharedPreferenceChangeListener(new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                closeWebSocket();
+                initializeWebSocket();
+            }
+        });
 
         //Boutton qui permet de gerer la deconnexion du serveur
         logout_btn.setOnClickListener(new View.OnClickListener() {
@@ -599,7 +604,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     Clink.show(EspacePersonnelActivity.this, "votre zone d'échange contient des élèments, veuiller la vider pour se déconnecter");
                 } else {
                     // fermeture de la connection actuelle
-                    closeWebSocket();
+                    // closeWebSocket();
                     // saisie nouvelle URL
                     Intent i = new Intent(EspacePersonnelActivity.this, ConnexionActivity.class);
                     i.putExtra("uri", getUriSocket());
@@ -644,7 +649,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     }
     //Creation de la WebSocket et lancement de la connexion
     private void initializeWebSocket() {
-        final RelativeLayout zepLayout = (RelativeLayout) findViewById(R.id.zep_layout);
+       final RelativeLayout zepLayout = (RelativeLayout) findViewById(R.id.zep_layout);
         final ImageButton logout_btn = (ImageButton) this.findViewById(R.id.logout_btn);
         final ImageButton login_btn = (ImageButton) this.findViewById(R.id.login_btn);
         try {
@@ -654,7 +659,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 Log.i("initializeWebSocket", "reutilisation de la socket existante");
             } else {
                 Log.i("initializeWebSocket", "creation de la socket");
-                socket = IO.socket(getUriSocket());
+                URI uri = URI.create(getUriSocket());
+                socket = IO.socket(uri);
 
                 // gestion des evenements lies au foctionnement de la websocket
                 socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {

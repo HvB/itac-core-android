@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">ITAC</string>
+    <string name="pref_key_server_addr">pref_key_server_addr</string>
+    <string name="pref_key_server_port">pref_key_server_port</string>
 </resources>
