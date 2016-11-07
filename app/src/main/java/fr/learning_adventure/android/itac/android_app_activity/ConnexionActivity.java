@@ -3,7 +3,6 @@ package fr.learning_adventure.android.itac.android_app_activity;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
@@ -11,17 +10,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-
 import fr.learning_adventure.android.itac.R;
 import fr.learning_adventure.android.itac.widget.Clink;
 
 
 public class ConnexionActivity extends Activity {
-    private final static String FILE_URI_SOCKET = "uri_socket.txt";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,16 +43,25 @@ public class ConnexionActivity extends Activity {
                                       public void onClick(View view) {
                                           EditText ip = (EditText) ConnexionActivity.this.findViewById(R.id.ip);
                                           EditText port = (EditText) ConnexionActivity.this.findViewById(R.id.port);
-
                                           if (ip.getText().toString().equals("")) {
                                               Clink.show(ConnexionActivity.this, "veuillez saisir l'adresse IP");
                                           } else if (port.getText().toString().equals("")) {
                                               Clink.show(ConnexionActivity.this, "veuillez saisir le numero de port");
                                           } else {
-                                              editor.putString(getString(R.string.pref_key_server_addr), ip.getText().toString());
-                                              editor.putString(getString(R.string.pref_key_server_port), port.getText().toString());
-                                              editor.commit();
-                                              ConnexionActivity.this.finish();
+                                              try {
+                                                  short val = Short.parseShort(port.getText().toString());
+                                                  editor.putString(getString(R.string.pref_key_server_addr), ip.getText().toString());
+                                                  editor.putString(getString(R.string.pref_key_server_port), port.getText().toString());
+                                                  boolean ok = editor.commit();
+                                                  if (ok) {
+                                                      ConnexionActivity.this.finish();
+                                                  } else {
+                                                      Log.i("ConnectionActivity","probleme lors de la validation des donnees");
+                                                  }
+                                              } catch (NumberFormatException e){
+                                                  Log.i("ConnectionActivity","port number is not valid");
+                                                  Clink.show(ConnexionActivity.this, "veuillez saisir un numero de port valide");
+                                              }
                                           }
                                       }
                                   }

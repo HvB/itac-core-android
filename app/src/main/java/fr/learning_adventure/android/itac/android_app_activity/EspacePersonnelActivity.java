@@ -18,6 +18,7 @@ import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.view.ActionMode;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.Menu;
@@ -96,6 +97,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     private String idZEP;
     private String idZE;
     private boolean connected = false;
+    private SharedPreferences.OnSharedPreferenceChangeListener preferenceListener;
 
     //get & set pseudo, ip
     private String pseudo;
@@ -122,9 +124,17 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         String serverAddr = sharedPreferences.getString(getString(R.string.pref_key_server_addr),"127.0.0.1");
         String serverPort = sharedPreferences.getString(getString(R.string.pref_key_server_port),"8080");
-        Log.i("initializeWebSocket", "server address : "+serverAddr);
-        Log.i("initializeWebSocket", "server port : "+serverPort);
-        String urlSocket = "http://"+serverAddr+":"+ serverPort;
+        Log.i("getUri", "server address : "+serverAddr);
+        Log.i("getUri", "server port : "+serverPort);
+        short val = 8080;
+        try {
+            val = Short.parseShort(serverPort);
+        } catch (NumberFormatException e){
+            Log.i("getUri","port number is not valid,using 8080");
+            val = 8080;
+        }
+        String urlSocket = "http://"+serverAddr+":"+ val;
+        Log.i("getUri", "server websocket url : "+urlSocket);
         return urlSocket;
     }
 
@@ -175,14 +185,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
         //initialiser socket
         initializeWebSocket();
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        sharedPreferences.registerOnSharedPreferenceChangeListener(new SharedPreferences.OnSharedPreferenceChangeListener() {
-            @Override
-            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                closeWebSocket();
-                initializeWebSocket();
-            }
-        });
 
         //Boutton qui permet de gerer la deconnexion du serveur
         logout_btn.setOnClickListener(new View.OnClickListener() {
@@ -575,6 +577,15 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 }
             }
         });
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        preferenceListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                closeWebSocket();
+                initializeWebSocket();
+            }
+        };
+        sharedPreferences.registerOnSharedPreferenceChangeListener(preferenceListener);
     }
 
     @Override
