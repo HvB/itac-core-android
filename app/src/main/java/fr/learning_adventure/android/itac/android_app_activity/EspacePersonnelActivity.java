@@ -240,18 +240,20 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                 if (login_btn.getVisibility() == View.VISIBLE) {
                                     Clink.show(EspacePersonnelActivity.this, "veuillez vous connecter");
                                 } else {
-                                    srcList.remove(position);
-                                    //destList.add(passedItem);
                                     passedItem.setProprietaire(pseudo);
                                     passedItem.setTypeConteneur("ZE");
                                     passedItem.setIdConteneur(idZE);
                                     Log.i("myOnDragListener", constantes.EVT_NEW_ARTEFACT_IN_ZE+" : "+ pseudo + ", "+idZEP+", "+ idZE);
                                     if (socket == null) {
                                         Log.i("myOnDragListener", "socket is null, can't send "+constantes.EVT_NEW_ARTEFACT_IN_ZE+" : " + pseudo + ", " + idZEP + ", " + idZE);
-                                    } else if (passedItem.getType().equals("message")) {
-                                        socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZE, pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
                                     } else {
-                                        socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZE, pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
+                                        if (passedItem.getType().equals("message")) {
+                                            socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZE, pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
+                                        } else {
+                                            socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZE, pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
+                                        }
+                                        srcList.remove(position);
+                                        //destList.add(passedItem);
                                     }
                                 }
                             }
@@ -359,16 +361,18 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                 Clink.show(EspacePersonnelActivity.this, "cette action est disponible depuis la table");
                             }
                             else {
-                                srcList.remove(position);
-                                Log.i("myArtefactOnDrag", constantes.EVT_NEW_ARTEFACT_IN_ZP+" : "+ pseudo + ", "+idZEP+", "+ idZE);
                                 if (socket == null) {
                                     Log.i("myArtefactOnDrag", "socket is null, can't send "+constantes.EVT_NEW_ARTEFACT_IN_ZP+" : "+ pseudo + ", "+idZEP+", "+ idZE);
-                                } else if (passedItem.getType().equals("message")) {
-                                    Log.i("art : ", passedItem.toJSONMessage().toString());
-                                    socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZP, pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
                                 } else {
-                                    socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZP, pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
-                                    Log.i("art : ", passedItem.toJSONMessage().toString());
+                                    if (passedItem.getType().equals("message")) {
+                                        Log.i("art : ", passedItem.toJSONMessage().toString());
+                                        socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZP, pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
+                                    } else {
+                                        socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZP, pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
+                                        Log.i("art : ", passedItem.toJSONMessage().toString());
+                                    }
+                                    srcList.remove(position);
+                                    Log.i("myArtefactOnDrag", constantes.EVT_NEW_ARTEFACT_IN_ZP+" : "+ pseudo + ", "+idZEP+", "+ idZE);
                                 }
                             }
                         } else if (v == espacePersonnelLayout && (srcList != listArtifact)) {
