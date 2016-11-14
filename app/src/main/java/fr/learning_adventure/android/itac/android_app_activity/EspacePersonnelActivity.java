@@ -361,6 +361,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                 Clink.show(EspacePersonnelActivity.this, "cette action est disponible depuis la table");
                             }
                             else {
+                                Log.i("myArtefactOnDrag", constantes.EVT_NEW_ARTEFACT_IN_ZP+" : "+ pseudo + ", "+idZEP+", "+ idZE);
                                 if (socket == null) {
                                     Log.i("myArtefactOnDrag", "socket is null, can't send "+constantes.EVT_NEW_ARTEFACT_IN_ZP+" : "+ pseudo + ", "+idZEP+", "+ idZE);
                                 } else {
@@ -372,7 +373,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                         Log.i("art : ", passedItem.toJSONMessage().toString());
                                     }
                                     srcList.remove(position);
-                                    Log.i("myArtefactOnDrag", constantes.EVT_NEW_ARTEFACT_IN_ZP+" : "+ pseudo + ", "+idZEP+", "+ idZE);
                                 }
                             }
                         } else if (v == espacePersonnelLayout && (srcList != listArtifact)) {
