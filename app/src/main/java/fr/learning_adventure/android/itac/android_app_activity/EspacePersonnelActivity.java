@@ -74,6 +74,7 @@ import fr.learning_adventure.android.itac.widget.LinearLayoutAbsListView;
  * Created by learninglab on 03/03/16.
  */
 public class EspacePersonnelActivity extends ActionBarActivity {
+    private ItacConstant constantes;
     private  Socket socket;
     private final static String FILE_URI_SOCKET = "uri_socket.txt";
     private static int RESULT_LOAD_IMAGE = 1;
@@ -149,6 +150,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // recuperation des constantes
+        constantes = ItacConstant.getInstance(this.getApplicationContext());
+        // construction de l'IHM
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_espacepersonnel);
         //récuperer le pseudo
@@ -241,13 +245,13 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                     passedItem.setProprietaire(pseudo);
                                     passedItem.setTypeConteneur("ZE");
                                     passedItem.setIdConteneur(idZE);
-                                    Log.i("myOnDragListener", ItacConstant.EVT_NEW_ARTEFACT_IN_ZE+" : "+ pseudo + ", "+idZEP+", "+ idZE);
+                                    Log.i("myOnDragListener", constantes.EVT_NEW_ARTEFACT_IN_ZE+" : "+ pseudo + ", "+idZEP+", "+ idZE);
                                     if (socket == null) {
-                                        Log.i("myOnDragListener", "socket is null, can't send "+ItacConstant.EVT_NEW_ARTEFACT_IN_ZE+" : " + pseudo + ", " + idZEP + ", " + idZE);
+                                        Log.i("myOnDragListener", "socket is null, can't send "+constantes.EVT_NEW_ARTEFACT_IN_ZE+" : " + pseudo + ", " + idZEP + ", " + idZE);
                                     } else if (passedItem.getType().equals("message")) {
-                                        socket.emit(ItacConstant.EVT_NEW_ARTEFACT_IN_ZE, pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
+                                        socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZE, pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
                                     } else {
-                                        socket.emit(ItacConstant.EVT_NEW_ARTEFACT_IN_ZE, pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
+                                        socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZE, pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
                                     }
                                 }
                             }
@@ -356,25 +360,25 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                             }
                             else {
                                 srcList.remove(position);
-                                Log.i("myArtefactOnDrag", ItacConstant.EVT_NEW_ARTEFACT_IN_ZP+" : "+ pseudo + ", "+idZEP+", "+ idZE);
+                                Log.i("myArtefactOnDrag", constantes.EVT_NEW_ARTEFACT_IN_ZP+" : "+ pseudo + ", "+idZEP+", "+ idZE);
                                 if (socket == null) {
-                                    Log.i("myArtefactOnDrag", "socket is null, can't send "+ItacConstant.EVT_NEW_ARTEFACT_IN_ZP+" : "+ pseudo + ", "+idZEP+", "+ idZE);
+                                    Log.i("myArtefactOnDrag", "socket is null, can't send "+constantes.EVT_NEW_ARTEFACT_IN_ZP+" : "+ pseudo + ", "+idZEP+", "+ idZE);
                                 } else if (passedItem.getType().equals("message")) {
                                     Log.i("art : ", passedItem.toJSONMessage().toString());
-                                    socket.emit(ItacConstant.EVT_NEW_ARTEFACT_IN_ZP, pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
+                                    socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZP, pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
                                 } else {
-                                    socket.emit(ItacConstant.EVT_NEW_ARTEFACT_IN_ZP, pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
+                                    socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZP, pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
                                     Log.i("art : ", passedItem.toJSONMessage().toString());
                                 }
                             }
                         } else if (v == espacePersonnelLayout && (srcList != listArtifact)) {
-                            Log.i("myArtefactOnDrag", ItacConstant.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP+" : "+ pseudo + ", "+idZEP+", "+ idZE);
+                            Log.i("myArtefactOnDrag", constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP+" : "+ pseudo + ", "+idZEP+", "+ idZE);
                             if (socket == null) {
-                                Log.i("myArtefactOnDrag", "socket is null, can't send "+ItacConstant.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP+" : "+ pseudo + ", "+idZEP+", "+ idZE);
+                                Log.i("myArtefactOnDrag", "socket is null, can't send "+constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP+" : "+ pseudo + ", "+idZEP+", "+ idZE);
                             } else if (passedItem.getType().equals("message")) {
-                                socket.emit(ItacConstant.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP, passedItem.getIdAr(), idZE, idZEP);
+                                socket.emit(constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP, passedItem.getIdAr(), idZE, idZEP);
                             } else {
-                                socket.emit(ItacConstant.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP, passedItem.getIdAr(), idZE, idZEP);
+                                socket.emit(constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP, passedItem.getIdAr(), idZE, idZEP);
                             }
                             srcList.remove(position);
                             listArtifact.add(passedItem);
@@ -757,13 +761,13 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
                 // gestion des evenements lies au fonctionnement du serveur ITAC
                 //envoie artefact de ZE vers ZP
-                socket.on(ItacConstant.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_ZP, new Emitter.Listener() {
+                socket.on(constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_ZP, new Emitter.Listener() {
 
                     @Override
                     public void call(Object... args) {
                         //final JSONObject object = (JSONObject) args[0];
                         final String id = ("" + args[0]);
-                        Log.i("evt", ItacConstant.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_ZP+" : " + id);
+                        Log.i("evt", constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_ZP+" : " + id);
                         EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -780,7 +784,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 });
 
                 //envoie artefact de ZP vers ZE
-                socket.on(ItacConstant.EVT_ENVOIE_ARTEFACT_DE_ZP_VERS_ZE, new Emitter.Listener() {
+                socket.on(constantes.EVT_ENVOIE_ARTEFACT_DE_ZP_VERS_ZE, new Emitter.Listener() {
                     @Override
                     public void call(Object... args) {
                         final String data = (String) args[0];
@@ -793,7 +797,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         Artifact artifact = new Artifact(object);
                         artifact.setCreated("false");
                         listArtifactZEP.add(artifact);
-                        Log.i("evt", ItacConstant.EVT_ENVOIE_ARTEFACT_DE_ZP_VERS_ZE+" : " + data);
+                        Log.i("evt", constantes.EVT_ENVOIE_ARTEFACT_DE_ZP_VERS_ZE+" : " + data);
                         EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -804,7 +808,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 });
 
                 //Réponse envoie artefact vers ZE
-                socket.on(ItacConstant.EVT_RECEPTION_ARTEFACT_INTO_ZE, new Emitter.Listener() {
+                socket.on(constantes.EVT_RECEPTION_ARTEFACT_INTO_ZE, new Emitter.Listener() {
 
                     @Override
                     public void call(Object... args) {
@@ -818,7 +822,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                             e.printStackTrace();
                         }
                         final int id = arId;
-                        Log.i("evt", ItacConstant.EVT_RECEPTION_ARTEFACT_INTO_ZE+" : " + id);
+                        Log.i("evt", constantes.EVT_RECEPTION_ARTEFACT_INTO_ZE+" : " + id);
                         //listArtifact.add(passedItem);
                         Artifact artifact = new Artifact(object);
                         artifact.setCreated("false");
@@ -835,7 +839,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 });
 
                 //Reception message acquitant la connexion
-                socket.on(ItacConstant.EVT_REPONSE_OK_CONNEXION_ZEP, new Emitter.Listener() {
+                socket.on(constantes.EVT_REPONSE_OK_CONNEXION_ZEP, new Emitter.Listener() {
 
                     @Override
                     public void call(final Object... args) {
@@ -843,7 +847,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         idZE = (String) args[0];
                         idZEP = String.valueOf(ZEP);
                         connected = true;
-                        Log.i("evt", ItacConstant.EVT_REPONSE_OK_CONNEXION_ZEP+" : " + idZE + ", "+idZEP);
+                        Log.i("evt", constantes.EVT_REPONSE_OK_CONNEXION_ZEP+" : " + idZE + ", "+idZEP);
                         // on met a jour l'interface
                         runOnUiThread(new Runnable() {
                             @Override
@@ -858,10 +862,10 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 });
 
                 //Réponse message acquitant un refus de connexion
-                socket.on(ItacConstant.EVT_REPONSE_NOK_CONNEXION_ZEP, new Emitter.Listener() {
+                socket.on(constantes.EVT_REPONSE_NOK_CONNEXION_ZEP, new Emitter.Listener() {
                     @Override
                     public void call(final Object... args) {
-                        Log.i("evt", ItacConstant.EVT_REPONSE_NOK_CONNEXION_ZEP+" : ");
+                        Log.i("evt", constantes.EVT_REPONSE_NOK_CONNEXION_ZEP+" : ");
                         EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -898,8 +902,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         if (socket != null) {
             if (socket.connected()) {
                 Log.i("closeWebSocket", "deconnection du serveur...");
-                socket.emit(ItacConstant.EVT_DECONNEXION, pseudo, idZE);
-                Log.i("closeWebSocket", ItacConstant.EVT_DECONNEXION + " : " + pseudo + ", " + idZE);
+                socket.emit(constantes.EVT_DECONNEXION, pseudo, idZE);
+                Log.i("closeWebSocket", constantes.EVT_DECONNEXION + " : " + pseudo + ", " + idZE);
             }
             Log.i("closeWebSocket", "fermeture de la socket");
             socket.disconnect();
@@ -915,7 +919,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         //selection de l'image depuis la galerie
-        if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != data) {
+        if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != data ) {
             Uri selectedImage = data.getData();
             String[] filePathColumn = {MediaStore.Images.Media.DATA};
 
