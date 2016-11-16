@@ -11,7 +11,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="ITAC"
+        android:text="@string/itac_text"
         android:textSize="60sp"
         android:textStyle="bold"
         android:textColor="#f6f055"
@@ -36,7 +36,7 @@
         android:padding="10dp"
         android:layout_marginTop="25sp"
         android:id="@+id/pseudo"
-        android:hint="pseudo"
+        android:hint="@string/pseudo_hint"
         android:background="#90caf9"
         android:inputType="textVisiblePassword|textNoSuggestions"
         />
@@ -67,7 +67,7 @@
         android:background="@drawable/rounded_corner_yellow"
         android:layout_marginTop="25dp"
         android:textAlignment="center"
-        android:text="Se connecter"
+        android:text="@string/connect_text"
         android:textSize="25dp"
         android:layout_marginBottom="20dp"
         android:textStyle="bold"/>
