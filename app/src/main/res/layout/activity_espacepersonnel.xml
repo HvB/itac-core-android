@@ -313,7 +313,7 @@
             android:layout_toRightOf="@+id/buttonLoadPicture"
             android:background="@drawable/rounded_corner_yellow"
             android:drawableLeft="@drawable/camera"
-            android:text="@string/take_photo_txt"></Button>
+            android:text="@string/take_photo_text"></Button>
     </RelativeLayout>
 
     <LinearLayout
