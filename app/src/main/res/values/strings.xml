@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">ITAC</string>
     <string name="load_image_text">Charger une image</string>
-    <string name="take_photo_txt">Prendre une photo</string>
+    <string name="take_photo_text">Prendre une photo</string>
     <string name="ZP_text">Zone de partage</string>
     <string name="cancel_text">Annuler</string>
     <string name="valid_text">Valider</string>
@@ -10,16 +10,16 @@
     <string name="suppress_text">Supprimer</string>
     <string name="itac_text">ITAC</string>
     <string name="connect_text">Se connecter</string>
-    <string name="enter_address_hint">Saisissez la nouvelle adresse IP</string>
-    <string name="enter_port_hint">Saisissez le nouveau numero de port</string>
-    <string name="connexion_parameters_item">parametres de connexion</string>
+    <string name="enter_address_hint">Saisissez l\'adresse IP</string>
+    <string name="enter_port_hint">Saisissez le numéro de port</string>
+    <string name="connexion_parameters_item">Paramètres de connexion</string>
     <string name="image_resolution_menu">Résolution de l\'image</string>
     <string name="image_resolution_high_item">Haute résolution</string>
     <string name="image_resolution_standard_item">Résolution moyenne</string>
     <string name="quit_item">Quitter</string>
-    <string name="pseudo_hint">pseudo</string>
+    <string name="pseudo_hint">Pseudo</string>
     <string name="title_hint">Titre</string>
     <string name="message_hint">Message</string>
-    <string name="cancel_btn_desc">Exit</string>
-    <string name="ok_btn_desc">Send</string>
+    <string name="cancel_btn_desc">Bouton annuler</string>
+    <string name="ok_btn_desc">Bouton valider</string>
 </resources>
