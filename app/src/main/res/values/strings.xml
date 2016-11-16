@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">ITAC</string>
+    <string name="load_image_text">Charger une image</string>
+    <string name="take_photo_txt">Prendre une photo</string>
+    <string name="ZP_text">Zone de partage</string>
+    <string name="cancel_text">Annuler</string>
+    <string name="valid_text">Valider</string>
+    <string name="add_article_text">Ajouter un article</string>
+    <string name="modify_text">Modifier</string>
+    <string name="suppress_text">Supprimer</string>
+    <string name="itac_text">ITAC</string>
+    <string name="connect_text">Se connecter</string>
+    <string name="enter_address_hint">Saisissez la nouvelle adresse IP</string>
+    <string name="enter_port_hint">Saisissez le nouveau numero de port</string>
 </resources>
