@@ -12,4 +12,9 @@
     <string name="connect_text">Se connecter</string>
     <string name="enter_address_hint">Saisissez la nouvelle adresse IP</string>
     <string name="enter_port_hint">Saisissez le nouveau numero de port</string>
+    <string name="connexion_parameters_item">parametres de connexion</string>
+    <string name="image_resolution_menu">Résolution de l\'image</string>
+    <string name="image_resolution_high_item">Haute résolution</string>
+    <string name="image_resolution_standard_item">Résolution moyenne</string>
+    <string name="quit_item">Quitter</string>
 </resources>
