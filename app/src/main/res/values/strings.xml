@@ -17,4 +17,9 @@
     <string name="image_resolution_high_item">Haute résolution</string>
     <string name="image_resolution_standard_item">Résolution moyenne</string>
     <string name="quit_item">Quitter</string>
+    <string name="pseudo_hint">pseudo</string>
+    <string name="title_hint">Titre</string>
+    <string name="message_hint">Message</string>
+    <string name="cancel_btn_desc">Exit</string>
+    <string name="ok_btn_desc">Send</string>
 </resources>

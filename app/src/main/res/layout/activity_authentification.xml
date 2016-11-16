@@ -36,7 +36,7 @@
         android:padding="10dp"
         android:layout_marginTop="25sp"
         android:id="@+id/pseudo"
-        android:hint="pseudo"
+        android:hint="@string/pseudo_hint"
         android:background="#90caf9"
         android:inputType="textVisiblePassword|textNoSuggestions"
         />
