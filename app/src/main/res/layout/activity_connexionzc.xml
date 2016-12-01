@@ -37,7 +37,7 @@
         android:layout_marginTop="25sp"
         android:background="#90caf9"
         android:id="@+id/ip"
-        android:hint="Saisissez la nouvelle adresse IP"
+        android:hint="@string/enter_address_hint"
         android:digits="0123456789."
         android:inputType="numberDecimal"/>
 
@@ -51,7 +51,7 @@
         android:background="#90caf9"
         android:layout_below="@id/ip"
         android:id="@+id/port"
-        android:hint="Saisissez le nouveau numero de port"
+        android:hint="@string/enter_port_hint"
         android:inputType="number"/>
 
         <Button
@@ -65,7 +65,7 @@
             android:background="@drawable/rounded_corner_yellow"
             android:layout_marginTop="25dp"
             android:textAlignment="center"
-            android:text="Valider"
+            android:text="@string/valid_text"
             android:textSize="25dp"
             android:layout_marginBottom="20dp"
             android:textStyle="bold"

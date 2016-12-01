@@ -4,11 +4,11 @@
     tools:context="fr.learning_adventure.android.itac.android_app_activity.EspacePersonnelActivity">
 
     <item android:id="@+id/parametre"
-        android:title="parametres de connexion "
+        android:title="@string/connexion_parameters_item"
         android:orderInCategory="100"
         app:showAsAction="never"/>
     <item android:id="@+id/qualité"
-        android:title="Résolution de l'image"
+        android:title="@string/image_resolution_menu"
         android:orderInCategory="100"
         app:showAsAction="never">
 
@@ -16,16 +16,16 @@
             <group
                 android:checkableBehavior="single">
             <item android:id="@+id/hauteResolution"
-                android:title="Haute résolution"   />
+                android:title="@string/image_resolution_high_item"   />
 
             <item android:id="@+id/moyenneResolution"
-                android:title="Résolution moyenne"
+                android:title="@string/image_resolution_standard_item"
                 android:checked="true"/>
             </group>
         </menu>
     </item>
     <item android:id="@+id/quitter"
-        android:title="Quitter "
+        android:title="@string/quit_item"
         android:orderInCategory="100"
         app:showAsAction="never"/>
 </menu>

@@ -1,0 +1,15 @@
+<resources>
+    <!-- preferences de l'app : addresse + port -->
+    <string name="pref_key_server_addr" translatable="false">pref_key_server_addr</string>
+    <string name="pref_key_server_port" translatable="false">pref_key_server_port</string>
+    <!-- constantes ITAC -->
+    <string name="EVT_EnvoieArtefactdeZEversZP" translatable="false">EVT_Envoie_ArtefactdeZEversZP</string>
+    <string name="EVT_EnvoieArtefactdeZPversZE" translatable="false">EVT_Envoie_ArtefactdeZPversZE</string>
+    <string name="EVT_EnvoieArtefactdeZEversEP" translatable="false">EVT_Envoie_ArtefactdeZEversEP</string>
+    <string name="EVT_ReceptionArtefactIntoZE" translatable="false">EVT_ReceptionArtefactIntoZE</string>
+    <string name="EVT_ReponseOKConnexionZEP" translatable="false">EVT_ReponseOKConnexionZEP</string>
+    <string name="EVT_ReponseNOKConnexionZEP" translatable="false">EVT_ReponseNOKConnexionZEP</string>
+    <string name="EVT_NewArtefactInZE" translatable="false">EVT_NewArtefactInZE</string>
+    <string name="EVT_NewArtefactInZP" translatable="false">EVT_NewArtefactInZP</string>
+    <string name="EVT_Deconnexion" translatable="false">EVT_Deconnexion</string>
+</resources>
