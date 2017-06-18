@@ -39,10 +39,6 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.github.nkzawa.emitter.Emitter;
-import com.github.nkzawa.socketio.client.IO;
-import com.github.nkzawa.socketio.client.Socket;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -53,7 +49,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -69,6 +64,13 @@ import fr.learning_adventure.android.itac.model.Modificateurs;
 import fr.learning_adventure.android.itac.model.PassObject;
 import fr.learning_adventure.android.itac.widget.Clink;
 import fr.learning_adventure.android.itac.widget.LinearLayoutAbsListView;
+import io.socket.client.IO;
+import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
+
+//import com.github.nkzawa.emitter.Emitter;
+//import com.github.nkzawa.socketio.client.IO;
+//import com.github.nkzawa.socketio.client.Socket;
 
 /**
  * Created by learninglab on 03/03/16.
@@ -894,7 +896,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 socket.connect();
             }
 
-        } catch (URISyntaxException e) {
+        //} catch (URISyntaxException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             Log.i("error", e.toString());
         }
