@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.util.Base64;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -164,7 +165,7 @@ public class Artifact implements Serializable {
         this.contenu = null;    }
 
     public Artifact(JSONObject object) {
-
+        Log.d("fromJSOM", "JSON artifact" + object);
         try {
             this.idAr = object.getString(Artifact.JSON_IDAR);
             this.creator = object.getString(Artifact.JSON_CREATOR);
@@ -174,9 +175,11 @@ public class Artifact implements Serializable {
             this.typeConteneur = object.getString(Artifact.JSON_TYPECONTENEUR);
             this.dateCreation = object.getString(Artifact.JSON_DATECREATION);
             this.contenu = object.getString(Artifact.JSON_CONTENU);
+            this.title = object.optString(Artifact.JSON_TITLE);
+            this.dateDerniereModification = object.optString(Artifact.JSON_DATEDERNIEREMODIFICATION);
             this.modificateurs = object.optJSONArray(Artifact.JSON_MODIFICATEURS);
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.d("fromJSOM", "error while parsing JSON artifact", e);
         }
 
         }
@@ -193,14 +196,15 @@ public class Artifact implements Serializable {
             object.putOpt(Artifact.JSON_TYPECONTENEUR, this.typeConteneur);
             object.putOpt(Artifact.JSON_DATECREATION, this.dateCreation);
             object.putOpt(Artifact.JSON_DATEDERNIEREMODIFICATION, this.dateDerniereModification);
-            object.putOpt(Artifact.JSON_MODIFICATEURS, this.getModificateurs());
             object.putOpt(Artifact.JSON_TITLE, this.title);
             object.putOpt(Artifact.JSON_CONTENU, this.contenu);
+            object.putOpt(Artifact.JSON_MODIFICATEURS, this.getModificateurs());
 
 
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e("toJSONMessage", "error generatin JSON artifact",e);
         }
+        Log.d("toJSONMessage", "JSON artifact" + object);
         return object;
     }
 
@@ -214,15 +218,14 @@ public class Artifact implements Serializable {
             object.putOpt(Artifact.JSON_IDCONTENEUR, this.idConteneur);
             object.putOpt(Artifact.JSON_TYPECONTENEUR, this.typeConteneur);
             object.putOpt(Artifact.JSON_DATECREATION, this.dateCreation);
-            object.putOpt(Artifact.JSON_MODIFICATEURS, this.getModificateurs());
             if(this.getCreated().equals("true"))
             {object.putOpt(Artifact.JSON_CONTENU, encodeImage(this.contenu));}
             else {object.putOpt(Artifact.JSON_CONTENU, this.contenu);}
-
-
+            object.putOpt(Artifact.JSON_MODIFICATEURS, this.getModificateurs());
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e("toJSONImage", "error generatin JSON artifact",e);
         }
+        Log.d("toJSONImage", "JSON artifact" + object);
         return object;
     }
 
