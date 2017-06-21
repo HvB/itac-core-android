@@ -16,6 +16,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.Serializable;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by learninglab on 03/03/16.
@@ -150,7 +151,7 @@ public class Artifact implements Serializable {
 
 
     public Artifact(String creator) {
-        this.idAr = null;
+        this.idAr = UUID.randomUUID().toString();
         this.creator = creator;
         this.proprietaire = null;
         this.type = null;
