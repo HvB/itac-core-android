@@ -28,7 +28,6 @@ public class ArtifactArticleActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.e("ArtifactArticleActivity", "avant lecture modificateurs");
         setContentView(R.layout.artifact_article);
 
         String title = getIntent().getStringExtra("title");
@@ -42,7 +41,6 @@ public class ArtifactArticleActivity extends ActionBarActivity {
         TextView titleTextView = (TextView) findViewById(R.id.titre);
         TextView messageTextView = (TextView) findViewById(R.id.message_input);
         JSONArray modificateurs = new JSONArray();
-        Log.e("ArtifactArticleActivity", "apres lecture modificateurs");
         try {
             if (modificateursStr != null) {
                 modificateurs = new JSONArray(modificateursStr);
@@ -64,22 +62,13 @@ public class ArtifactArticleActivity extends ActionBarActivity {
                     modificateursView.addView(pseudoModifView);
                 }
             } else {
-                Log.e("modificateurs", "La liste des modificateurs est nulle");
+                Log.d("ArtifactArticleActivity", "La liste des modificateurs est nulle");
             }
         } catch (JSONException e) {
             Log.e("ArtifactArticleActivity", "error decoding artifact moficateurs",e);
         } catch (ParseException e) {
             Log.e("ArtifactArticleActivity", "error decoding artifact moficateurs",e);
         }
-//            for (int i = 0; i < listModificateurs.size(); i++) {
-//                TextView modificateurTextView = new TextView(ArtifactArticleActivity.this);
-//                modificateurTextView.setText("modifié par " + listModificateurs.get(i).getModificateur() + "  le " + listModificateurs.get(i).getDateModification());
-//                modificateursLayout.addView(modificateurTextView);
-//            }
-
-
-
-
         titleTextView.setText(title);
         messageTextView.setText(message);
         pseudoView.setText("Crée par " + pseudo + " le " + date);

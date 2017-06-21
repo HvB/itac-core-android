@@ -334,30 +334,21 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                         Clink.show(EspacePersonnelActivity.this, "veuillez saisir un message");
                                     } else {
                                         if (!(passedItem.getCreator().isEmpty())) {
-//                                            DateFormat df = new SimpleDateFormat("dd-MM-yyyy 'à 'HH:mm");
-//                                            String date = df.format(Calendar.getInstance().getTime());
-//                                            Modificateurs mod = new Modificateurs(pseudo, date);
-//                                            if (passedItem.getModificateurs().isEmpty()) {
-//                                                List<Modificateurs> listModificateurs = new ArrayList<>();
-//                                            }
-//                                            List<Modificateurs> listModificateurs = passedItem.getModificateurs();
-//                                            listModificateurs.add(mod);
-                                            // passedItem.setModificateurs(listModificateurs);
                                             if (passedItem.getModificateurs() == null){
                                                 passedItem.setModificateurs(new JSONArray());
                                             }
-                                            Log.e("edition", "liste de modificateurs: "+passedItem.getModificateurs().toString());
+                                            Log.d("EspacePersonnelActivity", "Edition artefact, "+passedItem.getIdAr()+", liste de modificateurs avant modification : "+passedItem.getModificateurs());
                                             JSONObject modificateur = new JSONObject();
                                             DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
                                             try {
                                                 modificateur.putOpt(Artifact.JSON_MODIFICATEUR, pseudo);
                                                 modificateur.putOpt(Artifact.JSON_DATEMODIFICATION, fmt.format(new Date()));
                                                 passedItem.getModificateurs().put(modificateur);
-                                                Log.e("modificateurs", "ajout modificateurs "+modificateur);
+                                                Log.d("EspacePersonnelActivity", "Edition artefact, "+passedItem.getIdAr()+", ajout modificateurs "+modificateur);
                                              } catch (JSONException e) {
-                                                e.printStackTrace();
+                                                Log.e("EspacePersonnelActivity", "Edition artefact, "+passedItem.getIdAr()+", erreur lors du decodage des modificateurs",e);
                                             }
-                                            Log.e("edition", "liste de modificateurs: "+passedItem.getModificateurs().toString());
+                                            Log.d("EspacePersonnelActivity", "Edition artefact, "+passedItem.getIdAr()+", liste de modificateurs apres modification : "+passedItem.getModificateurs());
                                             passedItem.setTitle(titre.getText().toString());
                                             passedItem.setContenu(message.getText().toString());
                                             // passedItem.setDateDerniereModification(date);
@@ -502,7 +493,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     intent.putExtra("dateDerniereModification", artifact.getDateDerniereModification());
                     intent.putExtra("avatarPosition", selectedPosition);
                     intent.putExtra("modificateurs", artifact.getModificateurs().toString());
-                    Log.e("modificateurs", "liste de modificateurs: "+artifact.getModificateurs().toString());
+                    Log.d("EspacePersonnelActivity", "avant affichage de l'artefact, voici la liste des modificateurs: "+artifact.getModificateurs());
                     //Start details activity
                     startActivity(intent);
                 } else {
@@ -548,7 +539,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     String date = df.format(Calendar.getInstance().getTime());
                     artefact.setDateCreation(date);
                     artefact.setType("message");
-                    Log.e("modificateurs", "ajout liste de modificateurs vide");
+                    Log.d("EspacePersonnelActivity", "initialisation de la liste de modificateurs (vide)");
                     artefact.setModificateurs(new JSONArray());
                     listArtifact.add(artefact);
                     artifactAdapter.notifyDataSetChanged();
