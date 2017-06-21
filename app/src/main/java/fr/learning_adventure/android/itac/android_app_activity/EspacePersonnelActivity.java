@@ -594,7 +594,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
                 closeWebSocket();
-                initializeWebSocket();
+                //initializeWebSocket();
             }
         };
         sharedPreferences.registerOnSharedPreferenceChangeListener(preferenceListener);
@@ -895,10 +895,10 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                Clink.show(EspacePersonnelActivity.this, "le nombre maximal de connexion au serveur est dépassé");
                                 progressBar.setVisibility(View.GONE);
                                 login_btn.setVisibility(View.VISIBLE);
                                 logout_btn.setVisibility(View.GONE);
-                                Clink.show(EspacePersonnelActivity.this, "le nombre maximal de connexion au serveur est dépassé");
                             }
                         });
                     }
@@ -925,6 +925,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
     //Fin de la connexion au srveur ITAC et fermeture de la WebSocket
     private void closeWebSocket() {
+        progressBar.setVisibility(View.GONE);
+        login_btn.setVisibility(View.VISIBLE);
+        logout_btn.setVisibility(View.GONE);
         onDisconnection();
         if (socket != null) {
             if (socket.connected()) {
@@ -937,9 +940,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             // IMPERATIF : il faut supprimer les listeners attaches a la websocket
             socket.off();
             socket = null;
-            progressBar.setVisibility(View.GONE);
-            login_btn.setVisibility(View.VISIBLE);
-            logout_btn.setVisibility(View.GONE);
         }
     }
 
