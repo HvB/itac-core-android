@@ -102,7 +102,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:layout_below="@id/login_btn"
+            android:layout_alignBottom="@id/avatarlayout"
             style="@android:style/Widget.ProgressBar.Large"
             android:visibility="gone"
             android:indeterminateOnly="true"
@@ -135,7 +135,8 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="800dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="fill"
         android:layout_marginTop="45dp"
         android:id="@+id/artifactLayout"
         android:layout_below="@id/zep_layout">
@@ -285,6 +286,7 @@
             android:id="@+id/addArtifact"
             android:layout_width="wrap_content"
             android:layout_height="75px"
+            android:layout_alignParentBottom="true"
             android:layout_marginLeft="50dp"
             android:drawableLeft="@drawable/article_add"
             android:text="@string/add_article_text"
@@ -299,6 +301,7 @@
             android:layout_marginLeft="25dp"
             android:textStyle="bold"
             android:layout_toRightOf="@+id/addArtifact"
+            android:layout_alignParentBottom="true"
             android:background="@drawable/rounded_corner_yellow"
             android:text="@string/load_image_text"
             android:drawableLeft="@drawable/picture_download"
@@ -311,6 +314,7 @@
             android:layout_height="75px"
             android:layout_marginLeft="25dp"
             android:layout_toRightOf="@+id/buttonLoadPicture"
+            android:layout_alignParentBottom="true"
             android:background="@drawable/rounded_corner_yellow"
             android:drawableLeft="@drawable/camera"
             android:text="@string/take_photo_text"></Button>
@@ -330,6 +334,7 @@
             android:id="@+id/editLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
             android:orientation="horizontal"
             >
 
@@ -354,8 +359,9 @@
 
         <LinearLayout
             android:id="@+id/trashLayout"
-            android:layout_width="fill_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
             android:orientation="horizontal"
             >
 
