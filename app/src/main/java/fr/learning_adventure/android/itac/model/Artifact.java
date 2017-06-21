@@ -31,7 +31,8 @@ public class Artifact implements Serializable {
     private String proprietaire;
     private String dateCreation;
     private String dateDerniereModification;
-    private List<Modificateurs> modificateurs;
+    //private List<Modificateurs> modificateurs;
+    private JSONArray modificateurs;
     private String type;
 
     public String getCreated() {
@@ -54,8 +55,8 @@ public class Artifact implements Serializable {
     private final static String JSON_DATECREATION = "dateCreation";
     private final static String JSON_DATEDERNIEREMODIFICATION = "derniereModification";
     private final static String JSON_MODIFICATEURS = "modificateurs";
-    private final static String JSON_MODIFICATEUR = "modifier";
-    private final static String JSON_DATEMODIFICATION = "modifiedDate";
+    public final static String JSON_MODIFICATEUR = "modifier";
+    public final static String JSON_DATEMODIFICATION = "modifiedDate";
     private final static String JSON_TITLE = "titre";
     private final static String JSON_CONTENU = "contenu";
 
@@ -100,11 +101,11 @@ public class Artifact implements Serializable {
         this.proprietaire = proprietaire;
     }
 
-    public List<Modificateurs> getModificateurs() {
+    public JSONArray getModificateurs() {
         return modificateurs;
     }
 
-    public void setModificateurs(List<Modificateurs> modificateurs) {
+    public void setModificateurs(JSONArray modificateurs) {
         this.modificateurs = modificateurs;
     }
 
@@ -173,21 +174,7 @@ public class Artifact implements Serializable {
             this.typeConteneur = object.getString(Artifact.JSON_TYPECONTENEUR);
             this.dateCreation = object.getString(Artifact.JSON_DATECREATION);
             this.contenu = object.getString(Artifact.JSON_CONTENU);
-            if (this.type.equals("message")) {
-                this.title = object.getString(Artifact.JSON_TITLE);
-                this.dateDerniereModification = object.getString(Artifact.JSON_DATEDERNIEREMODIFICATION);
-                JSONArray jsonArr = object.getJSONArray(Artifact.JSON_MODIFICATEURS);
-
-                for (int i = 0; i < jsonArr.length(); i++) {
-                    JSONObject objet = jsonArr.getJSONObject(i);
-                    String modificateur = objet.getString(Artifact.JSON_MODIFICATEUR);
-                    String date = objet.getString(Artifact.JSON_DATEMODIFICATION);
-                    Modificateurs mod = new Modificateurs(modificateur, date);
-                    this.modificateurs.add(mod);
-
-                }
-            }
-
+            this.modificateurs = object.optJSONArray(Artifact.JSON_MODIFICATEURS);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -206,22 +193,7 @@ public class Artifact implements Serializable {
             object.putOpt(Artifact.JSON_TYPECONTENEUR, this.typeConteneur);
             object.putOpt(Artifact.JSON_DATECREATION, this.dateCreation);
             object.putOpt(Artifact.JSON_DATEDERNIEREMODIFICATION, this.dateDerniereModification);
-            JSONArray jsonArr = new JSONArray();
-            if (this.getModificateurs() != null) {
-                for (Modificateurs mod : this.getModificateurs()) {
-
-                    JSONObject pnObj = new JSONObject();
-
-                    pnObj.put(Artifact.JSON_MODIFICATEUR, mod.getModificateur());
-
-                    pnObj.put(Artifact.JSON_DATEMODIFICATION, mod.getDateModification());
-
-                    jsonArr.put(pnObj);
-
-                }
-            }
-
-            object.putOpt(Artifact.JSON_MODIFICATEURS, jsonArr);
+            object.putOpt(Artifact.JSON_MODIFICATEURS, this.getModificateurs());
             object.putOpt(Artifact.JSON_TITLE, this.title);
             object.putOpt(Artifact.JSON_CONTENU, this.contenu);
 
@@ -242,6 +214,7 @@ public class Artifact implements Serializable {
             object.putOpt(Artifact.JSON_IDCONTENEUR, this.idConteneur);
             object.putOpt(Artifact.JSON_TYPECONTENEUR, this.typeConteneur);
             object.putOpt(Artifact.JSON_DATECREATION, this.dateCreation);
+            object.putOpt(Artifact.JSON_MODIFICATEURS, this.getModificateurs());
             if(this.getCreated().equals("true"))
             {object.putOpt(Artifact.JSON_CONTENU, encodeImage(this.contenu));}
             else {object.putOpt(Artifact.JSON_CONTENU, this.contenu);}

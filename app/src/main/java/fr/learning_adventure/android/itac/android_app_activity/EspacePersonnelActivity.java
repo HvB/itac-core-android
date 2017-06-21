@@ -39,6 +39,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -53,6 +54,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import fr.learning_adventure.android.itac.R;
@@ -341,6 +343,21 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 //                                            List<Modificateurs> listModificateurs = passedItem.getModificateurs();
 //                                            listModificateurs.add(mod);
                                             // passedItem.setModificateurs(listModificateurs);
+                                            if (passedItem.getModificateurs() == null){
+                                                passedItem.setModificateurs(new JSONArray());
+                                            }
+                                            Log.e("edition", "liste de modificateurs: "+passedItem.getModificateurs().toString());
+                                            JSONObject modificateur = new JSONObject();
+                                            DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                                            try {
+                                                modificateur.putOpt(Artifact.JSON_MODIFICATEUR, pseudo);
+                                                modificateur.putOpt(Artifact.JSON_DATEMODIFICATION, fmt.format(new Date()));
+                                                passedItem.getModificateurs().put(modificateur);
+                                                Log.e("modificateurs", "ajout modificateurs "+modificateur);
+                                             } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
+                                            Log.e("edition", "liste de modificateurs: "+passedItem.getModificateurs().toString());
                                             passedItem.setTitle(titre.getText().toString());
                                             passedItem.setContenu(message.getText().toString());
                                             // passedItem.setDateDerniereModification(date);
@@ -483,8 +500,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     intent.putExtra("pseudo", artifact.getCreator());
                     intent.putExtra("date", artifact.getDateCreation());
                     intent.putExtra("dateDerniereModification", artifact.getDateDerniereModification());
-                    intent.putExtra("modificateurs", (Serializable) artifact.getModificateurs());
                     intent.putExtra("avatarPosition", selectedPosition);
+                    intent.putExtra("modificateurs", artifact.getModificateurs().toString());
+                    Log.e("modificateurs", "liste de modificateurs: "+artifact.getModificateurs().toString());
                     //Start details activity
                     startActivity(intent);
                 } else {
@@ -493,6 +511,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     intent.putExtra("image", artifact.getContenu());
                     intent.putExtra("date", artifact.getDateCreation());
                     intent.putExtra("created", artifact.getCreated());
+                    intent.putExtra("modificateurs", artifact.getModificateurs().toString());
                     startActivity(intent);
                 }
                 return true;
@@ -529,8 +548,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     String date = df.format(Calendar.getInstance().getTime());
                     artefact.setDateCreation(date);
                     artefact.setType("message");
-                    List<Modificateurs> listModificateurs = new ArrayList<>();
-                    artefact.setModificateurs(listModificateurs);
+                    Log.e("modificateurs", "ajout liste de modificateurs vide");
+                    artefact.setModificateurs(new JSONArray());
                     listArtifact.add(artefact);
                     artifactAdapter.notifyDataSetChanged();
                     if (listArtifactView.getHeight() > 400) {

@@ -41,20 +41,34 @@
 
     </LinearLayout>
 
-        <LinearLayout
+        <GridLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:background="#90caf9"
             android:layout_gravity="bottom"
             android:id="@+id/modificateurs"
-            android:layout_marginTop="10dp"
-            android:orientation="vertical"
-            android:layout_below="@id/creation">
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:orientation="horizontal"
+            android:layout_below="@id/creation"
+            android:columnCount="2"
+            >
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Modifié le"
+                android:textStyle="bold"
+                android:padding="10px"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Par"
+                android:textStyle="bold"
+                android:padding="10px"/>
 
-
-
-            </LinearLayout>
+            </GridLayout>
 
 
 
