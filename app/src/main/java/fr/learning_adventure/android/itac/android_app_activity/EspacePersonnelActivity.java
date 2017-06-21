@@ -742,8 +742,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                             public void run() {
                                 Clink.show(EspacePersonnelActivity.this, "veuillez verifier les parametres de connexion");
                                 progressBar.setVisibility(View.GONE);
-                                login_btn.setVisibility(View.VISIBLE);
-                                logout_btn.setVisibility(View.GONE);
+                                //login_btn.setVisibility(View.VISIBLE);
+                                //logout_btn.setVisibility(View.GONE);
                             }
                         });
                     }
@@ -757,8 +757,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                             public void run() {
                                 Clink.show(EspacePersonnelActivity.this, "veuillez verifier les parametres de connexion");
                                 progressBar.setVisibility(View.GONE);
-                                login_btn.setVisibility(View.VISIBLE);
-                                logout_btn.setVisibility(View.GONE);
+                                //login_btn.setVisibility(View.VISIBLE);
+                                //logout_btn.setVisibility(View.GONE);
                             }
                         });
                     }
