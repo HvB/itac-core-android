@@ -179,7 +179,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         final EditText titre = (EditText) EspacePersonnelActivity.this.findViewById(R.id.titre);
         final EditText message = (EditText) EspacePersonnelActivity.this.findViewById(R.id.message_input);
         final RelativeLayout artifactLayout = (RelativeLayout) this.findViewById(R.id.artifact);
-        final RelativeLayout optionsArtifactLayout = (RelativeLayout) this.findViewById(R.id.optionsArtifactLayout);
+        final LinearLayout optionsArtifactLayout = (LinearLayout) this.findViewById(R.id.optionsArtifactLayout);
         final Button modifiedButton = (Button) this.findViewById(R.id.send_modified_button);
         final Button button = (Button) this.findViewById(R.id.send_button);
         final RelativeLayout zepLayout = (RelativeLayout) findViewById(R.id.zep_layout);
@@ -311,6 +311,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
                         AbsListView oldParent = (AbsListView) view.getParent();
                         ArtifactAdapter srcAdapter = (ArtifactAdapter) oldParent.getAdapter();
+                        optionsArtifactLayout.setVisibility(View.VISIBLE);
                         if (v == trashLayout && srcList == listArtifact) {
                             srcList.remove(position);
                         }
@@ -321,6 +322,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                             titre.setText(passedItem.getTitle());
                             message.setText(passedItem.getContenu());
                             artifactLayout.setVisibility(View.VISIBLE);
+                            optionsArtifactLayout.setVisibility(View.GONE);
                             button.setVisibility(View.GONE);
                             modifiedButton.setVisibility(View.VISIBLE);
                             modifiedButton.setOnClickListener(new View.OnClickListener() {
@@ -355,9 +357,10 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                             artifactAdapter.notifyDataSetChanged();
                                             message.setText("");
                                             titre.setText("");
-                                            artifactLayout.setVisibility(View.INVISIBLE);
+                                            artifactLayout.setVisibility(View.GONE);
                                             modifiedButton.setVisibility(View.GONE);
                                             button.setVisibility(View.VISIBLE);
+                                            optionsArtifactLayout.setVisibility(View.VISIBLE);
                                             hideSoftKeyboard(EspacePersonnelActivity.this);
                                         }
                                     }
@@ -402,7 +405,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         srcAdapter.notifyDataSetChanged();
                         trashEditLayout.setVisibility(View.GONE);
                         zPLayout.setVisibility(View.GONE);
-                        optionsArtifactLayout.setVisibility(View.VISIBLE);
 
                         break;
                     case DragEvent.ACTION_DRAG_ENDED:
@@ -517,6 +519,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             @Override
             public void onClick(View view) {
                 artifactLayout.setVisibility(View.VISIBLE);
+                optionsArtifactLayout.setVisibility(View.GONE);
             }
         });
 
@@ -548,7 +551,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     }
                     message.setText("");
                     titre.setText("");
-                    artifactLayout.setVisibility(View.INVISIBLE);
+                    artifactLayout.setVisibility(View.GONE);
+                    optionsArtifactLayout.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -560,7 +564,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 hideSoftKeyboard(EspacePersonnelActivity.this);
                 message.setText("");
                 titre.setText("");
-                artifactLayout.setVisibility(View.INVISIBLE);
+                artifactLayout.setVisibility(View.GONE);
+                optionsArtifactLayout.setVisibility(View.VISIBLE);
             }
         });
 

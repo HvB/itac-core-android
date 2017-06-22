@@ -1,6 +1,8 @@
 package fr.learning_adventure.android.itac.adapter;
 
+import android.app.Activity;
 import android.content.Context;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -56,8 +58,12 @@ public class AvatarAdapter extends BaseAdapter {
 
         if (convertView == null) {
             imageView = new ImageView(mContext);
-            imageView.setLayoutParams(new GridView.LayoutParams(85, 85));
-            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            DisplayMetrics metrics = new DisplayMetrics();
+            ((Activity)mContext).getWindowManager().getDefaultDisplay().getMetrics(metrics);
+            float density = metrics.density;
+            int size = (int)(80*density);
+            imageView.setLayoutParams(new GridView.LayoutParams(size,size));
+            imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 
 
         } else {
