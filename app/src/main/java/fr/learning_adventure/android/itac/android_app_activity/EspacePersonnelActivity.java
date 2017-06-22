@@ -177,7 +177,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         final EditText titre = (EditText) EspacePersonnelActivity.this.findViewById(R.id.titre);
         final EditText message = (EditText) EspacePersonnelActivity.this.findViewById(R.id.message_input);
         final RelativeLayout artifactLayout = (RelativeLayout) this.findViewById(R.id.artifact);
-        final RelativeLayout optionsArtifactLayout = (RelativeLayout) this.findViewById(R.id.optionsArtifactLayout);
+        final LinearLayout optionsArtifactLayout = (LinearLayout) this.findViewById(R.id.optionsArtifactLayout);
         final Button modifiedButton = (Button) this.findViewById(R.id.send_modified_button);
         final Button button = (Button) this.findViewById(R.id.send_button);
         final RelativeLayout zepLayout = (RelativeLayout) findViewById(R.id.zep_layout);
