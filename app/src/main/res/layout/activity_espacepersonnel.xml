@@ -16,27 +16,32 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:background="#323232"
+        android:gravity="center"
+        android:orientation="horizontal"
         android:visibility="gone">
 
-        <ImageButton
-            android:id="@+id/partage"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="180dp"
-            android:background="@null"
-            android:src="@drawable/groupe"
+            android:orientation="horizontal"
             >
-        </ImageButton>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/ZP_text"
-            android:textColor="@color/abc_primary_text_disable_only_material_dark"
-            android:textSize="40sp"
-            android:textStyle="bold"/>
+            <ImageButton
+                android:id="@+id/partage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:src="@drawable/groupe"
+                >
+            </ImageButton>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ZP_text"
+                android:textColor="@color/abc_primary_text_disable_only_material_dark"
+                android:textSize="40sp"
+                android:textStyle="bold"/>
+        </LinearLayout>
     </LinearLayout>
-
 
     <RelativeLayout
         android:id="@+id/zep_layout"
@@ -140,7 +145,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/zep_layout"
         android:layout_gravity="fill"
-        android:layout_marginTop="45dp">
+        android:layout_marginTop="10dp">
 
 
         <fr.learning_adventure.android.itac.widget.LinearLayoutAbsListView
@@ -171,8 +176,7 @@
         <ScrollView
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/listArtifactLayout"
-
+            android:layout_alignParentTop="true"
             >
 
             <RelativeLayout
@@ -222,8 +226,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/message_input"
-                    android:layout_marginLeft="250dp"
-                    android:layout_marginRight="30dp"
+                    android:layout_alignParentLeft="true"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
                     android:background="@null"
                     android:contentDescription="@string/cancel_btn_desc"
                     android:drawableLeft="@drawable/exit"
@@ -238,8 +243,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/message_input"
+                    android:layout_alignParentRight="true"
                     android:layout_marginLeft="10dp"
-                    android:layout_toRightOf="@+id/exit_button"
+                    android:layout_marginRight="10dp"
                     android:background="@null"
                     android:contentDescription="@string/ok_btn_desc"
                     android:drawableLeft="@drawable/check"
@@ -255,8 +261,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/message_input"
+                    android:layout_alignParentRight="true"
                     android:layout_marginLeft="10dp"
-                    android:layout_toRightOf="@+id/exit_button"
+                    android:layout_marginRight="10dp"
                     android:background="@null"
                     android:contentDescription="@string/ok_btn_desc"
                     android:drawableLeft="@drawable/check"
@@ -289,12 +296,13 @@
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="horizontal"
+            android:padding="5dp"
             >
 
             <Button
                 android:id="@+id/addArtifact"
                 android:layout_width="wrap_content"
-                android:layout_height="75px"
+                android:layout_height="60dp"
                 android:layout_alignParentBottom="true"
                 android:background="@drawable/rounded_corner_yellow"
                 android:drawableLeft="@drawable/article_add"
@@ -310,14 +318,14 @@
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="horizontal"
+            android:padding="5dp"
             >
 
             <Button
                 android:id="@+id/buttonLoadPicture"
                 android:layout_width="wrap_content"
-                android:layout_height="75px"
+                android:layout_height="60dp"
                 android:layout_alignParentBottom="true"
-                android:layout_toRightOf="@+id/addArtifact"
                 android:background="@drawable/rounded_corner_yellow"
                 android:drawableLeft="@drawable/picture_download"
                 android:text="@string/load_image_text"
@@ -332,14 +340,14 @@
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="horizontal"
+            android:padding="5dp"
             >
 
             <Button
                 android:id="@+id/buttonTakePicture"
                 android:layout_width="wrap_content"
-                android:layout_height="75px"
+                android:layout_height="60dp"
                 android:layout_alignParentBottom="true"
-                android:layout_toRightOf="@+id/buttonLoadPicture"
                 android:background="@drawable/rounded_corner_yellow"
                 android:drawableLeft="@drawable/camera"
                 android:text="@string/take_photo_text"
@@ -356,7 +364,9 @@
         android:layout_marginTop="10dp"
         android:background="#323232"
         android:gravity="center"
-        android:visibility="gone">
+        android:padding="5dp"
+        android:visibility="gone"
+        >
 
         <LinearLayout
             android:id="@+id/editLayout"
@@ -371,7 +381,6 @@
                 android:id="@+id/edit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-
                 android:background="@null"
                 android:src="@drawable/edit"></ImageButton>
 
@@ -381,7 +390,7 @@
                 android:gravity="center"
                 android:text="@string/modify_text"
                 android:textColor="@color/abc_primary_text_material_dark"
-                android:textSize="30sp"
+                android:textSize="20sp"
                 android:textStyle="bold"/>
         </LinearLayout>
 
@@ -408,7 +417,7 @@
                 android:gravity="center"
                 android:text="@string/suppress_text"
                 android:textColor="@color/abc_primary_text_material_dark"
-                android:textSize="30sp"
+                android:textSize="20sp"
                 android:textStyle="bold"/>
         </LinearLayout>
     </LinearLayout>
