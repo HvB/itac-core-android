@@ -96,6 +96,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     private List<Artifact> listArtifactZEP = new ArrayList<>();
     private ArtifactAdapter artifactZEPAdapter = new ArtifactAdapter(this, listArtifactZEP);
     private ProgressBar progressBar ;
+    private RelativeLayout zepLayout;
+    private ImageButton logout_btn;
+    private ImageButton login_btn;
     private int selectedPosition;
     private String idZEP;
     private String idZE;
@@ -182,15 +185,16 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         final LinearLayout optionsArtifactLayout = (LinearLayout) this.findViewById(R.id.optionsArtifactLayout);
         final Button modifiedButton = (Button) this.findViewById(R.id.send_modified_button);
         final Button button = (Button) this.findViewById(R.id.send_button);
-        final RelativeLayout zepLayout = (RelativeLayout) findViewById(R.id.zep_layout);
-        final ImageButton logout_btn = (ImageButton) this.findViewById(R.id.logout_btn);
-        final ImageButton login_btn = (ImageButton) this.findViewById(R.id.login_btn);
         progressBar = (ProgressBar)this.findViewById(R.id.progress);
+        zepLayout = (RelativeLayout) findViewById(R.id.zep_layout);
+        logout_btn = (ImageButton) this.findViewById(R.id.logout_btn);
+        login_btn = (ImageButton) this.findViewById(R.id.login_btn);
         //mettre arriere plans transparent
         espacePersonnelLayout.getBackground().setAlpha(200);
 
         //initialiser socket
-        initializeWebSocket();
+        // ST plus de connexion automatique
+        //initializeWebSocket();
 
         //Boutton qui permet de gerer la deconnexion du serveur
         logout_btn.setOnClickListener(new View.OnClickListener() {
@@ -605,7 +609,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
                 closeWebSocket();
-                initializeWebSocket();
+                //initializeWebSocket();
             }
         };
         sharedPreferences.registerOnSharedPreferenceChangeListener(preferenceListener);
@@ -666,9 +670,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     }
 
     private void onDisconnection(){
-        final RelativeLayout zepLayout = (RelativeLayout) findViewById(R.id.zep_layout);
-        final ImageButton logout_btn = (ImageButton) this.findViewById(R.id.logout_btn);
-        final ImageButton login_btn = (ImageButton) this.findViewById(R.id.login_btn);
+        //final RelativeLayout zepLayout = (RelativeLayout) findViewById(R.id.zep_layout);
+        //final ImageButton logout_btn = (ImageButton) this.findViewById(R.id.logout_btn);
+        //final ImageButton login_btn = (ImageButton) this.findViewById(R.id.login_btn);
         Log.i("onDisconnection", "on ete deconnecte du serveur...");
         connected=false;
         // on met a jour l'interface...
@@ -683,10 +687,11 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     }
     //Creation de la WebSocket et lancement de la connexion
     private void initializeWebSocket() {
-       final RelativeLayout zepLayout = (RelativeLayout) findViewById(R.id.zep_layout);
-        final ImageButton logout_btn = (ImageButton) this.findViewById(R.id.logout_btn);
-        final ImageButton login_btn = (ImageButton) this.findViewById(R.id.login_btn);
         try {
+            logout_btn.setVisibility(View.VISIBLE);
+            login_btn.setVisibility(View.GONE);
+            // display progressbar
+            progressBar.setVisibility(View.VISIBLE);
             Log.i("WebSocket URL", getUriSocket());
             // creation de la socket
             if (socket != null){
@@ -716,6 +721,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                logout_btn.setVisibility(View.VISIBLE);
+                                login_btn.setVisibility(View.GONE);
                                 progressBar.setVisibility(View.VISIBLE);
                             }
                         });
@@ -728,6 +735,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                logout_btn.setVisibility(View.VISIBLE);
+                                login_btn.setVisibility(View.GONE);
                                 progressBar.setVisibility(View.VISIBLE);
                             }
                         });
@@ -748,6 +757,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                             public void run() {
                                 Clink.show(EspacePersonnelActivity.this, "veuillez verifier les parametres de connexion");
                                 progressBar.setVisibility(View.GONE);
+                                //login_btn.setVisibility(View.VISIBLE);
+                                //logout_btn.setVisibility(View.GONE);
                             }
                         });
                     }
@@ -761,6 +772,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                             public void run() {
                                 Clink.show(EspacePersonnelActivity.this, "veuillez verifier les parametres de connexion");
                                 progressBar.setVisibility(View.GONE);
+                                //login_btn.setVisibility(View.VISIBLE);
+                                //logout_btn.setVisibility(View.GONE);
                             }
                         });
                     }
@@ -776,7 +789,14 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     @Override
                     public void call(Object... args) {
                         Log.i("Socket", "error " + args[0]);
-
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressBar.setVisibility(View.GONE);
+                                login_btn.setVisibility(View.VISIBLE);
+                                logout_btn.setVisibility(View.GONE);
+                            }
+                        });
                     }
                 });
 
@@ -890,15 +910,15 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                progressBar.setVisibility(View.GONE);
                                 Clink.show(EspacePersonnelActivity.this, "le nombre maximal de connexion au serveur est dépassé");
+                                progressBar.setVisibility(View.GONE);
+                                login_btn.setVisibility(View.VISIBLE);
+                                logout_btn.setVisibility(View.GONE);
                             }
                         });
                     }
                 });
             }
-            // display progressbar
-            progressBar.setVisibility(View.VISIBLE);
             // connexion a la websocket
             if (! socket.connected()){
                 Log.i("initializeWebSocket", "initialisation de la connection");
@@ -920,6 +940,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
     //Fin de la connexion au srveur ITAC et fermeture de la WebSocket
     private void closeWebSocket() {
+        progressBar.setVisibility(View.GONE);
+        login_btn.setVisibility(View.VISIBLE);
+        logout_btn.setVisibility(View.GONE);
         onDisconnection();
         if (socket != null) {
             if (socket.connected()) {
