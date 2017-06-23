@@ -47,6 +47,7 @@ public class ArtifactArticleActivity extends ActionBarActivity {
                 if (modificateurs.length() > 0) modificateursView.setVisibility(View.VISIBLE);
                 else modificateursView.setVisibility(View.GONE);
                 DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                DateFormat fmtDateCreation = new SimpleDateFormat("dd-MM-yyyy 'à 'HH:mm");
                 DateFormat fmtOut = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
                 for (int i = 0 ; i < modificateurs.length(); i++){
                     JSONObject modificateur = modificateurs.getJSONObject(i);
