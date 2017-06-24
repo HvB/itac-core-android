@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.util.Base64;
 import android.util.Log;
 
@@ -34,14 +35,7 @@ public class Artifact implements Serializable {
     private JSONArray modificateurs;
     private String type;
 
-    public String getCreated() {
-        return created;
-    }
-
-    public void setCreated(String created) {
-        this.created = created;
-    }
-
+    private JSONObject jsonSrc;
     private String created ;
 
 
@@ -60,6 +54,18 @@ public class Artifact implements Serializable {
     public final static String ARTIFACT_TYPE_MESSAGE = "message";
     public final static String ARTIFACT_TYPE_IMAGE = "image";
 
+
+    public String getCreated() {
+        return created;
+    }
+
+    public void setCreated(String created) {
+        this.created = created;
+    }
+
+    public JSONObject getJsonSrc() {
+        return jsonSrc;
+    }
 
     public String getDateCreation() {
         return dateCreation;
@@ -143,6 +149,8 @@ public class Artifact implements Serializable {
 
 
     public Artifact(String creator) {
+        Log.d("artifact_constructor ", "new artifact creation ");
+        jsonSrc = new JSONObject();
         this.idAr = null;
         this.creator = creator;
         this.proprietaire = null;
@@ -152,11 +160,13 @@ public class Artifact implements Serializable {
         this.dateCreation = null;
         this.modificateurs = null;
         this.title = null;
-        this.contenu = null;    }
+        this.contenu = null;
+    }
 
-    public Artifact(JSONObject object) {
-        Log.d("fromJSOM", "JSON artifact" + object);
+    public Artifact(@NonNull JSONObject object) {
+        Log.d("artifact_constructor ", "JSON artifact creation: " + object);
         try {
+            this.jsonSrc = object;
             this.idAr = object.getString(Artifact.JSON_IDAR);
             this.creator = object.getString(Artifact.JSON_CREATOR);
             this.proprietaire = object.getString(Artifact.JSON_PROPRIETAIRE);
@@ -171,11 +181,11 @@ public class Artifact implements Serializable {
             Log.d("fromJSOM", "error while parsing JSON artifact", e);
         }
 
-        }
+    }
 
 
     public JSONObject toJSONMessage() {
-        JSONObject object = new JSONObject();
+        JSONObject object = getJsonSrc();
         try {
             object.putOpt(Artifact.JSON_IDAR, this.idAr);
             object.putOpt(Artifact.JSON_CREATOR, this.creator);
@@ -195,7 +205,7 @@ public class Artifact implements Serializable {
     }
 
     public JSONObject toJSONImage() {
-        JSONObject object = new JSONObject();
+        JSONObject object = getJsonSrc();
         try {
             object.putOpt(Artifact.JSON_IDAR, this.idAr);
             object.putOpt(Artifact.JSON_CREATOR, this.creator);
@@ -204,6 +214,7 @@ public class Artifact implements Serializable {
             object.putOpt(Artifact.JSON_TYPEARTEFACT, this.type);
             object.putOpt(Artifact.JSON_IDCONTENEUR, this.idConteneur);
             object.putOpt(Artifact.JSON_TYPECONTENEUR, this.typeConteneur);
+            object.putOpt(Artifact.JSON_TITLE, this.title);
             if(this.getCreated().equals("true"))
             {object.putOpt(Artifact.JSON_CONTENU, encodeImage(this.contenu));}
             else {object.putOpt(Artifact.JSON_CONTENU, this.contenu);}
@@ -216,10 +227,29 @@ public class Artifact implements Serializable {
     }
 
     public JSONObject toJSON(){
-        JSONObject res = {};
-        if (this.getType().equals()){
-
+        JSONObject res = getJsonSrc();
+        if (ARTIFACT_TYPE_MESSAGE.equals(this.getType())){
+            res = this.toJSONMessage();
+        } else if (ARTIFACT_TYPE_IMAGE.equals(this.getType())){
+            res = this.toJSONImage();
+        } else {
+            try {
+                res.putOpt(Artifact.JSON_IDAR, this.idAr);
+                res.putOpt(Artifact.JSON_CREATOR, this.creator);
+                res.putOpt(Artifact.JSON_PROPRIETAIRE, this.proprietaire);
+                res.putOpt(Artifact.JSON_DATECREATION, this.dateCreation);
+                res.putOpt(Artifact.JSON_TYPEARTEFACT, this.type);
+                res.putOpt(Artifact.JSON_IDCONTENEUR, this.idConteneur);
+                res.putOpt(Artifact.JSON_TYPECONTENEUR, this.typeConteneur);
+                res.putOpt(Artifact.JSON_TITLE, this.title);
+                res.putOpt(Artifact.JSON_CONTENU, this.contenu);
+                res.putOpt(Artifact.JSON_MODIFICATEURS, this.getModificateurs());
+            } catch (JSONException e) {
+                Log.e("toJSONMessage", "error during generation JSON artifact",e);
+            }
+            Log.d("toJSONMessage", "JSON artifact" + res);
         }
+        return res;
     }
 
     @Override
@@ -253,9 +283,7 @@ public class Artifact implements Serializable {
         String encImage = Base64.encodeToString(b, Base64.DEFAULT);
         //Base64.de
         return encImage;
-
     }
-
 }
 
 
