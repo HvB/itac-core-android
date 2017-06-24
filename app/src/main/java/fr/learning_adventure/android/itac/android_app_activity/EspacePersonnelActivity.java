@@ -357,7 +357,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                             Log.d("EspacePersonnelActivity", "Edition artefact, "+passedItem.getIdAr()+", liste de modificateurs apres modification : "+passedItem.getModificateurs());
                                             passedItem.setTitle(titre.getText().toString());
                                             passedItem.setContenu(message.getText().toString());
-                                            // passedItem.setDateDerniereModification(date);
                                             artifactAdapter.notifyDataSetChanged();
                                             message.setText("");
                                             titre.setText("");
@@ -496,7 +495,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     intent.putExtra("message", artifact.getContenu());
                     intent.putExtra("pseudo", artifact.getCreator());
                     intent.putExtra("date", artifact.getDateCreation());
-                    intent.putExtra("dateDerniereModification", artifact.getDateDerniereModification());
                     intent.putExtra("avatarPosition", selectedPosition);
                     intent.putExtra("modificateurs", artifact.getModificateurs().toString());
                     Log.d("EspacePersonnelActivity", "avant affichage de l'artefact, voici la liste des modificateurs: "+artifact.getModificateurs());
@@ -542,10 +540,10 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     Artifact artefact = new Artifact(getPseudo());
                     artefact.setTitle(titre.getText().toString());
                     artefact.setContenu(message.getText().toString());
-                    DateFormat df = new SimpleDateFormat("dd-MM-yyyy 'à 'HH:mm");
-                    String date = df.format(Calendar.getInstance().getTime());
+                    DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                    String date = fmt.format(Calendar.getInstance().getTime());
                     artefact.setDateCreation(date);
-                    artefact.setType("message");
+                    artefact.setType(Artifact.ARTIFACT_TYPE_MESSAGE);
                     Log.d("EspacePersonnelActivity", "initialisation de la liste de modificateurs (vide)");
                     artefact.setModificateurs(new JSONArray());
                     listArtifact.add(artefact);
@@ -962,7 +960,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
+        DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         //selection de l'image depuis la galerie
         if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != data ) {
             Uri selectedImage = data.getData();
@@ -978,11 +976,10 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
             Artifact artifact = new Artifact(getPseudo());
             artifact.setContenu(picturePath);
-            artifact.setType("image");
+            artifact.setType(Artifact.ARTIFACT_TYPE_IMAGE);
             artifact.setCreated("true");
 
-            DateFormat df = new SimpleDateFormat("dd-MM-yyyy 'à 'HH:mm");
-            String date = df.format(Calendar.getInstance().getTime());
+            String date = fmt.format(Calendar.getInstance().getTime());
             artifact.setDateCreation(date);
             listArtifact.add(artifact);
             artifactAdapter.notifyDataSetChanged();
@@ -1012,11 +1009,10 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             }
             Artifact artifact = new Artifact(getPseudo());
             artifact.setContenu(destination.getAbsolutePath());
-            artifact.setType("image");
+            artifact.setType(Artifact.ARTIFACT_TYPE_IMAGE);
             artifact.setCreated("true");
 
-            DateFormat df = new SimpleDateFormat("dd-MM-yyyy 'à 'HH:mm");
-            String date = df.format(Calendar.getInstance().getTime());
+            String date = fmt.format(Calendar.getInstance().getTime());
             artifact.setDateCreation(date);
             listArtifact.add(artifact);
             artifactAdapter.notifyDataSetChanged();
@@ -1037,11 +1033,10 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             }
             Artifact artifact = new Artifact(getPseudo());
             artifact.setContenu(imageurl);
-            artifact.setType("image");
+            artifact.setType(Artifact.ARTIFACT_TYPE_IMAGE);
             artifact.setCreated("true");
 
-            DateFormat df = new SimpleDateFormat("dd-MM-yyyy 'à 'HH:mm");
-            String date = df.format(Calendar.getInstance().getTime());
+            String date = fmt.format(Calendar.getInstance().getTime());
             artifact.setDateCreation(date);
             listArtifact.add(artifact);
             artifactAdapter.notifyDataSetChanged();
