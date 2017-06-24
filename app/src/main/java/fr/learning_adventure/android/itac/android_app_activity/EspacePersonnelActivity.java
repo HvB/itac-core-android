@@ -6,6 +6,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -583,6 +584,12 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             }
         });
 
+        // on verifie si on a une camera ou non
+        PackageManager pm = getPackageManager();
+        // si ce n'est pas le cas on desactive le bouton pour prendre des photos
+        if(! pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)){
+            buttonTakeImage.setEnabled(false);
+        }
         buttonTakeImage.setOnClickListener(new View.OnClickListener() {
 
             @Override
