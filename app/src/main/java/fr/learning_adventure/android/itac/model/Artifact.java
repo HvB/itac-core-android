@@ -18,6 +18,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.Serializable;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by learninglab on 03/03/16.
@@ -150,8 +151,8 @@ public class Artifact implements Serializable {
 
     public Artifact(String creator) {
         Log.d("artifact_constructor ", "new artifact creation ");
+        this.idAr = UUID.randomUUID().toString();
         jsonSrc = new JSONObject();
-        this.idAr = null;
         this.creator = creator;
         this.proprietaire = null;
         this.type = null;
@@ -181,7 +182,7 @@ public class Artifact implements Serializable {
             Log.d("fromJSOM", "error while parsing JSON artifact", e);
         }
 
-    }
+        }
 
 
     public JSONObject toJSONMessage() {
@@ -244,7 +245,7 @@ public class Artifact implements Serializable {
                 res.putOpt(Artifact.JSON_TITLE, this.title);
                 res.putOpt(Artifact.JSON_CONTENU, this.contenu);
                 res.putOpt(Artifact.JSON_MODIFICATEURS, this.getModificateurs());
-            } catch (JSONException e) {
+        } catch (JSONException e) {
                 Log.e("toJSONMessage", "error during generation JSON artifact",e);
             }
             Log.d("toJSONMessage", "JSON artifact" + res);
