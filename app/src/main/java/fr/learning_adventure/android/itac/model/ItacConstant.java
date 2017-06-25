@@ -13,6 +13,7 @@ public class ItacConstant {
     public final String EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_ZP;
     public final String EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP;
     public final String EVT_RECEPTION_ARTEFACT_INTO_ZE;
+    public final String EVT_RECEPTION_ARTEFACT_INTO_ZP;
     public final String EVT_REPONSE_OK_CONNEXION_ZEP;
     public final String EVT_REPONSE_NOK_CONNEXION_ZEP;
     public final String EVT_NEW_ARTEFACT_IN_ZE;
@@ -26,6 +27,7 @@ public class ItacConstant {
         this.EVT_ENVOIE_ARTEFACT_DE_ZP_VERS_ZE = ctx.getString(R.string.EVT_EnvoieArtefactdeZPversZE);
         this.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP = ctx.getString(R.string.EVT_EnvoieArtefactdeZEversEP);
         this.EVT_RECEPTION_ARTEFACT_INTO_ZE = ctx.getString(R.string.EVT_ReceptionArtefactIntoZE);
+        this.EVT_RECEPTION_ARTEFACT_INTO_ZP = ctx.getString(R.string.EVT_ReceptionArtefactIntoZP);
         this.EVT_REPONSE_OK_CONNEXION_ZEP = ctx.getString(R.string.EVT_ReponseOKConnexionZEP);
         this.EVT_REPONSE_NOK_CONNEXION_ZEP = ctx.getString(R.string.EVT_ReponseNOKConnexionZEP);
         this.EVT_NEW_ARTEFACT_IN_ZE = ctx.getString(R.string.EVT_NewArtefactInZE);
