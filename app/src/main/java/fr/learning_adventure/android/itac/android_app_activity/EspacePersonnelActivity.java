@@ -883,12 +883,13 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                             Log.e("evt", constantes.EVT_RECEPTION_ARTEFACT_INTO_ZE+", transfert artefact en ZEP : " + uuid);
                         artifact.setCreated("false");
                         listArtifactZEP.add(artifact);
-                            artifactsWaitingServeurAck.remove(uuid);
+                        artifactsWaitingServeurAck.remove(uuid);
                         EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                     if (artifactsWaitingServeurAck.isEmpty()) {
-                                progressBar.setVisibility(View.GONE);
+                                        artifactZEPAdapter.notifyDataSetChanged();
+                                        progressBar.setVisibility(View.GONE);
                                     }
                                 }
                             });
@@ -914,7 +915,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                 public void run() {
                                     if (artifactsWaitingServeurAck.isEmpty()) {
                                         progressBar.setVisibility(View.GONE);
-                            }
+                                     }
                                 }
                         });
                     }
