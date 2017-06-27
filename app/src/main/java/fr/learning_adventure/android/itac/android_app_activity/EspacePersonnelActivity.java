@@ -111,11 +111,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
     //get & set pseudo, ip
     private String pseudo;
-
     public String getPseudo() {
         return this.pseudo;
     }
-
     public void setPseudo(String pseudo) {
         this.pseudo = pseudo;
     }
@@ -168,8 +166,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         setContentView(R.layout.activity_espacepersonnel);
         //récuperer le pseudo
         Intent intent = getIntent();
-        final String pseudo = intent.getStringExtra("pseudoName");
-        EspacePersonnelActivity.this.setPseudo(pseudo);
+        this.setPseudo(intent.getStringExtra("pseudoName"));
         // recuperation info avatar
         selectedPosition = intent.getExtras().getInt("avatarPosition");
         AvatarAdapter imageAdapter = new AvatarAdapter(this);
@@ -252,7 +249,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                 if (login_btn.getVisibility() == View.VISIBLE) {
                                     Clink.show(EspacePersonnelActivity.this, "veuillez vous connecter");
                                 } else {
-                                    passedItem.setProprietaire(pseudo);
+                                    // pas utile normalement...
+                                    //passedItem.setProprietaire(pseudo);
                                     passedItem.setTypeConteneur("ZE");
                                     passedItem.setIdConteneur(idZE);
                                     Log.i("myOnDragListener", constantes.EVT_NEW_ARTEFACT_IN_ZE+" : "+ pseudo + ", "+idZEP+", "+ idZE);
@@ -857,6 +855,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                             e.printStackTrace();
                         }
                         Artifact artifact = new Artifact(object);
+                        // on devient le nouveau proprietaire de l'objet
+                        artifact.setProprietaire(pseudo);
                         artifact.setCreated("false");
                         listArtifactZEP.add(artifact);
                         Log.i("evt", constantes.EVT_ENVOIE_ARTEFACT_DE_ZP_VERS_ZE+" : " + data);

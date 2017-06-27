@@ -154,7 +154,7 @@ public class Artifact implements Serializable {
         this.idAr = UUID.randomUUID().toString();
         jsonSrc = new JSONObject();
         this.creator = creator;
-        this.proprietaire = null;
+        this.proprietaire = creator;
         this.type = null;
         this.idConteneur = null;
         this.typeConteneur = null;
@@ -170,7 +170,7 @@ public class Artifact implements Serializable {
             this.jsonSrc = object;
             this.idAr = object.getString(Artifact.JSON_IDAR);
             this.creator = object.getString(Artifact.JSON_CREATOR);
-            this.proprietaire = object.getString(Artifact.JSON_PROPRIETAIRE);
+            this.proprietaire = object.optString(Artifact.JSON_PROPRIETAIRE);
             this.type = object.getString(Artifact.JSON_TYPEARTEFACT);
             this.dateCreation = object.getString(Artifact.JSON_DATECREATION);
             this.contenu = object.getString(Artifact.JSON_CONTENU);
