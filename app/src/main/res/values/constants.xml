@@ -8,6 +8,7 @@
     <string name="EVT_EnvoieArtefactdeZEversEP" translatable="false">EVT_Envoie_ArtefactdeZEversEP</string>
     <string name="EVT_ReceptionArtefactIntoZE" translatable="false">EVT_ReceptionArtefactIntoZE</string>
     <string name="EVT_ReceptionArtefactIntoZP" translatable="false">EVT_ReceptionArtefactIntoZP</string>
+    <string name="EVT_ReceptionArtefactIntoEP" translatable="false">EVT_ArtefactDeletedFromZE</string>
     <string name="EVT_ReponseOKConnexionZEP" translatable="false">EVT_ReponseOKConnexionZEP</string>
     <string name="EVT_ReponseNOKConnexionZEP" translatable="false">EVT_ReponseNOKConnexionZEP</string>
     <string name="EVT_NewArtefactInZE" translatable="false">EVT_NewArtefactInZE</string>

@@ -413,10 +413,10 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                             Log.i("myArtefactOnDrag", constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP+" : passage direct de l'artefact en espace prive : "+ passedItem.getIdAr() );
                             srcList.remove(position);
                             //on met l'artefact en zone d'attente
-                            //artifactsWaitingServeurAck.put(passedItem.getIdAr(), passedItem);
-                            //progressBar.setVisibility(View.VISIBLE);
-                            listArtifact.add(passedItem);
-                            artifactAdapter.notifyDataSetChanged();
+                            artifactsWaitingServeurAck.put(passedItem.getIdAr(), passedItem);
+                            progressBar.setVisibility(View.VISIBLE);
+                            //listArtifact.add(passedItem);
+                            //artifactAdapter.notifyDataSetChanged();
                         }
 
                         srcAdapter.notifyDataSetChanged();
@@ -915,10 +915,37 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                 public void run() {
                                     if (artifactsWaitingServeurAck.isEmpty()) {
                                         progressBar.setVisibility(View.GONE);
-                                     }
+                                    }
                                 }
-                        });
+                            });
+                        }
                     }
+                });
+
+                //Réponse envoie artefact vers EP
+                socket.on(constantes.EVT_RECEPTION_ARTEFACT_INTO_EP, new Emitter.Listener() {
+
+                    @Override
+                    public void call(Object... args) {
+                        final String uuid = (String) args[1];
+                        Log.i("evt", constantes.EVT_RECEPTION_ARTEFACT_INTO_EP+" : " + uuid);
+                        Artifact artifact = artifactsWaitingServeurAck.get(uuid);
+                        if (artifact == null) {
+                            Log.e("evt", constantes.EVT_RECEPTION_ARTEFACT_INTO_EP+", artefact inconnu : " + uuid);
+                        } else {
+                            Log.e("evt", constantes.EVT_RECEPTION_ARTEFACT_INTO_EP+", acquitement transfert artefact en EP : " + uuid);
+                            listArtifact.add(artifact);
+                            artifactsWaitingServeurAck.remove(uuid);
+                            EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    artifactAdapter.notifyDataSetChanged();
+                                    if (artifactsWaitingServeurAck.isEmpty()) {
+                                        progressBar.setVisibility(View.GONE);
+                                    }
+                                }
+                            });
+                        }
                     }
                 });
 
