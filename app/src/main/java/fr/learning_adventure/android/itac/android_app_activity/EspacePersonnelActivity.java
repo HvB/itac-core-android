@@ -881,7 +881,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                             Log.e("evt", constantes.EVT_RECEPTION_ARTEFACT_INTO_ZE+", artefact inconnu : " + uuid);
                         } else {
                             Log.e("evt", constantes.EVT_RECEPTION_ARTEFACT_INTO_ZE+", transfert artefact en ZEP : " + uuid);
-                        artifact.setCreated("false");
+                        //artifact.setCreated("false");
                         listArtifactZEP.add(artifact);
                         artifactsWaitingServeurAck.remove(uuid);
                         EspacePersonnelActivity.this.runOnUiThread(new Runnable() {

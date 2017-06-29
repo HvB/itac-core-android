@@ -162,6 +162,7 @@ public class Artifact implements Serializable {
         this.modificateurs = null;
         this.title = null;
         this.contenu = null;
+        this.created="true";
     }
 
     public Artifact(@NonNull JSONObject object) {
@@ -178,6 +179,7 @@ public class Artifact implements Serializable {
             this.typeConteneur = object.optString(Artifact.JSON_TYPECONTENEUR);
             this.title = object.optString(Artifact.JSON_TITLE);
             this.modificateurs = object.optJSONArray(Artifact.JSON_MODIFICATEURS);
+            this.created="false";
         } catch (JSONException e) {
             Log.d("fromJSOM", "error while parsing JSON artifact", e);
         }
