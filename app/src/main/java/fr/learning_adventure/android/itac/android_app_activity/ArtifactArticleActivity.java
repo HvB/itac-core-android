@@ -30,6 +30,10 @@ public class ArtifactArticleActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.artifact_article);
 
+        DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        DateFormat fmtDateCreation = new SimpleDateFormat("dd-MM-yyyy 'à 'HH:mm");
+        DateFormat fmtOut = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+
         String title = getIntent().getStringExtra("title");
         String pseudo = getIntent().getStringExtra("pseudo");
         String message = getIntent().getStringExtra("message");
@@ -42,13 +46,12 @@ public class ArtifactArticleActivity extends ActionBarActivity {
         TextView messageTextView = (TextView) findViewById(R.id.message_input);
         JSONArray modificateurs = new JSONArray();
         try {
+            String dateCreation = fmtDateCreation.format(fmt.parse(date));
+            pseudoView.setText("Crée par " + pseudo + " le " + dateCreation);
             if (modificateursStr != null) {
                 modificateurs = new JSONArray(modificateursStr);
                 if (modificateurs.length() > 0) modificateursView.setVisibility(View.VISIBLE);
                 else modificateursView.setVisibility(View.GONE);
-                DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-                DateFormat fmtDateCreation = new SimpleDateFormat("dd-MM-yyyy 'à 'HH:mm");
-                DateFormat fmtOut = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
                 for (int i = 0 ; i < modificateurs.length(); i++){
                     JSONObject modificateur = modificateurs.getJSONObject(i);
                     Log.e("modificateurs", "parcours de la liste des modificateurs, pos " + i + ": "+modificateur);
@@ -68,11 +71,10 @@ public class ArtifactArticleActivity extends ActionBarActivity {
         } catch (JSONException e) {
             Log.e("ArtifactArticleActivity", "error decoding artifact moficateurs",e);
         } catch (ParseException e) {
-            Log.e("ArtifactArticleActivity", "error decoding artifact moficateurs",e);
+            Log.e("ArtifactArticleActivity", "error decoding creation or modification date",e);
         }
         titleTextView.setText(title);
         messageTextView.setText(message);
-        pseudoView.setText("Crée par " + pseudo + " le " + date);
 
     }
 }

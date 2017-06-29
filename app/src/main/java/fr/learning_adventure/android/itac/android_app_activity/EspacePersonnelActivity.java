@@ -93,7 +93,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     private GridView listArtifactView;
     private GridView listArtifactZEPView;
     private LinearLayoutAbsListView listArtifactLayout, artifactZEPLayout;
-    private RelativeLayout optionsArtifactLayout;
+    private LinearLayout optionsArtifactLayout;
     private List<Artifact> listArtifact = new ArrayList<>();
     private ArtifactAdapter artifactAdapter = new ArtifactAdapter(this, listArtifact);
     private List<Artifact> listArtifactZEP = new ArrayList<>();
@@ -182,8 +182,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         final RelativeLayout espacePersonnelLayout = (RelativeLayout) findViewById(R.id.espacePersonnelLayout);
         final EditText titre = (EditText) EspacePersonnelActivity.this.findViewById(R.id.titre);
         final EditText message = (EditText) EspacePersonnelActivity.this.findViewById(R.id.message_input);
-        final RelativeLayout artifactLayout = (RelativeLayout) this.findViewById(R.id.artifact);
-        final LinearLayout optionsArtifactLayout = (LinearLayout) this.findViewById(R.id.optionsArtifactLayout);
+        final RelativeLayout  artifactLayout = (RelativeLayout) this.findViewById(R.id.artifact);
+        optionsArtifactLayout = (LinearLayout) this.findViewById(R.id.optionsArtifactLayout);
         final Button modifiedButton = (Button) this.findViewById(R.id.send_modified_button);
         final Button button = (Button) this.findViewById(R.id.send_button);
         progressBar = (ProgressBar)this.findViewById(R.id.progress);
@@ -1053,6 +1053,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
             String date = fmt.format(Calendar.getInstance().getTime());
             artifact.setDateCreation(date);
+
             listArtifact.add(artifact);
             artifactAdapter.notifyDataSetChanged();
             if (listArtifactView.getHeight() > 400) {
@@ -1116,6 +1117,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 listArtifactView.getLayoutParams().height = 400;
             }
         }
+        artifactAdapter.notifyDataSetChanged();
     }
 
     public static void hideSoftKeyboard(Activity activity) {

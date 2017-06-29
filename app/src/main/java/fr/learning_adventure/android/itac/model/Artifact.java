@@ -39,6 +39,7 @@ public class Artifact implements Serializable {
     private JSONObject jsonSrc;
     private String created ;
 
+    private Bitmap thumbnail = null;
 
     private final static String JSON_IDAR = "id";
     private final static String JSON_CREATOR = "creator";
@@ -148,6 +149,26 @@ public class Artifact implements Serializable {
         this.idConteneur = idConteneur;
     }
 
+    public Bitmap getThumbnail() {
+        if (thumbnail == null){
+            String base64Img;
+            if(this.getCreated().equals("true")){
+                base64Img = encodeImage(this.contenu);
+            } else {
+                base64Img = this.contenu;
+            }
+            byte[] decodedImg = Base64.decode(base64Img, Base64.DEFAULT);
+            Bitmap img = BitmapFactory.decodeByteArray(decodedImg, 0, decodedImg.length);
+            thumbnail = Bitmap.createScaledBitmap(img, 100,100, false);
+        }
+        return thumbnail;
+    }
+
+    public void setThumbnail(Bitmap thumbnail) {
+        this.thumbnail = thumbnail;
+    }
+
+
 
     public Artifact(String creator) {
         Log.d("artifact_constructor ", "new artifact creation ");
@@ -159,7 +180,7 @@ public class Artifact implements Serializable {
         this.idConteneur = null;
         this.typeConteneur = null;
         this.dateCreation = null;
-        this.modificateurs = null;
+        this.modificateurs = new JSONArray();
         this.title = null;
         this.contenu = null;
         this.created="true";
@@ -179,6 +200,9 @@ public class Artifact implements Serializable {
             this.typeConteneur = object.optString(Artifact.JSON_TYPECONTENEUR);
             this.title = object.optString(Artifact.JSON_TITLE);
             this.modificateurs = object.optJSONArray(Artifact.JSON_MODIFICATEURS);
+            if (this.modificateurs == null) {
+                this.modificateurs = new JSONArray();
+            }
             this.created="false";
         } catch (JSONException e) {
             Log.d("fromJSOM", "error while parsing JSON artifact", e);

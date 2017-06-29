@@ -190,7 +190,7 @@
                 android:background="@drawable/rounded_corner_blue"
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
-                android:visibility="invisible">
+                android:visibility="gone">
 
 
                 <EditText

@@ -1,45 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#000"
-    android:orientation="vertical"
-  >
-
-    <RelativeLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
-    android:layout_marginTop="17dp"
-    android:layout_marginLeft="10dp"
-    android:layout_marginRight="10dp"
-        android:layout_marginBottom="10dp"
-    android:layout_gravity="center"
-    android:background="@drawable/rounded_corner_blue"
-    android:id="@+id/artifact"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="#000"
+              android:orientation="vertical"
     >
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#90caf9"
-        android:layout_gravity="bottom"
-        android:id="@+id/creation"
-        android:layout_marginTop="10dp">
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:layout_marginTop="17dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_gravity="center"
+        android:background="@drawable/rounded_corner_blue"
+        android:id="@+id/artifact"
+        >
 
-
-        <TextView
-            android:id="@+id/pseudo"
-            android:layout_width="fill_parent"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:gravity="left"
+            android:background="#90caf9"
+            android:layout_gravity="bottom"
+            android:id="@+id/creation"
+            android:layout_marginTop="10dp">
 
-            />
-
-    </LinearLayout>
+            <TextView
+                android:id="@+id/pseudo"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:gravity="left"
+                />
+        </LinearLayout>
 
         <GridLayout
             android:layout_width="fill_parent"
@@ -59,51 +56,45 @@
                 android:layout_height="wrap_content"
                 android:text="Modifié le"
                 android:textStyle="bold"
-                android:padding="10px"
+                android:padding="5dp"
                 />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Par"
                 android:textStyle="bold"
-                android:padding="10px"/>
+                android:padding="5dp"/>
 
-            </GridLayout>
+        </GridLayout>
 
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/titre"
+            android:layout_marginTop="10dp"
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:background="#ffffff"
+            android:layout_below="@id/modificateurs"
+            android:textSize="35sp"
+            android:gravity="center"
+            />
 
-
-
-
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/titre"
-        android:layout_marginTop="10dp"
-        android:textStyle="bold"
-        android:maxLines="1"
-        android:background="#ffffff"
-        android:layout_below="@id/modificateurs"
-        android:textSize="35sp"
-        android:gravity="center"
-        />
-
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:padding="10dp"
-        android:background="#ffffff"
-        android:id="@+id/message_input"
-        android:layout_below="@id/titre"
-        android:gravity="top"
-        android:textSize="20sp"
-        android:layout_marginBottom="10dp"
-        android:paddingTop="20dp"/>
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:padding="10dp"
+            android:background="#ffffff"
+            android:id="@+id/message_input"
+            android:layout_below="@id/titre"
+            android:gravity="top"
+            android:textSize="20sp"
+            android:layout_marginBottom="10dp"
+            android:paddingTop="20dp"/>
 
         <TextView
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/message_input"/>
     </RelativeLayout>
-
-
 </LinearLayout>
