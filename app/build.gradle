@@ -1,25 +1,66 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        TeamTitan {
+            storeFile file('C:/MySources/Android/TitanTeamKeystore.jks')
+            keyAlias 'AndroidTitanTeamDev'
+        }
+    }
     compileSdkVersion 22
     buildToolsVersion '25.0.0'
-
     defaultConfig {
         applicationId "fr.learning_adventure.android.itac"
         minSdkVersion 15
         targetSdkVersion 22
-        versionCode 1
-        versionName "1.0"
+        versionCode 9
+        versionName '1.0.5git status'
     }
     buildTypes {
         release {
-            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.TeamTitan
+        }
+        Beta {
+            renderscriptOptimLevel 3
+            signingConfig signingConfigs.TeamTitan
+            versionNameSuffix '.beta'
+        }
+        debug {
+            applicationIdSuffix '.debug'
+            versionNameSuffix '.debug'
         }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+
+    // Specifies the flavor dimensions you want to use. The order in which you
+    // list each dimension determines its priority, from highest to lowest,
+    // when Gradle merges variant sources and configurations. You must assign
+    // each product flavor you configure to one of the flavor dimensions.
+    flavorDimensions "distribution"
+
+    productFlavors {
+//        ItacBeta {
+//            minSdkVersion 15
+//            applicationId 'fr.learning_adventure.android.itac'
+//            signingConfig signingConfigs.TeamTitan
+//            targetSdkVersion 15
+//            versionCode 1
+//            versionName '1.0'
+//            versionNameSuffix '.beta'
+//            dimension "test"
+//        }
+        development {
+            versionNameSuffix '.dev'
+            dimension 'distribution'
+        }
+        original {
+            dimension 'distribution'
+        }
     }
 }
 
