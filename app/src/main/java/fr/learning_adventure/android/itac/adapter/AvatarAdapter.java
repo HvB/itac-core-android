@@ -70,6 +70,11 @@ public class AvatarAdapter extends BaseAdapter {
             imageView = (ImageView) convertView;
         }
         imageView.setImageResource(mThumbIds[position]);
+        if (position == this.getSelectedPosition()){
+            imageView.setBackgroundResource(R.drawable.rounded_corner_green);
+        } else {
+            imageView.setBackgroundResource(0);
+        }
         return imageView;
     }
 
