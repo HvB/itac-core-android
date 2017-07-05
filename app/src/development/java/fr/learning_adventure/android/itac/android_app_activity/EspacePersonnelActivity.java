@@ -15,10 +15,13 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+//import android.support.v13.view.ViewCompat;
 import android.support.v7.app.ActionBarActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.Menu;
@@ -28,7 +31,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnDragListener;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -84,9 +86,10 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     private static int RESULT_LOAD_IMAGE = 1;
     private static int REQUEST_CAMERA_haute =1;
     private static int REQUEST_CAMERA_moyenne =0;
-    private    ContentValues values;
+    private ContentValues values;
     private Uri imageUri;
 
+    private RelativeLayout espacePersonnelLayout;
     private GridView listArtifactView;
     private GridView listArtifactZEPView;
     private LinearLayoutAbsListView listArtifactLayout, artifactZEPLayout;
@@ -97,14 +100,28 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     private ArtifactAdapter artifactZEPAdapter = new ArtifactAdapter(this, listArtifactZEP);
     private HashMap<String, Artifact> artifactsWaitingServeurAck = new LinkedHashMap<>();
     private ProgressBar progressBar ;
+    private LinearLayout zPLayout;
     private RelativeLayout zepLayout;
+    private LinearLayout trashLayout;
+    private LinearLayout editLayout;
+    private LinearLayout trashEditLayout;
     private ImageButton logout_btn;
     private ImageButton login_btn;
-    private int selectedPosition;
     private String idZEP;
     private String idZE;
     private boolean connected = false;
     private SharedPreferences.OnSharedPreferenceChangeListener preferenceListener;
+
+    private EditText titre;
+    private EditText message;
+    private RelativeLayout  artifactLayout;
+    private Button modifiedButton;
+    private Button button;
+
+    private int selectedPosition;
+
+    private GestureDetectorCompat activityGestureDetector;
+    private GestureDetector.OnGestureListener activityGestureListener;
 
     //get & set pseudo, ip
     private String pseudo;
@@ -183,6 +200,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         //récuperer le pseudo
         Intent intent = getIntent();
         this.setPseudo(intent.getStringExtra("pseudoName"));
+
         // recuperation info avatar
         selectedPosition = intent.getExtras().getInt("avatarPosition");
         AvatarAdapter imageAdapter = new AvatarAdapter(this);
@@ -191,23 +209,32 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         imageView.setImageResource(imageAdapter.mThumbIds[selectedPosition]);
         TextView pseudoView = (TextView) findViewById(R.id.pseudo);
         pseudoView.setText(pseudo);
-        final LinearLayout trashLayout = (LinearLayout) findViewById(R.id.trashLayout);
-        final LinearLayout editLayout = (LinearLayout) findViewById(R.id.editLayout);
-        final LinearLayout zPLayout = (LinearLayout) findViewById(R.id.zp_Layout);
-        final LinearLayout trashEditLayout = (LinearLayout) findViewById(R.id.trashEditLayout);
-        final RelativeLayout espacePersonnelLayout = (RelativeLayout) findViewById(R.id.espacePersonnelLayout);
-        final EditText titre = (EditText) EspacePersonnelActivity.this.findViewById(R.id.titre);
-        final EditText message = (EditText) EspacePersonnelActivity.this.findViewById(R.id.message_input);
-        final RelativeLayout  artifactLayout = (RelativeLayout) this.findViewById(R.id.artifact);
+
+        espacePersonnelLayout = (RelativeLayout) findViewById(R.id.espacePersonnelLayout);
+        trashLayout = (LinearLayout) findViewById(R.id.trashLayout);
+        editLayout = (LinearLayout) findViewById(R.id.editLayout);
+        zPLayout = (LinearLayout) findViewById(R.id.zp_Layout);
+        trashEditLayout = (LinearLayout) findViewById(R.id.trashEditLayout);
+
+        titre = (EditText) EspacePersonnelActivity.this.findViewById(R.id.titre);
+        message = (EditText) EspacePersonnelActivity.this.findViewById(R.id.message_input);
+        artifactLayout = (RelativeLayout) this.findViewById(R.id.artifact);
         optionsArtifactLayout = (LinearLayout) this.findViewById(R.id.optionsArtifactLayout);
-        final Button modifiedButton = (Button) this.findViewById(R.id.send_modified_button);
-        final Button button = (Button) this.findViewById(R.id.send_button);
+        modifiedButton = (Button) this.findViewById(R.id.send_modified_button);
+        button = (Button) this.findViewById(R.id.send_button);
         progressBar = (ProgressBar)this.findViewById(R.id.progress);
         zepLayout = (RelativeLayout) findViewById(R.id.zep_layout);
         logout_btn = (ImageButton) this.findViewById(R.id.logout_btn);
         login_btn = (ImageButton) this.findViewById(R.id.login_btn);
         //mettre arriere plans transparent
         espacePersonnelLayout.getBackground().setAlpha(200);
+
+        //gestion des grid view
+        artifactZEPLayout = (LinearLayoutAbsListView) findViewById(R.id.artifactZEPLayout);
+        listArtifactZEPView = (GridView) findViewById(R.id.listArtifactZEPView);
+
+        listArtifactLayout = (LinearLayoutAbsListView) findViewById(R.id.listArtifactLayout);
+        listArtifactView = (GridView) findViewById(R.id.listArtifactView);
 
         //initialiser socket
         // ST plus de connexion automatique
@@ -236,218 +263,275 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             }
         });
 
-        // Action Drop Artifact
-        final OnDragListener myOnDragListener = new OnDragListener() {
+        DisplayMetrics metrics = new DisplayMetrics();
+        this.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        final float density = metrics.density;
+        final float densityX = metrics.xdpi;
+        final float densityY = metrics.ydpi;
+
+        // gestion du drag and drop
+        final OnDragListener espacePersoOnDragListener = new OnDragListener() {
             @Override
             public boolean onDrag(View v, DragEvent event) {
+                boolean res = false;
                 switch (event.getAction()) {
                     case DragEvent.ACTION_DRAG_STARTED :
+                        Log.v("epOnDragListener", "drag started");
+                        res = true;
                         break;
-                    case DragEvent.ACTION_DRAG_ENTERED :
-                        break;
-                    case DragEvent.ACTION_DRAG_EXITED :
+                    case DragEvent.ACTION_DRAG_ENDED :
+                        Log.v("epOnDragListener", "drag ended");
+                        //onDragEng();
+                        res = true;
                         break;
                     case DragEvent.ACTION_DROP :
-                        PassObject passObj = (PassObject) event.getLocalState();
-                        final int position = passObj.position;
-                        View view = passObj.view;
-                        final Artifact passedItem = passObj.artifact;
-                        final List<Artifact> srcList = passObj.srcList;
-                        AbsListView oldParent = (AbsListView) view.getParent();
-                        ArtifactAdapter srcAdapter = (ArtifactAdapter) oldParent.getAdapter();
-
-                        LinearLayoutAbsListView newParent = (LinearLayoutAbsListView) v;
-                        ArtifactAdapter destAdapter = (ArtifactAdapter) (newParent.absListView.getAdapter());
-                        final List<Artifact> destList = destAdapter.getList();
-
-                        if (srcList != destList) {
-                            if (destList == listArtifactZEP) {
-                                if (login_btn.getVisibility() == View.VISIBLE) {
-                                    Clink.show(EspacePersonnelActivity.this, "veuillez vous connecter");
-                                } else {
-                                    // pas utile normalement...
-                                    //passedItem.setProprietaire(pseudo);
-                                    passedItem.setTypeConteneur("ZE");
-                                    passedItem.setIdConteneur(idZE);
-                                    Log.i("myOnDragListener", constantes.EVT_NEW_ARTEFACT_IN_ZE+" : "+ pseudo + ", "+idZEP+", "+ idZE);
-                                    if (socket == null) {
-                                        Log.e("myOnDragListener", "socket is null, can't send "+constantes.EVT_NEW_ARTEFACT_IN_ZE+" : " + pseudo + ", " + idZEP + ", " + idZE);
-                                    } else {
-                                        if (passedItem.getType().equals("message")) {
-                                            socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZE, pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
-                                        } else {
-                                            socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZE, pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
-                                        }
-                                        Log.i("myOnDragListener", constantes.EVT_NEW_ARTEFACT_IN_ZE+" : mise de l'atefact en zone d'attente : "+ passedItem.getIdAr() );
-                                        srcList.remove(position);
-                                        //on met l'artefact en zone d'attente
-                                        artifactsWaitingServeurAck.put(passedItem.getIdAr(), passedItem);
-                                        progressBar.setVisibility(View.VISIBLE);
-                                    }
-                                }
-                            }
-                        }
-
-                        srcAdapter.notifyDataSetChanged();
-                        destAdapter.notifyDataSetChanged();
-
-                        //smooth scroll to bottom
-                        newParent.absListView.smoothScrollToPosition(destAdapter.getCount() - 1);
-                        zPLayout.setVisibility(View.GONE);
+                        Log.v("epOnDragListener", "drag drop");
+                        // on envoie l'artefact en EP
+                        sendSelectedArtifactToEP();
                         trashEditLayout.setVisibility(View.GONE);
                         optionsArtifactLayout.setVisibility(View.VISIBLE);
-
-                        break;
-                    case DragEvent.ACTION_DRAG_ENDED:
-                        passObj = (PassObject) event.getLocalState();
-                        view = passObj.view;
-                        view.setVisibility(View.VISIBLE);
+                        res = true;
                         break;
                     default:
+                        Log.v("epOnDragListener", "drag other");
                         break;
                 }
-                return true;
+                return res;
+            }
+        };
+
+        final OnDragListener zoneEchangeOnDragListener = new OnDragListener() {
+            @Override
+            public boolean onDrag(View v, DragEvent event) {
+                boolean res = false;
+                switch (event.getAction()) {
+                    case DragEvent.ACTION_DRAG_STARTED :
+                        Log.v("zeOnDragListener", "drag started");
+                        res = true;
+                        break;
+                    case DragEvent.ACTION_DRAG_ENDED :
+                        Log.v("zeOnDragListener", "drag ended");
+                        //onDragEng();
+                        res = true;
+                        break;
+                    case DragEvent.ACTION_DROP :
+                        Log.v("zeOnDragListener", "drag drop");
+                        // on envoie l'artefact en ZE
+                        sendSelectedArtifactToZE();
+                        trashEditLayout.setVisibility(View.GONE);
+                        optionsArtifactLayout.setVisibility(View.VISIBLE);
+                        res = true;
+                        break;
+                    default:
+                        Log.v("zeOnDragListener", "drag other");
+                        break;
+                }
+                return res;
+            }
+        };
+
+        final OnDragListener zonePartageOnDragListener = new OnDragListener() {
+            @Override
+            public boolean onDrag(View v, DragEvent event) {
+                boolean res = false;
+                switch (event.getAction()) {
+                    case DragEvent.ACTION_DRAG_STARTED :
+                        Log.v("zpOnDragListener", "drag started");
+                        res=true;
+                        break;
+                    case DragEvent.ACTION_DRAG_ENTERED:
+                        Log.v("zpOnDragListener", "drag entered");
+                        v.setBackgroundColor(Color.parseColor("#70eac8"));
+                        res = true;
+                        break;
+                    case DragEvent.ACTION_DRAG_EXITED:
+                        Log.v("zpOnDragListener", "drag exited");
+                        v.setBackgroundColor(Color.parseColor("#323232"));
+                        res = true;
+                        break;
+                    case DragEvent.ACTION_DRAG_ENDED:
+                        Log.v("zpOnDragListener", "drag ended");
+                        v.setBackgroundColor(Color.parseColor("#323232"));
+                        //onDragEng();
+                        res = true;
+                        break;
+                    case DragEvent.ACTION_DROP :
+                        Log.v("zpOnDragListener", "drag drop");
+                        // on envoie l'artefact en ZP
+                        sendSelectedArtifactToZp();
+                        trashEditLayout.setVisibility(View.GONE);
+                        optionsArtifactLayout.setVisibility(View.VISIBLE);
+                        res = true;
+                        break;
+                    default:
+                        Log.v("zpOnDragListener", "drag other");
+                        break;
+                }
+                return res;
+            }
+        };
+
+        final OnDragListener editOnDragListener = new OnDragListener() {
+            @Override
+            public boolean onDrag(View v, DragEvent event) {
+                boolean res = false;
+                switch (event.getAction()) {
+                    case DragEvent.ACTION_DRAG_STARTED :
+                        Log.v("editOnDragListener", "drag started");
+                        res=true;
+                        break;
+                    case DragEvent.ACTION_DRAG_ENTERED:
+                        Log.v("editOnDragListener", "drag entered");
+                        v.setBackgroundColor(Color.parseColor("#70eac8"));
+                        res = true;
+                        break;
+                    case DragEvent.ACTION_DRAG_EXITED:
+                        Log.v("editOnDragListener", "drag exited");
+                        v.setBackgroundColor(Color.parseColor("#323232"));
+                        res = true;
+                        break;
+                    case DragEvent.ACTION_DRAG_ENDED:
+                        Log.v("editOnDragListener", "drag ended");
+                        v.setBackgroundColor(Color.parseColor("#323232"));
+                        //onDragEng();
+                        res = true;
+                        break;
+                    case DragEvent.ACTION_DROP :
+                        Log.v("editOnDragListener", "drag drop");
+                        // on edite l'artefact
+                        editSelectedArtifact();
+                        trashEditLayout.setVisibility(View.GONE);
+                        optionsArtifactLayout.setVisibility(View.VISIBLE);
+                        res = true;
+                        break;
+                    default:
+                        Log.v("editOnDragListener", "drag other");
+                        break;
+                }
+                return res;
+            }
+        };
+
+        final OnDragListener deleteOnDragListener = new OnDragListener() {
+            @Override
+            public boolean onDrag(View v, DragEvent event) {
+                boolean res = false;
+                switch (event.getAction()) {
+                    case DragEvent.ACTION_DRAG_STARTED :
+                        Log.v("trashOnDragListener", "drag started");
+                        res=true;
+                        break;
+                    case DragEvent.ACTION_DRAG_ENTERED:
+                        Log.v("trashOnDragListener", "drag entered");
+                        v.setBackgroundColor(Color.parseColor("#70eac8"));
+                        res = true;
+                        break;
+                    case DragEvent.ACTION_DRAG_EXITED:
+                        Log.v("trashOnDragListener", "drag exited");
+                        v.setBackgroundColor(Color.parseColor("#323232"));
+                        res = true;
+                        break;
+                    case DragEvent.ACTION_DRAG_ENDED:
+                        Log.v("trashOnDragListener", "drag ended");
+                        v.setBackgroundColor(Color.parseColor("#323232"));
+                        onDragEng();
+                        res = true;
+                        break;
+                    case DragEvent.ACTION_DROP :
+                        Log.v("trashOnDragListener", "drag drop");
+                        // on detruit l'artefact
+                        deleteSelectedArtifact();
+                        trashEditLayout.setVisibility(View.GONE);
+                        optionsArtifactLayout.setVisibility(View.VISIBLE);
+                        res = true;
+                        break;
+                    default:
+                        Log.v("trashOnDragListener", "drag other");
+                        break;
+                }
+                return res;
             }
         };
 
         // Action Drop Artifact
-        final OnDragListener myArtefactOnDragListener = new OnDragListener() {
+        final OnDragListener defaultOnDragListener = new OnDragListener() {
+            private float x0, y0;
+            private double max;
+            private long t0 = 0L;
             @Override
             public boolean onDrag(View v, DragEvent event) {
+                PassObject passObj = (PassObject) event.getLocalState();
                 switch (event.getAction()) {
-                    case DragEvent.ACTION_DRAG_STARTED:
+                    // never called ???
+                    case DragEvent.ACTION_DRAG_STARTED :
+                        Log.v("defaultOnDragListener", "drag started");
+                        x0 = 0.0f;
+                        y0 = 0.0f;
+                        t0 = 0;
+                        break;
+                    case DragEvent.ACTION_DRAG_LOCATION :
+                        //Log.v("defaultOnDragListener", "x : " + event.getX());
+                        //Log.v("defaultOnDragListener", "y : " + event.getY());
+                        long t = SystemClock.uptimeMillis();
+                        float x = event.getX();
+                        float y = event.getY();
+                        if ((t-t0 < 500)  && (t-t0)> 5) {
+                            float dx = (x - x0)/density;
+                            float dy = (y - y0)/density;
+                            long dt = t - t0;
+                            double velocity = Math.sqrt(dx*dx + dy*dy) / dt;
+                            //double velocity = Math.sqrt(dx*dx + dy*dy) / dt;
+                            if (max < velocity) max = velocity;
+//                            Log.v("defaultOnDragListener", "dt : " + dt);
+//                            Log.v("defaultOnDragListener", "dx : " + dx);
+//                            Log.v("defaultOnDragListener", "dy : " + dy);
+//                            Log.v("defaultOnDragListener", "vitesse : " + velocity);
+//                            Log.v("defaultOnDragListener", "max : " + max);
+                            if (velocity > 7) {
+                                boolean transfered = sendSelectedArtifactToZp();
+                                if (transfered) {
+                                    setPassObject(null);
+                                    trashEditLayout.setVisibility(View.GONE);
+                                    optionsArtifactLayout.setVisibility(View.VISIBLE);
+                                    if (shadowBuilder != null && shadowBuilder.getView() != null){
+                                        shadowBuilder.getView().setVisibility(View.GONE);
+                                    }
+//                                ViewCompat.cancelDragAndDrop(v);
+//                                View nv = new View(EspacePersonnelActivity.this);
+//                                ViewCompat.updateDragShadow(v, new View.DragShadowBuilder(nv));
+                                }
+                            }
+                        }
+                        x0  = x;
+                        y0  = y;
+                        t0 = t;
+                        Log.v("defaultOnDragListener", "drag location");
+                        break;
+                    case DragEvent.ACTION_DROP :
+                        Log.v("defaultOnDragListener", "drag drop");
+                        x0 = 0.0f;
+                        y0 = 0.0f;
+                        t0 = 0;
+                        break;
+                    // never called ???
+                    case DragEvent.ACTION_DRAG_ENDED:
+                        Log.v("defaultOnDragListener", "drag ended");
+                        x0 = 0.0f;
+                        y0 = 0.0f;
+                        t0 = 0;
+                        onDragEng();
                         break;
                     case DragEvent.ACTION_DRAG_ENTERED:
-                        if (v != espacePersonnelLayout) {
-                            v.setBackgroundColor(Color.parseColor("#70eac8"));
-                        }
+                        Log.v("defaultOnDragListener", "drag entered");
+                        x0 = 0.0f;
+                        y0 = 0.0f;
+                        t0 = 0;
                         break;
                     case DragEvent.ACTION_DRAG_EXITED:
-                        if (v != espacePersonnelLayout) {
-                            v.setBackgroundColor(Color.parseColor("#323232"));
-                        }
-                        break;
-                    case DragEvent.ACTION_DROP:
-                        PassObject passObj = (PassObject) event.getLocalState();
-                        int position = passObj.position;
-                        View view = passObj.view;
-                        final Artifact passedItem = passObj.artifact;
-                        List<Artifact> srcList = passObj.srcList;
-
-                        AbsListView oldParent = (AbsListView) view.getParent();
-                        ArtifactAdapter srcAdapter = (ArtifactAdapter) oldParent.getAdapter();
-                        optionsArtifactLayout.setVisibility(View.VISIBLE);
-                        if (v == trashLayout && srcList == listArtifact) {
-                            srcList.remove(position);
-                        }
-                        else if ((v == editLayout && passedItem.getType().equals("image")) && srcList == listArtifact) {
-                            Clink.show(EspacePersonnelActivity.this, "Ce type n'est pas modifiable");
-                        }
-                        else if ((v == editLayout && passedItem.getType().equals("message")) && srcList == listArtifact) {
-                            titre.setText(passedItem.getTitle());
-                            message.setText(passedItem.getContenu());
-                            artifactLayout.setVisibility(View.VISIBLE);
-                            optionsArtifactLayout.setVisibility(View.GONE);
-                            button.setVisibility(View.GONE);
-                            modifiedButton.setVisibility(View.VISIBLE);
-                            modifiedButton.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    if (titre.getText().toString().equals("")) {
-                                        Clink.show(EspacePersonnelActivity.this, "veuillez saisir le titre de l'article");
-                                    } else if (titre.getText().toString().length() > 25) {
-                                        Clink.show(EspacePersonnelActivity.this, "le titre de l'article est trés grand");
-                                    } else if ((message.getText().toString().equals(""))) {
-                                        Clink.show(EspacePersonnelActivity.this, "veuillez saisir un message");
-                                    } else {
-                                        if (!(passedItem.getCreator().isEmpty())) {
-                                            if (passedItem.getModificateurs() == null){
-                                                passedItem.setModificateurs(new JSONArray());
-                                            }
-                                            Log.d("EspacePersonnelActivity", "Edition artefact, "+passedItem.getIdAr()+", liste de modificateurs avant modification : "+passedItem.getModificateurs());
-                                            JSONObject modificateur = new JSONObject();
-                                            DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-                                            try {
-                                                modificateur.putOpt(Artifact.JSON_MODIFICATEUR, pseudo);
-                                                modificateur.putOpt(Artifact.JSON_DATEMODIFICATION, fmt.format(new Date()));
-                                                //modificateur.putOpt(Artifact.JSON_LOGIN, serverLogin);
-                                                modificateur.putOpt(Artifact.JSON_DEVICE_UUID, deviceUid.toString());
-                                                passedItem.getModificateurs().put(modificateur);
-                                                Log.d("EspacePersonnelActivity", "Edition artefact, "+passedItem.getIdAr()+", ajout modificateurs "+modificateur);
-                                             } catch (JSONException e) {
-                                                Log.e("EspacePersonnelActivity", "Edition artefact, "+passedItem.getIdAr()+", erreur lors du decodage des modificateurs",e);
-                                            }
-                                            Log.d("EspacePersonnelActivity", "Edition artefact, "+passedItem.getIdAr()+", liste de modificateurs apres modification : "+passedItem.getModificateurs());
-                                            passedItem.setTitle(titre.getText().toString());
-                                            passedItem.setContenu(message.getText().toString());
-                                            artifactAdapter.notifyDataSetChanged();
-                                            message.setText("");
-                                            titre.setText("");
-                                            artifactLayout.setVisibility(View.GONE);
-                                            modifiedButton.setVisibility(View.GONE);
-                                            button.setVisibility(View.VISIBLE);
-                                            optionsArtifactLayout.setVisibility(View.VISIBLE);
-                                            hideSoftKeyboard(EspacePersonnelActivity.this);
-                                        }
-                                    }
-                                }
-                            });
-                        } else if (v == zPLayout) {
-                            if (login_btn.getVisibility() == View.VISIBLE) {
-                                Clink.show(EspacePersonnelActivity.this, "veuillez vous connecter");
-                            }
-                            else if (srcList == listArtifactZEP) {
-                                Clink.show(EspacePersonnelActivity.this, "cette action est disponible depuis la table");
-                            }
-                            else {
-                                Log.i("myArtefactOnDrag", constantes.EVT_NEW_ARTEFACT_IN_ZP+" : "+ pseudo + ", "+idZEP+", "+ idZE);
-                                if (socket == null) {
-                                    Log.i("myArtefactOnDrag", "socket is null, can't send "+constantes.EVT_NEW_ARTEFACT_IN_ZP+" : "+ pseudo + ", "+idZEP+", "+ idZE);
-                                } else {
-                                    if (passedItem.getType().equals("message")) {
-                                        Log.i("art : ", passedItem.toJSONMessage().toString());
-                                        socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZP, pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
-                                    } else {
-                                        socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZP, pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
-                                        Log.i("art : ", passedItem.toJSONMessage().toString());
-                                    }
-                                    Log.i("myArtefactOnDrag", constantes.EVT_NEW_ARTEFACT_IN_ZP+" : mise de l'artefact en zone d'attente : "+ passedItem.getIdAr() );
-                                    srcList.remove(position);
-                                    //on met l'artefact en zone d'attente
-                                    artifactsWaitingServeurAck.put(passedItem.getIdAr(), passedItem);
-                                    progressBar.setVisibility(View.VISIBLE);
-                                }
-                            }
-                        } else if (v == espacePersonnelLayout && (srcList != listArtifact)) {
-                            Log.i("myArtefactOnDrag", constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP+" : "+ pseudo + ", "+idZEP+", "+ idZE);
-                            if (socket == null) {
-                                Log.i("myArtefactOnDrag", "socket is null, can't send "+constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP+" : "+ pseudo + ", "+idZEP+", "+ idZE);
-                            } else if (passedItem.getType().equals("message")) {
-                                socket.emit(constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP, passedItem.getIdAr(), idZE, idZEP);
-                            } else {
-                                socket.emit(constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP, passedItem.getIdAr(), idZE, idZEP);
-                            }
-                            // ToDo prevoir un aquitement de la part du serveur
-                            Log.i("myArtefactOnDrag", constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP+" : passage direct de l'artefact en espace prive : "+ passedItem.getIdAr() );
-                            srcList.remove(position);
-                            //on met l'artefact en zone d'attente
-                            artifactsWaitingServeurAck.put(passedItem.getIdAr(), passedItem);
-                            progressBar.setVisibility(View.VISIBLE);
-                            //listArtifact.add(passedItem);
-                            //artifactAdapter.notifyDataSetChanged();
-                        }
-
-                        srcAdapter.notifyDataSetChanged();
-                        trashEditLayout.setVisibility(View.GONE);
-                        zPLayout.setVisibility(View.GONE);
-
-                        break;
-                    case DragEvent.ACTION_DRAG_ENDED:
-                        if (v != espacePersonnelLayout) {
-                            v.setBackgroundColor(Color.parseColor("#323232"));
-                        }
+                        Log.v("defaultOnDragListener", "drag exited");
                         break;
                     default:
+                        Log.v("defaultOnDragListener", "drag other");
                         break;
                 }
                 return true;
@@ -459,13 +543,13 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
             @Override
             public void onItemClick(AdapterView<?> parent, final View view,
-                                           int position, long id) {
+                                    int position, long id) {
                 view.setBackgroundColor(Color.parseColor("#70eac8"));
                 Artifact selectedItem = (Artifact) (parent.getItemAtPosition(position));
                 ArtifactAdapter associatedAdapter = (ArtifactAdapter) (parent.getAdapter());
                 final List<Artifact> associatedList = associatedAdapter.getList();
                 for (int i=0;i<associatedList.size();i++) {
-                   if( associatedList.get(i)!=selectedItem) {
+                    if( associatedList.get(i)!=selectedItem) {
                         associatedAdapter.getView(i,null,parent).setBackgroundResource(0);
                     }
                 }
@@ -484,7 +568,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         } else {
                             return false;
                         }
-                      }
+                    }
                 }));
                 zPLayout.setVisibility(View.VISIBLE);
                 if (associatedList == listArtifact) {
@@ -495,18 +579,19 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
         };
 
-        //gestion des grid view
-        listArtifactZEPView = (GridView) findViewById(R.id.listArtifactZEPView);
-        artifactZEPLayout = (LinearLayoutAbsListView) findViewById(R.id.artifactZEPLayout);
-        listArtifactView = (GridView) findViewById(R.id.listArtifactView);
-        listArtifactLayout = (LinearLayoutAbsListView) findViewById(R.id.listArtifactLayout);
+//        listArtifactLayout.setOnDragListener(myOnDragListener);
+//        artifactZEPLayout.setOnDragListener(myOnDragListener);
+//        trashLayout.setOnDragListener(myArtefactOnDragListener);
+//        editLayout.setOnDragListener(myArtefactOnDragListener);
+//        zPLayout.setOnDragListener(myArtefactOnDragListener);
+//        espacePersonnelLayout.setOnDragListener(myArtefactOnDragListener);
+        listArtifactLayout.setOnDragListener(espacePersoOnDragListener);
+        artifactZEPLayout.setOnDragListener(zoneEchangeOnDragListener);
+        trashLayout.setOnDragListener(deleteOnDragListener);
+        editLayout.setOnDragListener(editOnDragListener);
+        zPLayout.setOnDragListener(zonePartageOnDragListener);
+        espacePersonnelLayout.setOnDragListener(defaultOnDragListener);
 
-        listArtifactLayout.setOnDragListener(myOnDragListener);
-        artifactZEPLayout.setOnDragListener(myOnDragListener);
-        trashLayout.setOnDragListener(myArtefactOnDragListener);
-        editLayout.setOnDragListener(myArtefactOnDragListener);
-        zPLayout.setOnDragListener(myArtefactOnDragListener);
-        espacePersonnelLayout.setOnDragListener(myArtefactOnDragListener);
 
         listArtifactLayout.setAbsListView(listArtifactView);
         artifactZEPLayout.setAbsListView(listArtifactZEPView);
@@ -514,36 +599,64 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         listArtifactZEPView.setAdapter(artifactZEPAdapter);
         listArtifactView.setAdapter(artifactAdapter);
 
-        listArtifactZEPView.setOnItemClickListener(myOnItemClickListener);
-        listArtifactView.setOnItemClickListener(myOnItemClickListener);
+        //listArtifactZEPView.setOnItemClickListener(myOnItemClickListener);
+        //listArtifactView.setOnItemClickListener(myOnItemClickListener);
 
         //Affichage de l'artifact
-        listArtifactView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long id) {
-                Artifact artifact = (Artifact) parent.getItemAtPosition(position);
-                if (artifact.getType().equals("message")) {
-                    Intent intent = new Intent(EspacePersonnelActivity.this, ArtifactArticleActivity.class);
-                    intent.putExtra("title", artifact.getTitle());
-                    intent.putExtra("message", artifact.getContenu());
-                    intent.putExtra("pseudo", artifact.getCreator());
-                    intent.putExtra("date", artifact.getDateCreation());
-                    intent.putExtra("avatarPosition", selectedPosition);
-                    intent.putExtra("modificateurs", artifact.getModificateurs().toString());
-                    Log.d("EspacePersonnelActivity", "avant affichage de l'artefact, voici la liste des modificateurs: "+artifact.getModificateurs());
-                    //Start details activity
-                    startActivity(intent);
-                } else {
-                    Intent intent = new Intent(EspacePersonnelActivity.this, ArtifactImageActivity.class);
-                    intent.putExtra("pseudo", artifact.getCreator());
-                    intent.putExtra("image", artifact.getContenu());
-                    intent.putExtra("date", artifact.getDateCreation());
-                    intent.putExtra("created", artifact.getCreated());
-                    intent.putExtra("modificateurs", artifact.getModificateurs().toString());
-                    startActivity(intent);
-                }
-                return true;
+//        listArtifactView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+//            public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long id) {
+//                Artifact artifact = (Artifact) parent.getItemAtPosition(position);
+//                if (artifact.getType().equals("message")) {
+//                    Intent intent = new Intent(EspacePersonnelActivity.this, ArtifactArticleActivity.class);
+//                    intent.putExtra("title", artifact.getTitle());
+//                    intent.putExtra("message", artifact.getContenu());
+//                    intent.putExtra("pseudo", artifact.getCreator());
+//                    intent.putExtra("date", artifact.getDateCreation());
+//                    intent.putExtra("avatarPosition", selectedPosition);
+//                    intent.putExtra("modificateurs", artifact.getModificateurs().toString());
+//                    Log.d("EspacePersonnelActivity", "avant affichage de l'artefact, voici la liste des modificateurs: "+artifact.getModificateurs());
+//                    //Start details activity
+//                    startActivity(intent);
+//                } else {
+//                    Intent intent = new Intent(EspacePersonnelActivity.this, ArtifactImageActivity.class);
+//                    intent.putExtra("pseudo", artifact.getCreator());
+//                    intent.putExtra("image", artifact.getContenu());
+//                    intent.putExtra("date", artifact.getDateCreation());
+//                    intent.putExtra("created", artifact.getCreated());
+//                    intent.putExtra("modificateurs", artifact.getModificateurs().toString());
+//                    startActivity(intent);
+//                }
+//                return true;
+//            }
+//        });
+
+        // gestion des gestes utilisateur
+        activityGestureListener = new GestureDetector.SimpleOnGestureListener(){
+            @Override
+            public void onLongPress(MotionEvent e) {
+                Log.v("activityGestureListener","onLongPress");
+                displaySelectedArtifact();
+                //super.onLongPress(e);
             }
-        });
+//            @Override
+//            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+//                Log.v("activityGestureListener","onFling");
+//                return super.onFling(e1, e2, velocityX, velocityY);
+//            }
+//            @Override
+//            public boolean onDown(MotionEvent e) {
+//                Log.v("activityGestureListener","onDown");
+//                return super.onDown(e);
+//            }
+            @Override
+            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                Log.v("activityGestureListener","onScroll");
+                startDragSeletedArtefact();
+                return true;
+                //return super.onScroll(e1,e2, distanceX,distanceY);
+            }
+        };
+        activityGestureDetector = new GestureDetectorCompat(this, activityGestureListener);
 
         //gestion de l'affichage du layout d'ajout aartifact
         final Button buttonLoadImage = (Button) findViewById(R.id.buttonLoadPicture);
@@ -580,9 +693,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     artefact.setModificateurs(new JSONArray());
                     listArtifact.add(artefact);
                     artifactAdapter.notifyDataSetChanged();
-                    if (listArtifactView.getHeight() > 400) {
-                        listArtifactView.getLayoutParams().height = 400;
-                    }
                     message.setText("");
                     titre.setText("");
                     artifactLayout.setVisibility(View.GONE);
@@ -884,7 +994,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                 artifactZEPAdapter.notifyDataSetChanged();
+                                artifactZEPAdapter.notifyDataSetChanged();
                             }
                         });
                     }
@@ -902,12 +1012,12 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                             Log.e("evt", constantes.EVT_RECEPTION_ARTEFACT_INTO_ZE+", artefact inconnu : " + uuid);
                         } else {
                             Log.e("evt", constantes.EVT_RECEPTION_ARTEFACT_INTO_ZE+", transfert artefact en ZEP : " + uuid);
-                        //artifact.setCreated("false");
-                        listArtifactZEP.add(artifact);
-                        artifactsWaitingServeurAck.remove(uuid);
-                        EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
+                            //artifact.setCreated("false");
+                            listArtifactZEP.add(artifact);
+                            artifactsWaitingServeurAck.remove(uuid);
+                            EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
                                     if (artifactsWaitingServeurAck.isEmpty()) {
                                         artifactZEPAdapter.notifyDataSetChanged();
                                         progressBar.setVisibility(View.GONE);
@@ -1001,6 +1111,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         if (args.length > 0) reason = (String) args[0];
                         else reason = "Connection impossible, cause indeterminée";
                         Log.i("evt", constantes.EVT_REPONSE_NOK_CONNEXION_ZEP+" : ");
+                        connected = false;
                         EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -1025,7 +1136,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 socket.connect();
             }
 
-        //} catch (URISyntaxException e) {
+            //} catch (URISyntaxException e) {
         } catch (Exception e) {
             e.printStackTrace();
             Log.i("error", e.toString());
@@ -1080,9 +1191,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
             listArtifact.add(artifact);
             artifactAdapter.notifyDataSetChanged();
-            if (listArtifactView.getHeight() > 400) {
-                listArtifactView.getLayoutParams().height = 400;
-            }
         }
 
         //prendre un photo
@@ -1113,12 +1221,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             artifact.setDateCreation(date);
             listArtifact.add(artifact);
             artifactAdapter.notifyDataSetChanged();
-            if (listArtifactView.getHeight() > 400) {
-                listArtifactView.getLayoutParams().height = 400;
-            }
         }
         //prendre un photo
-       else if (requestCode == REQUEST_CAMERA_haute && resultCode == RESULT_OK ) {
+        else if (requestCode == REQUEST_CAMERA_haute && resultCode == RESULT_OK ) {
             Bitmap thumbnail;
             String imageurl = null;
             try {
@@ -1137,15 +1242,372 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             artifact.setDateCreation(date);
             listArtifact.add(artifact);
             artifactAdapter.notifyDataSetChanged();
-            if (listArtifactView.getHeight() > 400) {
-                listArtifactView.getLayoutParams().height = 400;
-            }
         }
         artifactAdapter.notifyDataSetChanged();
     }
 
+    private PassObject passObj= null;
+
+    public void setPassObject(PassObject passObj){
+        if (this.passObj != null && this.passObj.view != null) {
+            final View v = this.passObj.view;
+            v.setVisibility(View.VISIBLE);
+        }
+        this.passObj = passObj;
+    }
+
+    public void startDragSeletedArtefact(){
+        startDrag(passObj);
+    }
+
+    private View.DragShadowBuilder shadowBuilder;
+
+    public void startDrag(PassObject passObj){
+        if (passObj != null && passObj.artifact != null) {
+            // if (passObj.srcList == listArtifact) {
+            Log.i("startDrag", "start drag artifact");
+            final Artifact passedItem = passObj.artifact;
+            final View view = passObj.view;
+            List<Artifact> srcList = passObj.srcList;
+            int position = passObj.position;
+            view.setBackgroundResource(0);
+            ClipData data = ClipData.newPlainText("", "");
+            // View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
+            shadowBuilder = new View.DragShadowBuilder(view);
+            view.startDrag(data, shadowBuilder, passObj, 0);
+            view.setVisibility(View.INVISIBLE);
+            // affichage outils sur l'artefact
+            trashEditLayout.setVisibility(View.VISIBLE);
+            optionsArtifactLayout.setVisibility(View.GONE);
+            // }
+        }
+    }
+
+    public boolean sendSelectedArtifactToZp(){
+        return sendToZp(passObj);
+    }
+    public boolean sendToZp(PassObject passObj){
+        boolean transfered = false;
+        Log.i("sendToZp", constantes.EVT_NEW_ARTEFACT_IN_ZP + " : " + pseudo + ", " + idZEP + ", " + idZE);
+        if (passObj != null) {
+            final Artifact passedItem = passObj.artifact;
+            List<Artifact> srcList = passObj.srcList;
+            int position = passObj.position;
+            if (passObj.srcList == listArtifact) {
+                Log.i("sendToZp", constantes.EVT_NEW_ARTEFACT_IN_ZP + " : " + pseudo + ", " + idZEP + ", " + idZE);
+                if (connected && (socket != null) && socket.connected()) {
+                    if (passedItem.getType().equals("message")) {
+                        socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZP, pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
+                        Log.v("sendToZp", "art : "+ passedItem.toJSONMessage().toString());
+                    } else {
+                        socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZP, pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
+                        Log.v("sendToZp", "art : "+ passedItem.toJSONImage().toString());
+                    }
+                    Log.i("sendToZp", constantes.EVT_NEW_ARTEFACT_IN_ZP + " : mise de l'artefact en zone d'attente : " + passedItem.getIdAr());
+                    srcList.remove(position);
+                    //on met l'artefact en zone d'attente
+                    artifactsWaitingServeurAck.put(passedItem.getIdAr(), passedItem);
+                    progressBar.setVisibility(View.VISIBLE);
+                    artifactAdapter.notifyDataSetChanged();
+                    transfered = true;
+                } else if (!connected) {
+                    Log.e("sendToZp", "not connected on server, can't send " + constantes.EVT_NEW_ARTEFACT_IN_ZP + " : " + pseudo + ", " + idZEP + ", " + idZE);
+                    Clink.show(EspacePersonnelActivity.this, "veuillez vous connecter");
+                    //smooth scroll to EP
+                    listArtifactLayout.absListView.smoothScrollToPosition(position);
+                } else /* if (socket == null || !socket.connected()) */ {
+                    Log.i("sendToZp", "socket is null, can't send " + constantes.EVT_NEW_ARTEFACT_IN_ZP + " : " + pseudo + ", " + idZEP + ", " + idZE);
+                    //smooth scroll to EP
+                    listArtifactLayout.absListView.smoothScrollToPosition(position);
+                }
+            } else {
+                //smooth scroll to ZE
+                artifactZEPLayout.absListView.smoothScrollToPosition(position);
+            }
+        }
+//        trashEditLayout.setVisibility(View.GONE);
+//        optionsArtifactLayout.setVisibility(View.VISIBLE);
+//        setPassObject(null);
+        return transfered;
+    }
+
+    public boolean sendSelectedArtifactToZE(){
+        return sendToZE(passObj);
+    }
+    public boolean sendToZE(PassObject passObj){
+        boolean transfered = false;
+        Log.i("sendToZE", constantes.EVT_NEW_ARTEFACT_IN_ZE + " : " + pseudo + ", " + idZEP + ", " + idZE);
+        if (passObj != null) {
+            final Artifact passedItem = passObj.artifact;
+            List<Artifact> srcList = passObj.srcList;
+            int position = passObj.position;
+            if (passObj.srcList == listArtifact) {
+                Log.i("sendToZE", constantes.EVT_NEW_ARTEFACT_IN_ZE + " : " + pseudo + ", " + idZEP + ", " + idZE);
+                if (connected && (socket != null)  && socket.connected()) {
+                    // pas utile normalement...
+                    //passedItem.setProprietaire(pseudo);
+                    passedItem.setTypeConteneur("ZE");
+                    passedItem.setIdConteneur(idZE);
+                    if (passedItem.getType().equals("message")) {
+                        socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZE, pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
+                        Log.v("sendToZE", "art : "+ passedItem.toJSONMessage().toString());
+                    } else {
+                        socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZE, pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
+                        Log.v("sendToZE", "art : "+ passedItem.toJSONImage().toString());
+                    }
+                    Log.i("sendToZE", constantes.EVT_NEW_ARTEFACT_IN_ZE + " : mise de l'atefact en zone d'attente : " + passedItem.getIdAr());
+                    srcList.remove(position);
+                    // listArtifactZEP.add(passedItem);
+                    // on met l'artefact en zone d'attente
+                    artifactsWaitingServeurAck.put(passedItem.getIdAr(), passedItem);
+                    progressBar.setVisibility(View.VISIBLE);
+                    artifactAdapter.notifyDataSetChanged();
+                    // artifactZEPAdapter.notifyDataSetChanged();
+                    // smooth scroll to bottom of ZE
+                    artifactZEPLayout.absListView.smoothScrollToPosition(artifactZEPAdapter.getCount() - 1);
+                    transfered = true;
+                } else if (!connected) {
+                    Log.e("sendToZE", "not connected on server, can't send " + constantes.EVT_NEW_ARTEFACT_IN_ZE + " : " + pseudo + ", " + idZEP + ", " + idZE);
+                    Clink.show(EspacePersonnelActivity.this, "veuillez vous connecter");
+                    //smooth scroll to EP
+                    listArtifactLayout.absListView.smoothScrollToPosition(position);
+                } else /* if (socket == null || !socket.connected()) */ {
+                    Log.e("sendToZE", "socket is null, can't send " + constantes.EVT_NEW_ARTEFACT_IN_ZE + " : " + pseudo + ", " + idZEP + ", " + idZE);
+                    //smooth scroll to EP
+                    listArtifactLayout.absListView.smoothScrollToPosition(position);
+                }
+            } else {
+                //smooth scroll to ZE
+                artifactZEPLayout.absListView.smoothScrollToPosition(position);
+            }
+//            trashEditLayout.setVisibility(View.GONE);
+//            optionsArtifactLayout.setVisibility(View.VISIBLE);
+//            setPassObject(null);
+        }
+        return transfered;
+    }
+
+    public boolean sendSelectedArtifactToEP(){
+        return sendToEP(passObj);
+    }
+    public boolean sendToEP(PassObject passObj){
+        boolean transfered = false;
+        Log.i("sendToEP", constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP + " : " + pseudo + ", " + idZEP + ", " + idZE);
+        if (passObj != null) {
+            final Artifact passedItem = passObj.artifact;
+            List<Artifact> srcList = passObj.srcList;
+            int position = passObj.position;
+            if (passObj.srcList == listArtifactZEP) {
+                Log.i("myArtefactOnDrag", constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP + " : " + pseudo + ", " + idZEP + ", " + idZE);
+                if (!connected || socket == null || !socket.connected()) {
+                    Log.i("myArtefactOnDrag", "not connected or socket is null, can't send " + constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP + " : " + pseudo + ", " + idZEP + ", " + idZE);
+                    Log.i("myArtefactOnDrag", "Transfert direct en Espace prive - pas d'attente : " + passedItem.getIdAr());
+                    // on met l'artefact en espace prive directement
+                    srcList.remove(position);
+                    listArtifact.add(passedItem);
+                    artifactZEPAdapter.notifyDataSetChanged();
+                    artifactAdapter.notifyDataSetChanged();
+                } else {
+                    // on est connecte on signalle le modif au serveur et on attend la notification
+                    if (passedItem.getType().equals("message")) {
+                        socket.emit(constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP, passedItem.getIdAr(), idZE, idZEP);
+                    }
+                    else {
+                        socket.emit(constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP, passedItem.getIdAr(), idZE, idZEP);
+                    }
+                    Log.i("myArtefactOnDrag", constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP + " : passage direct de l'artefact en espace prive : " + passedItem.getIdAr());
+                    // on met l'artefact en zone d'attente
+                    srcList.remove(position);
+                    // listArtifact.add(passedItem);
+                    artifactsWaitingServeurAck.put(passedItem.getIdAr(), passedItem);
+                    progressBar.setVisibility(View.VISIBLE);
+                    artifactZEPAdapter.notifyDataSetChanged();
+                    // artifactAdapter.notifyDataSetChanged();
+                }
+                // smooth scroll to bottom of EP
+                listArtifactLayout.absListView.smoothScrollToPosition(artifactAdapter.getCount() - 1);
+                transfered = true;
+            } else {
+                //smooth scroll to current position in ZE
+                listArtifactLayout.absListView.smoothScrollToPosition(position);
+            }
+            //zPLayout.setVisibility(View.GONE);
+//            trashEditLayout.setVisibility(View.GONE);
+//            optionsArtifactLayout.setVisibility(View.VISIBLE);
+//            setPassObject(null);
+        }
+        return transfered;
+    }
+
+    public void displaySelectedArtifact() {
+        if (passObj != null) {
+            displayArtifact(passObj.artifact);
+        }
+    }
+    public void displayArtifact(Artifact artifact){
+        if (artifact != null) {
+            if (artifact.getType().equals("message")) {
+                Intent intent = new Intent(EspacePersonnelActivity.this, ArtifactArticleActivity.class);
+                intent.putExtra("title", artifact.getTitle());
+                intent.putExtra("message", artifact.getContenu());
+                intent.putExtra("pseudo", artifact.getCreator());
+                intent.putExtra("date", artifact.getDateCreation());
+                intent.putExtra("avatarPosition", selectedPosition);
+                intent.putExtra("modificateurs", artifact.getModificateurs().toString());
+                Log.d("EspacePersonnelActivity", "avant affichage de l'artefact, voici la liste des modificateurs: " + artifact.getModificateurs());
+                //Start details activity
+                startActivity(intent);
+            }
+            else {
+                Intent intent = new Intent(EspacePersonnelActivity.this, ArtifactImageActivity.class);
+                intent.putExtra("pseudo", artifact.getCreator());
+                intent.putExtra("image", artifact.getContenu());
+                intent.putExtra("date", artifact.getDateCreation());
+                intent.putExtra("created", artifact.getCreated());
+                intent.putExtra("modificateurs", artifact.getModificateurs().toString());
+                startActivity(intent);
+            }
+            trashEditLayout.setVisibility(View.GONE);
+            optionsArtifactLayout.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void deleteSelectedArtifact(){
+        delete(passObj);
+    }
+    public void delete(PassObject passObj){
+        if (passObj != null){
+            final Artifact passedItem = passObj.artifact;
+            List<Artifact> srcList = passObj.srcList;
+            int position = passObj.position;
+            if (passObj.srcList == listArtifact) {
+                srcList.remove(position);
+                artifactAdapter.notifyDataSetChanged();
+            }
+            trashEditLayout.setVisibility(View.GONE);
+            optionsArtifactLayout.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void onDragEng(){
+        setPassObject(null);
+        // pas une bonne idee car trashEditLayout doit recevoir un event ACTION_DRAG_ENDED
+        // trashEditLayout.setVisibility(View.GONE);
+        // optionsArtifactLayout.setVisibility(View.VISIBLE);
+    }
+
+    public void editSelectedArtifact(){
+        edit(passObj);
+        setPassObject(null);
+    }
+    public void edit(PassObject passObj){
+        if (passObj != null){
+            final Artifact passedItem = passObj.artifact;
+            List<Artifact> srcList = passObj.srcList;
+            int position = passObj.position;
+            if (passObj.srcList != listArtifact) {
+                trashEditLayout.setVisibility(View.GONE);
+                optionsArtifactLayout.setVisibility(View.VISIBLE);
+            } else if (passedItem.getType().equals("image") && srcList == listArtifact) {
+                Clink.show(EspacePersonnelActivity.this, "Ce type n'est pas modifiable");
+                trashEditLayout.setVisibility(View.GONE);
+                optionsArtifactLayout.setVisibility(View.VISIBLE);
+            } else if (passedItem.getType().equals("message")) {
+                titre.setText(passedItem.getTitle());
+                message.setText(passedItem.getContenu());
+                artifactLayout.setVisibility(View.VISIBLE);
+                optionsArtifactLayout.setVisibility(View.GONE);
+                trashEditLayout.setVisibility(View.GONE);
+                button.setVisibility(View.GONE);
+                modifiedButton.setVisibility(View.VISIBLE);
+                modifiedButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (titre.getText().toString().equals("")) {
+                            Clink.show(EspacePersonnelActivity.this, "veuillez saisir le titre de l'article");
+                        }
+                        else if (titre.getText().toString().length() > 25) {
+                            Clink.show(EspacePersonnelActivity.this, "le titre de l'article est trés grand");
+                        }
+                        else if ((message.getText().toString().equals(""))) {
+                            Clink.show(EspacePersonnelActivity.this, "veuillez saisir un message");
+                        }
+                        else {
+                            if (!(passedItem.getCreator().isEmpty())) {
+                                if (passedItem.getModificateurs() == null) {
+                                    passedItem.setModificateurs(new JSONArray());
+                                }
+                                Log.d("EspacePersonnelActivity", "Edition artefact, " + passedItem.getIdAr() + ", liste de modificateurs avant modification : " + passedItem.getModificateurs());
+                                JSONObject modificateur = new JSONObject();
+                                DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                                try {
+                                    modificateur.putOpt(Artifact.JSON_MODIFICATEUR, pseudo);
+                                    modificateur.putOpt(Artifact.JSON_DATEMODIFICATION, fmt.format(new Date()));
+                                    //modificateur.putOpt(Artifact.JSON_LOGIN, serverLogin);
+                                    modificateur.putOpt(Artifact.JSON_DEVICE_UUID, deviceUid.toString());
+                                    passedItem.getModificateurs().put(modificateur);
+                                    Log.d("EspacePersonnelActivity", "Edition artefact, " + passedItem.getIdAr() + ", ajout modificateurs " + modificateur);
+                                } catch (JSONException e) {
+                                    Log.e("EspacePersonnelActivity", "Edition artefact, " + passedItem.getIdAr() + ", erreur lors du decodage des modificateurs", e);
+                                }
+                                Log.d("EspacePersonnelActivity", "Edition artefact, " + passedItem.getIdAr() + ", liste de modificateurs apres modification : " + passedItem.getModificateurs());
+                                passedItem.setTitle(titre.getText().toString());
+                                passedItem.setContenu(message.getText().toString());
+                                artifactAdapter.notifyDataSetChanged();
+                                message.setText("");
+                                titre.setText("");
+                                artifactLayout.setVisibility(View.GONE);
+                                modifiedButton.setVisibility(View.GONE);
+                                button.setVisibility(View.VISIBLE);
+                                trashEditLayout.setVisibility(View.GONE);
+                                optionsArtifactLayout.setVisibility(View.VISIBLE);
+
+                                hideSoftKeyboard(EspacePersonnelActivity.this);
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        activityGestureDetector.onTouchEvent(ev);
+//        switch (ev.getAction()) {
+//            case MotionEvent.ACTION_DOWN :
+//                Log.v("activityDsptTouchEvent","down");
+//                break;
+//            case MotionEvent.ACTION_UP :
+//                Log.v("activityDsptTouchEvent","up");
+//                break;
+//            default :
+//                Log.v("activityDsptTouchEvent","other");
+//                break;
+//        }
+        boolean res =  super.dispatchTouchEvent(ev);
+        switch (ev.getAction()) {
+//            case MotionEvent.ACTION_DOWN :
+//                Log.v("activityDsptTouchEvent","after down");
+//                break;
+            case MotionEvent.ACTION_UP :
+                Log.v("activityDsptTouchEvent","after up");
+                // de-selection current artefact
+                if (passObj != null) {
+                    setPassObject(null);
+                }
+                break;
+//            default :
+//                Log.v("activityDsptTouchEvent","after other");
+//                break;
+        }
+        return res;
+    }
+
     public static void hideSoftKeyboard(Activity activity) {
-        InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
+        if (activity != null && activity.getCurrentFocus() != null && activity.getCurrentFocus().getWindowToken() != null) {
+            InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
+        }
     }
 }
