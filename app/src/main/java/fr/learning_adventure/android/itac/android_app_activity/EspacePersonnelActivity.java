@@ -6,6 +6,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -39,10 +40,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.github.nkzawa.emitter.Emitter;
-import com.github.nkzawa.socketio.client.IO;
-import com.github.nkzawa.socketio.client.Socket;
-
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -53,11 +51,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Date;
 import java.util.List;
 
 import fr.learning_adventure.android.itac.R;
@@ -69,6 +69,13 @@ import fr.learning_adventure.android.itac.model.Modificateurs;
 import fr.learning_adventure.android.itac.model.PassObject;
 import fr.learning_adventure.android.itac.widget.Clink;
 import fr.learning_adventure.android.itac.widget.LinearLayoutAbsListView;
+import io.socket.client.IO;
+import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
+
+//import com.github.nkzawa.emitter.Emitter;
+//import com.github.nkzawa.socketio.client.IO;
+//import com.github.nkzawa.socketio.client.Socket;
 
 /**
  * Created by learninglab on 03/03/16.
@@ -86,12 +93,16 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     private GridView listArtifactView;
     private GridView listArtifactZEPView;
     private LinearLayoutAbsListView listArtifactLayout, artifactZEPLayout;
-    private RelativeLayout optionsArtifactLayout;
+    private LinearLayout optionsArtifactLayout;
     private List<Artifact> listArtifact = new ArrayList<>();
     private ArtifactAdapter artifactAdapter = new ArtifactAdapter(this, listArtifact);
     private List<Artifact> listArtifactZEP = new ArrayList<>();
     private ArtifactAdapter artifactZEPAdapter = new ArtifactAdapter(this, listArtifactZEP);
+    private HashMap<String, Artifact> artifactsWaitingServeurAck = new LinkedHashMap<>();
     private ProgressBar progressBar ;
+    private RelativeLayout zepLayout;
+    private ImageButton logout_btn;
+    private ImageButton login_btn;
     private int selectedPosition;
     private String idZEP;
     private String idZE;
@@ -100,11 +111,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
     //get & set pseudo, ip
     private String pseudo;
-
     public String getPseudo() {
         return this.pseudo;
     }
-
     public void setPseudo(String pseudo) {
         this.pseudo = pseudo;
     }
@@ -157,8 +166,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         setContentView(R.layout.activity_espacepersonnel);
         //récuperer le pseudo
         Intent intent = getIntent();
-        final String pseudo = intent.getStringExtra("pseudoName");
-        EspacePersonnelActivity.this.setPseudo(pseudo);
+        this.setPseudo(intent.getStringExtra("pseudoName"));
         // recuperation info avatar
         selectedPosition = intent.getExtras().getInt("avatarPosition");
         AvatarAdapter imageAdapter = new AvatarAdapter(this);
@@ -174,19 +182,20 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         final RelativeLayout espacePersonnelLayout = (RelativeLayout) findViewById(R.id.espacePersonnelLayout);
         final EditText titre = (EditText) EspacePersonnelActivity.this.findViewById(R.id.titre);
         final EditText message = (EditText) EspacePersonnelActivity.this.findViewById(R.id.message_input);
-        final RelativeLayout artifactLayout = (RelativeLayout) this.findViewById(R.id.artifact);
-        final RelativeLayout optionsArtifactLayout = (RelativeLayout) this.findViewById(R.id.optionsArtifactLayout);
+        final RelativeLayout  artifactLayout = (RelativeLayout) this.findViewById(R.id.artifact);
+        optionsArtifactLayout = (LinearLayout) this.findViewById(R.id.optionsArtifactLayout);
         final Button modifiedButton = (Button) this.findViewById(R.id.send_modified_button);
         final Button button = (Button) this.findViewById(R.id.send_button);
-        final RelativeLayout zepLayout = (RelativeLayout) findViewById(R.id.zep_layout);
-        final ImageButton logout_btn = (ImageButton) this.findViewById(R.id.logout_btn);
-        final ImageButton login_btn = (ImageButton) this.findViewById(R.id.login_btn);
         progressBar = (ProgressBar)this.findViewById(R.id.progress);
+        zepLayout = (RelativeLayout) findViewById(R.id.zep_layout);
+        logout_btn = (ImageButton) this.findViewById(R.id.logout_btn);
+        login_btn = (ImageButton) this.findViewById(R.id.login_btn);
         //mettre arriere plans transparent
         espacePersonnelLayout.getBackground().setAlpha(200);
 
         //initialiser socket
-        initializeWebSocket();
+        // ST plus de connexion automatique
+        //initializeWebSocket();
 
         //Boutton qui permet de gerer la deconnexion du serveur
         logout_btn.setOnClickListener(new View.OnClickListener() {
@@ -240,20 +249,24 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                 if (login_btn.getVisibility() == View.VISIBLE) {
                                     Clink.show(EspacePersonnelActivity.this, "veuillez vous connecter");
                                 } else {
-                                    passedItem.setProprietaire(pseudo);
+                                    // pas utile normalement...
+                                    //passedItem.setProprietaire(pseudo);
                                     passedItem.setTypeConteneur("ZE");
                                     passedItem.setIdConteneur(idZE);
                                     Log.i("myOnDragListener", constantes.EVT_NEW_ARTEFACT_IN_ZE+" : "+ pseudo + ", "+idZEP+", "+ idZE);
                                     if (socket == null) {
-                                        Log.i("myOnDragListener", "socket is null, can't send "+constantes.EVT_NEW_ARTEFACT_IN_ZE+" : " + pseudo + ", " + idZEP + ", " + idZE);
+                                        Log.e("myOnDragListener", "socket is null, can't send "+constantes.EVT_NEW_ARTEFACT_IN_ZE+" : " + pseudo + ", " + idZEP + ", " + idZE);
                                     } else {
                                         if (passedItem.getType().equals("message")) {
                                             socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZE, pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
                                         } else {
                                             socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZE, pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
                                         }
+                                        Log.i("myOnDragListener", constantes.EVT_NEW_ARTEFACT_IN_ZE+" : mise de l'atefact en zone d'attente : "+ passedItem.getIdAr() );
                                         srcList.remove(position);
-                                        //destList.add(passedItem);
+                                        //on met l'artefact en zone d'attente
+                                        artifactsWaitingServeurAck.put(passedItem.getIdAr(), passedItem);
+                                        progressBar.setVisibility(View.VISIBLE);
                                     }
                                 }
                             }
@@ -307,6 +320,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
                         AbsListView oldParent = (AbsListView) view.getParent();
                         ArtifactAdapter srcAdapter = (ArtifactAdapter) oldParent.getAdapter();
+                        optionsArtifactLayout.setVisibility(View.VISIBLE);
                         if (v == trashLayout && srcList == listArtifact) {
                             srcList.remove(position);
                         }
@@ -317,6 +331,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                             titre.setText(passedItem.getTitle());
                             message.setText(passedItem.getContenu());
                             artifactLayout.setVisibility(View.VISIBLE);
+                            optionsArtifactLayout.setVisibility(View.GONE);
                             button.setVisibility(View.GONE);
                             modifiedButton.setVisibility(View.VISIBLE);
                             modifiedButton.setOnClickListener(new View.OnClickListener() {
@@ -330,24 +345,30 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                         Clink.show(EspacePersonnelActivity.this, "veuillez saisir un message");
                                     } else {
                                         if (!(passedItem.getCreator().isEmpty())) {
-//                                            DateFormat df = new SimpleDateFormat("dd-MM-yyyy 'à 'HH:mm");
-//                                            String date = df.format(Calendar.getInstance().getTime());
-//                                            Modificateurs mod = new Modificateurs(pseudo, date);
-//                                            if (passedItem.getModificateurs().isEmpty()) {
-//                                                List<Modificateurs> listModificateurs = new ArrayList<>();
-//                                            }
-//                                            List<Modificateurs> listModificateurs = passedItem.getModificateurs();
-//                                            listModificateurs.add(mod);
-                                            // passedItem.setModificateurs(listModificateurs);
+                                            if (passedItem.getModificateurs() == null){
+                                                passedItem.setModificateurs(new JSONArray());
+                                            }
+                                            Log.d("EspacePersonnelActivity", "Edition artefact, "+passedItem.getIdAr()+", liste de modificateurs avant modification : "+passedItem.getModificateurs());
+                                            JSONObject modificateur = new JSONObject();
+                                            DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                                            try {
+                                                modificateur.putOpt(Artifact.JSON_MODIFICATEUR, pseudo);
+                                                modificateur.putOpt(Artifact.JSON_DATEMODIFICATION, fmt.format(new Date()));
+                                                passedItem.getModificateurs().put(modificateur);
+                                                Log.d("EspacePersonnelActivity", "Edition artefact, "+passedItem.getIdAr()+", ajout modificateurs "+modificateur);
+                                             } catch (JSONException e) {
+                                                Log.e("EspacePersonnelActivity", "Edition artefact, "+passedItem.getIdAr()+", erreur lors du decodage des modificateurs",e);
+                                            }
+                                            Log.d("EspacePersonnelActivity", "Edition artefact, "+passedItem.getIdAr()+", liste de modificateurs apres modification : "+passedItem.getModificateurs());
                                             passedItem.setTitle(titre.getText().toString());
                                             passedItem.setContenu(message.getText().toString());
-                                            // passedItem.setDateDerniereModification(date);
                                             artifactAdapter.notifyDataSetChanged();
                                             message.setText("");
                                             titre.setText("");
-                                            artifactLayout.setVisibility(View.INVISIBLE);
+                                            artifactLayout.setVisibility(View.GONE);
                                             modifiedButton.setVisibility(View.GONE);
                                             button.setVisibility(View.VISIBLE);
+                                            optionsArtifactLayout.setVisibility(View.VISIBLE);
                                             hideSoftKeyboard(EspacePersonnelActivity.this);
                                         }
                                     }
@@ -372,7 +393,11 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                         socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZP, pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
                                         Log.i("art : ", passedItem.toJSONMessage().toString());
                                     }
+                                    Log.i("myArtefactOnDrag", constantes.EVT_NEW_ARTEFACT_IN_ZP+" : mise de l'artefact en zone d'attente : "+ passedItem.getIdAr() );
                                     srcList.remove(position);
+                                    //on met l'artefact en zone d'attente
+                                    artifactsWaitingServeurAck.put(passedItem.getIdAr(), passedItem);
+                                    progressBar.setVisibility(View.VISIBLE);
                                 }
                             }
                         } else if (v == espacePersonnelLayout && (srcList != listArtifact)) {
@@ -384,15 +409,19 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                             } else {
                                 socket.emit(constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP, passedItem.getIdAr(), idZE, idZEP);
                             }
+                            // ToDo prevoir un aquitement de la part du serveur
+                            Log.i("myArtefactOnDrag", constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP+" : passage direct de l'artefact en espace prive : "+ passedItem.getIdAr() );
                             srcList.remove(position);
-                            listArtifact.add(passedItem);
-                            artifactAdapter.notifyDataSetChanged();
+                            //on met l'artefact en zone d'attente
+                            artifactsWaitingServeurAck.put(passedItem.getIdAr(), passedItem);
+                            progressBar.setVisibility(View.VISIBLE);
+                            //listArtifact.add(passedItem);
+                            //artifactAdapter.notifyDataSetChanged();
                         }
 
                         srcAdapter.notifyDataSetChanged();
                         trashEditLayout.setVisibility(View.GONE);
                         zPLayout.setVisibility(View.GONE);
-                        optionsArtifactLayout.setVisibility(View.VISIBLE);
 
                         break;
                     case DragEvent.ACTION_DRAG_ENDED:
@@ -480,9 +509,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     intent.putExtra("message", artifact.getContenu());
                     intent.putExtra("pseudo", artifact.getCreator());
                     intent.putExtra("date", artifact.getDateCreation());
-                    intent.putExtra("dateDerniereModification", artifact.getDateDerniereModification());
-                    intent.putExtra("modificateurs", (Serializable) artifact.getModificateurs());
                     intent.putExtra("avatarPosition", selectedPosition);
+                    intent.putExtra("modificateurs", artifact.getModificateurs().toString());
+                    Log.d("EspacePersonnelActivity", "avant affichage de l'artefact, voici la liste des modificateurs: "+artifact.getModificateurs());
                     //Start details activity
                     startActivity(intent);
                 } else {
@@ -491,6 +520,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     intent.putExtra("image", artifact.getContenu());
                     intent.putExtra("date", artifact.getDateCreation());
                     intent.putExtra("created", artifact.getCreated());
+                    intent.putExtra("modificateurs", artifact.getModificateurs().toString());
                     startActivity(intent);
                 }
                 return true;
@@ -505,6 +535,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             @Override
             public void onClick(View view) {
                 artifactLayout.setVisibility(View.VISIBLE);
+                optionsArtifactLayout.setVisibility(View.GONE);
             }
         });
 
@@ -523,12 +554,12 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     Artifact artefact = new Artifact(getPseudo());
                     artefact.setTitle(titre.getText().toString());
                     artefact.setContenu(message.getText().toString());
-                    DateFormat df = new SimpleDateFormat("dd-MM-yyyy 'à 'HH:mm");
-                    String date = df.format(Calendar.getInstance().getTime());
+                    DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                    String date = fmt.format(Calendar.getInstance().getTime());
                     artefact.setDateCreation(date);
-                    artefact.setType("message");
-                    List<Modificateurs> listModificateurs = new ArrayList<>();
-                    artefact.setModificateurs(listModificateurs);
+                    artefact.setType(Artifact.ARTIFACT_TYPE_MESSAGE);
+                    Log.d("EspacePersonnelActivity", "initialisation de la liste de modificateurs (vide)");
+                    artefact.setModificateurs(new JSONArray());
                     listArtifact.add(artefact);
                     artifactAdapter.notifyDataSetChanged();
                     if (listArtifactView.getHeight() > 400) {
@@ -536,7 +567,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     }
                     message.setText("");
                     titre.setText("");
-                    artifactLayout.setVisibility(View.INVISIBLE);
+                    artifactLayout.setVisibility(View.GONE);
+                    optionsArtifactLayout.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -548,7 +580,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 hideSoftKeyboard(EspacePersonnelActivity.this);
                 message.setText("");
                 titre.setText("");
-                artifactLayout.setVisibility(View.INVISIBLE);
+                artifactLayout.setVisibility(View.GONE);
+                optionsArtifactLayout.setVisibility(View.VISIBLE);
             }
         });
 
@@ -564,6 +597,12 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             }
         });
 
+        // on verifie si on a une camera ou non
+        PackageManager pm = getPackageManager();
+        // si ce n'est pas le cas on desactive le bouton pour prendre des photos
+        if(! pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)){
+            buttonTakeImage.setEnabled(false);
+        }
         buttonTakeImage.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -588,7 +627,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
                 closeWebSocket();
-                initializeWebSocket();
+                //initializeWebSocket();
             }
         };
         sharedPreferences.registerOnSharedPreferenceChangeListener(preferenceListener);
@@ -649,9 +688,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     }
 
     private void onDisconnection(){
-        final RelativeLayout zepLayout = (RelativeLayout) findViewById(R.id.zep_layout);
-        final ImageButton logout_btn = (ImageButton) this.findViewById(R.id.logout_btn);
-        final ImageButton login_btn = (ImageButton) this.findViewById(R.id.login_btn);
+        //final RelativeLayout zepLayout = (RelativeLayout) findViewById(R.id.zep_layout);
+        //final ImageButton logout_btn = (ImageButton) this.findViewById(R.id.logout_btn);
+        //final ImageButton login_btn = (ImageButton) this.findViewById(R.id.login_btn);
         Log.i("onDisconnection", "on ete deconnecte du serveur...");
         connected=false;
         // on met a jour l'interface...
@@ -666,10 +705,11 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     }
     //Creation de la WebSocket et lancement de la connexion
     private void initializeWebSocket() {
-       final RelativeLayout zepLayout = (RelativeLayout) findViewById(R.id.zep_layout);
-        final ImageButton logout_btn = (ImageButton) this.findViewById(R.id.logout_btn);
-        final ImageButton login_btn = (ImageButton) this.findViewById(R.id.login_btn);
         try {
+            logout_btn.setVisibility(View.VISIBLE);
+            login_btn.setVisibility(View.GONE);
+            // display progressbar
+            progressBar.setVisibility(View.VISIBLE);
             Log.i("WebSocket URL", getUriSocket());
             // creation de la socket
             if (socket != null){
@@ -699,6 +739,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                logout_btn.setVisibility(View.VISIBLE);
+                                login_btn.setVisibility(View.GONE);
                                 progressBar.setVisibility(View.VISIBLE);
                             }
                         });
@@ -711,6 +753,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                logout_btn.setVisibility(View.VISIBLE);
+                                login_btn.setVisibility(View.GONE);
                                 progressBar.setVisibility(View.VISIBLE);
                             }
                         });
@@ -731,6 +775,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                             public void run() {
                                 Clink.show(EspacePersonnelActivity.this, "veuillez verifier les parametres de connexion");
                                 progressBar.setVisibility(View.GONE);
+                                //login_btn.setVisibility(View.VISIBLE);
+                                //logout_btn.setVisibility(View.GONE);
                             }
                         });
                     }
@@ -744,6 +790,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                             public void run() {
                                 Clink.show(EspacePersonnelActivity.this, "veuillez verifier les parametres de connexion");
                                 progressBar.setVisibility(View.GONE);
+                                //login_btn.setVisibility(View.VISIBLE);
+                                //logout_btn.setVisibility(View.GONE);
                             }
                         });
                     }
@@ -759,7 +807,14 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     @Override
                     public void call(Object... args) {
                         Log.i("Socket", "error " + args[0]);
-
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressBar.setVisibility(View.GONE);
+                                login_btn.setVisibility(View.VISIBLE);
+                                logout_btn.setVisibility(View.GONE);
+                            }
+                        });
                     }
                 });
 
@@ -770,6 +825,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     @Override
                     public void call(Object... args) {
                         //final JSONObject object = (JSONObject) args[0];
+                        // ToDo corriger ligne suivant
                         final String id = ("" + args[0]);
                         Log.i("evt", constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_ZP+" : " + id);
                         EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
@@ -799,6 +855,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                             e.printStackTrace();
                         }
                         Artifact artifact = new Artifact(object);
+                        // on devient le nouveau proprietaire de l'objet
+                        artifact.setProprietaire(pseudo);
                         artifact.setCreated("false");
                         listArtifactZEP.add(artifact);
                         Log.i("evt", constantes.EVT_ENVOIE_ARTEFACT_DE_ZP_VERS_ZE+" : " + data);
@@ -816,29 +874,78 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
                     @Override
                     public void call(Object... args) {
-                        final String data = (String) args[2];
-                        JSONObject object = null;
-                        int arId = 0;
-                        try {
-                            object = new JSONObject(data);
-                            arId = object.getInt("idAr");
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        final int id = arId;
-                        Log.i("evt", constantes.EVT_RECEPTION_ARTEFACT_INTO_ZE+" : " + id);
-                        //listArtifact.add(passedItem);
-                        Artifact artifact = new Artifact(object);
-                        artifact.setCreated("false");
+                        final String uuid = (String) args[2];
+                        Log.i("evt", constantes.EVT_RECEPTION_ARTEFACT_INTO_ZE+" : " + uuid);
+                        Artifact artifact = artifactsWaitingServeurAck.get(uuid);
+                        if (artifact == null) {
+                            Log.e("evt", constantes.EVT_RECEPTION_ARTEFACT_INTO_ZE+", artefact inconnu : " + uuid);
+                        } else {
+                            Log.e("evt", constantes.EVT_RECEPTION_ARTEFACT_INTO_ZE+", transfert artefact en ZEP : " + uuid);
+                        //artifact.setCreated("false");
                         listArtifactZEP.add(artifact);
+                        artifactsWaitingServeurAck.remove(uuid);
                         EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                progressBar.setVisibility(View.GONE);
-                                //                        listArtifactZEP.get(listArtifactZEP.size() - 1).setIdAr(String.valueOf(id));
-                                artifactZEPAdapter.notifyDataSetChanged();
-                            }
-                        });
+                                    if (artifactsWaitingServeurAck.isEmpty()) {
+                                        artifactZEPAdapter.notifyDataSetChanged();
+                                        progressBar.setVisibility(View.GONE);
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+
+                //Réponse envoie artefact vers ZP
+                socket.on(constantes.EVT_RECEPTION_ARTEFACT_INTO_ZP, new Emitter.Listener() {
+
+                    @Override
+                    public void call(Object... args) {
+                        final String uuid = (String) args[2];
+                        Log.i("evt", constantes.EVT_RECEPTION_ARTEFACT_INTO_ZP+" : " + uuid);
+                        Artifact artifact = artifactsWaitingServeurAck.get(uuid);
+                        if (artifact == null) {
+                            Log.e("evt", constantes.EVT_RECEPTION_ARTEFACT_INTO_ZP+", artefact inconnu : " + uuid);
+                        } else {
+                            Log.e("evt", constantes.EVT_RECEPTION_ARTEFACT_INTO_ZP+", acquitement transfert artefact en ZP : " + uuid);
+                            artifactsWaitingServeurAck.remove(uuid);
+                            EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (artifactsWaitingServeurAck.isEmpty()) {
+                                        progressBar.setVisibility(View.GONE);
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+
+                //Réponse envoie artefact vers EP
+                socket.on(constantes.EVT_RECEPTION_ARTEFACT_INTO_EP, new Emitter.Listener() {
+
+                    @Override
+                    public void call(Object... args) {
+                        final String uuid = (String) args[1];
+                        Log.i("evt", constantes.EVT_RECEPTION_ARTEFACT_INTO_EP+" : " + uuid);
+                        Artifact artifact = artifactsWaitingServeurAck.get(uuid);
+                        if (artifact == null) {
+                            Log.e("evt", constantes.EVT_RECEPTION_ARTEFACT_INTO_EP+", artefact inconnu : " + uuid);
+                        } else {
+                            Log.e("evt", constantes.EVT_RECEPTION_ARTEFACT_INTO_EP+", acquitement transfert artefact en EP : " + uuid);
+                            listArtifact.add(artifact);
+                            artifactsWaitingServeurAck.remove(uuid);
+                            EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    artifactAdapter.notifyDataSetChanged();
+                                    if (artifactsWaitingServeurAck.isEmpty()) {
+                                        progressBar.setVisibility(View.GONE);
+                                    }
+                                }
+                            });
+                        }
                     }
                 });
 
@@ -873,15 +980,15 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                progressBar.setVisibility(View.GONE);
                                 Clink.show(EspacePersonnelActivity.this, "le nombre maximal de connexion au serveur est dépassé");
+                                progressBar.setVisibility(View.GONE);
+                                login_btn.setVisibility(View.VISIBLE);
+                                logout_btn.setVisibility(View.GONE);
                             }
                         });
                     }
                 });
             }
-            // display progressbar
-            progressBar.setVisibility(View.VISIBLE);
             // connexion a la websocket
             if (! socket.connected()){
                 Log.i("initializeWebSocket", "initialisation de la connection");
@@ -894,7 +1001,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 socket.connect();
             }
 
-        } catch (URISyntaxException e) {
+        //} catch (URISyntaxException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             Log.i("error", e.toString());
         }
@@ -902,6 +1010,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
     //Fin de la connexion au srveur ITAC et fermeture de la WebSocket
     private void closeWebSocket() {
+        progressBar.setVisibility(View.GONE);
+        login_btn.setVisibility(View.VISIBLE);
+        logout_btn.setVisibility(View.GONE);
         onDisconnection();
         if (socket != null) {
             if (socket.connected()) {
@@ -921,7 +1032,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
+        DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         //selection de l'image depuis la galerie
         if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != data ) {
             Uri selectedImage = data.getData();
@@ -937,12 +1048,12 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
             Artifact artifact = new Artifact(getPseudo());
             artifact.setContenu(picturePath);
-            artifact.setType("image");
+            artifact.setType(Artifact.ARTIFACT_TYPE_IMAGE);
             artifact.setCreated("true");
 
-            DateFormat df = new SimpleDateFormat("dd-MM-yyyy 'à 'HH:mm");
-            String date = df.format(Calendar.getInstance().getTime());
+            String date = fmt.format(Calendar.getInstance().getTime());
             artifact.setDateCreation(date);
+
             listArtifact.add(artifact);
             artifactAdapter.notifyDataSetChanged();
             if (listArtifactView.getHeight() > 400) {
@@ -971,11 +1082,10 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             }
             Artifact artifact = new Artifact(getPseudo());
             artifact.setContenu(destination.getAbsolutePath());
-            artifact.setType("image");
+            artifact.setType(Artifact.ARTIFACT_TYPE_IMAGE);
             artifact.setCreated("true");
 
-            DateFormat df = new SimpleDateFormat("dd-MM-yyyy 'à 'HH:mm");
-            String date = df.format(Calendar.getInstance().getTime());
+            String date = fmt.format(Calendar.getInstance().getTime());
             artifact.setDateCreation(date);
             listArtifact.add(artifact);
             artifactAdapter.notifyDataSetChanged();
@@ -996,11 +1106,10 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             }
             Artifact artifact = new Artifact(getPseudo());
             artifact.setContenu(imageurl);
-            artifact.setType("image");
+            artifact.setType(Artifact.ARTIFACT_TYPE_IMAGE);
             artifact.setCreated("true");
 
-            DateFormat df = new SimpleDateFormat("dd-MM-yyyy 'à 'HH:mm");
-            String date = df.format(Calendar.getInstance().getTime());
+            String date = fmt.format(Calendar.getInstance().getTime());
             artifact.setDateCreation(date);
             listArtifact.add(artifact);
             artifactAdapter.notifyDataSetChanged();
@@ -1008,6 +1117,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 listArtifactView.getLayoutParams().height = 400;
             }
         }
+        artifactAdapter.notifyDataSetChanged();
     }
 
     public static void hideSoftKeyboard(Activity activity) {

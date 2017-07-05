@@ -4,7 +4,9 @@ import android.annotation.TargetApi;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.util.Base64;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -16,6 +18,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.Serializable;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by learninglab on 03/03/16.
@@ -30,9 +33,29 @@ public class Artifact implements Serializable {
     private String idConteneur;
     private String proprietaire;
     private String dateCreation;
-    private String dateDerniereModification;
-    private List<Modificateurs> modificateurs;
+    private JSONArray modificateurs;
     private String type;
+
+    private JSONObject jsonSrc;
+    private String created ;
+
+    private Bitmap thumbnail = null;
+
+    private final static String JSON_IDAR = "id";
+    private final static String JSON_CREATOR = "creator";
+    private final static String JSON_PROPRIETAIRE = "owner";
+    private final static String JSON_TYPEARTEFACT = "type";
+    private final static String JSON_IDCONTENEUR = "idContainer";
+    private final static String JSON_TYPECONTENEUR = "typeContainer";
+    private final static String JSON_DATECREATION = "dateCreation";
+    private final static String JSON_MODIFICATEURS = "history";
+    public final static String JSON_MODIFICATEUR = "user";
+    public final static String JSON_DATEMODIFICATION = "dateModification";
+    private final static String JSON_TITLE = "title";
+    private final static String JSON_CONTENU = "content";
+    public final static String ARTIFACT_TYPE_MESSAGE = "message";
+    public final static String ARTIFACT_TYPE_IMAGE = "image";
+
 
     public String getCreated() {
         return created;
@@ -42,23 +65,9 @@ public class Artifact implements Serializable {
         this.created = created;
     }
 
-    private String created ;
-
-
-    private final static String JSON_IDAR = "idAr";
-    private final static String JSON_CREATOR = "createur";
-    private final static String JSON_PROPRIETAIRE = "proprietaire";
-    private final static String JSON_TYPEARTEFACT = "typeArtefact";
-    private final static String JSON_IDCONTENEUR = "idConteneur";
-    private final static String JSON_TYPECONTENEUR = "typeConteneur";
-    private final static String JSON_DATECREATION = "dateCreation";
-    private final static String JSON_DATEDERNIEREMODIFICATION = "derniereModification";
-    private final static String JSON_MODIFICATEURS = "modificateurs";
-    private final static String JSON_MODIFICATEUR = "modifier";
-    private final static String JSON_DATEMODIFICATION = "modifiedDate";
-    private final static String JSON_TITLE = "titre";
-    private final static String JSON_CONTENU = "contenu";
-
+    public JSONObject getJsonSrc() {
+        return jsonSrc;
+    }
 
     public String getDateCreation() {
         return dateCreation;
@@ -66,14 +75,6 @@ public class Artifact implements Serializable {
 
     public void setDateCreation(String dateCreation) {
         this.dateCreation = dateCreation;
-    }
-
-    public String getDateDerniereModification() {
-        return dateDerniereModification;
-    }
-
-    public void setDateDerniereModification(String dateDerniereModification) {
-        this.dateDerniereModification = dateDerniereModification;
     }
 
     public String getCreator() {
@@ -100,11 +101,11 @@ public class Artifact implements Serializable {
         this.proprietaire = proprietaire;
     }
 
-    public List<Modificateurs> getModificateurs() {
+    public JSONArray getModificateurs() {
         return modificateurs;
     }
 
-    public void setModificateurs(List<Modificateurs> modificateurs) {
+    public void setModificateurs(JSONArray modificateurs) {
         this.modificateurs = modificateurs;
     }
 
@@ -148,109 +149,134 @@ public class Artifact implements Serializable {
         this.idConteneur = idConteneur;
     }
 
+    public Bitmap getThumbnail() {
+        if (thumbnail == null){
+            String base64Img;
+            if(this.getCreated().equals("true")){
+                base64Img = encodeImage(this.contenu);
+            } else {
+                base64Img = this.contenu;
+            }
+            byte[] decodedImg = Base64.decode(base64Img, Base64.DEFAULT);
+            Bitmap img = BitmapFactory.decodeByteArray(decodedImg, 0, decodedImg.length);
+            thumbnail = Bitmap.createScaledBitmap(img, 100,100, false);
+        }
+        return thumbnail;
+    }
+
+    public void setThumbnail(Bitmap thumbnail) {
+        this.thumbnail = thumbnail;
+    }
+
+
 
     public Artifact(String creator) {
-        this.idAr = null;
+        Log.d("artifact_constructor ", "new artifact creation ");
+        this.idAr = UUID.randomUUID().toString();
+        jsonSrc = new JSONObject();
         this.creator = creator;
-        this.proprietaire = null;
+        this.proprietaire = creator;
         this.type = null;
         this.idConteneur = null;
         this.typeConteneur = null;
         this.dateCreation = null;
-        this.dateDerniereModification = null;
-        this.modificateurs = null;
+        this.modificateurs = new JSONArray();
         this.title = null;
-        this.contenu = null;    }
+        this.contenu = null;
+        this.created="true";
+    }
 
-    public Artifact(JSONObject object) {
-
+    public Artifact(@NonNull JSONObject object) {
+        Log.d("artifact_constructor ", "JSON artifact creation: " + object);
         try {
+            this.jsonSrc = object;
             this.idAr = object.getString(Artifact.JSON_IDAR);
             this.creator = object.getString(Artifact.JSON_CREATOR);
-            this.proprietaire = object.getString(Artifact.JSON_PROPRIETAIRE);
+            this.proprietaire = object.optString(Artifact.JSON_PROPRIETAIRE);
             this.type = object.getString(Artifact.JSON_TYPEARTEFACT);
-            this.idConteneur = object.getString(Artifact.JSON_IDCONTENEUR);
-            this.typeConteneur = object.getString(Artifact.JSON_TYPECONTENEUR);
             this.dateCreation = object.getString(Artifact.JSON_DATECREATION);
             this.contenu = object.getString(Artifact.JSON_CONTENU);
-            if (this.type.equals("message")) {
-                this.title = object.getString(Artifact.JSON_TITLE);
-                this.dateDerniereModification = object.getString(Artifact.JSON_DATEDERNIEREMODIFICATION);
-                JSONArray jsonArr = object.getJSONArray(Artifact.JSON_MODIFICATEURS);
-
-                for (int i = 0; i < jsonArr.length(); i++) {
-                    JSONObject objet = jsonArr.getJSONObject(i);
-                    String modificateur = objet.getString(Artifact.JSON_MODIFICATEUR);
-                    String date = objet.getString(Artifact.JSON_DATEMODIFICATION);
-                    Modificateurs mod = new Modificateurs(modificateur, date);
-                    this.modificateurs.add(mod);
-
-                }
+            this.idConteneur = object.optString(Artifact.JSON_IDCONTENEUR);
+            this.typeConteneur = object.optString(Artifact.JSON_TYPECONTENEUR);
+            this.title = object.optString(Artifact.JSON_TITLE);
+            this.modificateurs = object.optJSONArray(Artifact.JSON_MODIFICATEURS);
+            if (this.modificateurs == null) {
+                this.modificateurs = new JSONArray();
             }
-
+            this.created="false";
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.d("fromJSOM", "error while parsing JSON artifact", e);
         }
 
         }
 
 
     public JSONObject toJSONMessage() {
-        JSONObject object = new JSONObject();
+        JSONObject object = getJsonSrc();
         try {
             object.putOpt(Artifact.JSON_IDAR, this.idAr);
             object.putOpt(Artifact.JSON_CREATOR, this.creator);
             object.putOpt(Artifact.JSON_PROPRIETAIRE, this.proprietaire);
+            object.putOpt(Artifact.JSON_DATECREATION, this.dateCreation);
             object.putOpt(Artifact.JSON_TYPEARTEFACT, this.type);
             object.putOpt(Artifact.JSON_IDCONTENEUR, this.idConteneur);
             object.putOpt(Artifact.JSON_TYPECONTENEUR, this.typeConteneur);
-            object.putOpt(Artifact.JSON_DATECREATION, this.dateCreation);
-            object.putOpt(Artifact.JSON_DATEDERNIEREMODIFICATION, this.dateDerniereModification);
-            JSONArray jsonArr = new JSONArray();
-            if (this.getModificateurs() != null) {
-                for (Modificateurs mod : this.getModificateurs()) {
-
-                    JSONObject pnObj = new JSONObject();
-
-                    pnObj.put(Artifact.JSON_MODIFICATEUR, mod.getModificateur());
-
-                    pnObj.put(Artifact.JSON_DATEMODIFICATION, mod.getDateModification());
-
-                    jsonArr.put(pnObj);
-
-                }
-            }
-
-            object.putOpt(Artifact.JSON_MODIFICATEURS, jsonArr);
             object.putOpt(Artifact.JSON_TITLE, this.title);
             object.putOpt(Artifact.JSON_CONTENU, this.contenu);
-
-
+            object.putOpt(Artifact.JSON_MODIFICATEURS, this.getModificateurs());
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e("toJSONMessage", "error during generation JSON artifact",e);
         }
+        Log.d("toJSONMessage", "JSON artifact" + object);
         return object;
     }
 
     public JSONObject toJSONImage() {
-        JSONObject object = new JSONObject();
+        JSONObject object = getJsonSrc();
         try {
             object.putOpt(Artifact.JSON_IDAR, this.idAr);
             object.putOpt(Artifact.JSON_CREATOR, this.creator);
             object.putOpt(Artifact.JSON_PROPRIETAIRE, this.proprietaire);
+            object.putOpt(Artifact.JSON_DATECREATION, this.dateCreation);
             object.putOpt(Artifact.JSON_TYPEARTEFACT, this.type);
             object.putOpt(Artifact.JSON_IDCONTENEUR, this.idConteneur);
             object.putOpt(Artifact.JSON_TYPECONTENEUR, this.typeConteneur);
-            object.putOpt(Artifact.JSON_DATECREATION, this.dateCreation);
+            object.putOpt(Artifact.JSON_TITLE, this.title);
             if(this.getCreated().equals("true"))
             {object.putOpt(Artifact.JSON_CONTENU, encodeImage(this.contenu));}
             else {object.putOpt(Artifact.JSON_CONTENU, this.contenu);}
-
-
+            object.putOpt(Artifact.JSON_MODIFICATEURS, this.getModificateurs());
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e("toJSONImage", "error during generation of JSON artifact",e);
         }
+        Log.d("toJSONImage", "JSON artifact" + object);
         return object;
+    }
+
+    public JSONObject toJSON(){
+        JSONObject res = getJsonSrc();
+        if (ARTIFACT_TYPE_MESSAGE.equals(this.getType())){
+            res = this.toJSONMessage();
+        } else if (ARTIFACT_TYPE_IMAGE.equals(this.getType())){
+            res = this.toJSONImage();
+        } else {
+            try {
+                res.putOpt(Artifact.JSON_IDAR, this.idAr);
+                res.putOpt(Artifact.JSON_CREATOR, this.creator);
+                res.putOpt(Artifact.JSON_PROPRIETAIRE, this.proprietaire);
+                res.putOpt(Artifact.JSON_DATECREATION, this.dateCreation);
+                res.putOpt(Artifact.JSON_TYPEARTEFACT, this.type);
+                res.putOpt(Artifact.JSON_IDCONTENEUR, this.idConteneur);
+                res.putOpt(Artifact.JSON_TYPECONTENEUR, this.typeConteneur);
+                res.putOpt(Artifact.JSON_TITLE, this.title);
+                res.putOpt(Artifact.JSON_CONTENU, this.contenu);
+                res.putOpt(Artifact.JSON_MODIFICATEURS, this.getModificateurs());
+        } catch (JSONException e) {
+                Log.e("toJSONMessage", "error during generation JSON artifact",e);
+            }
+            Log.d("toJSONMessage", "JSON artifact" + res);
+        }
+        return res;
     }
 
     @Override
@@ -284,9 +310,7 @@ public class Artifact implements Serializable {
         String encImage = Base64.encodeToString(b, Base64.DEFAULT);
         //Base64.de
         return encImage;
-
     }
-
 }
 
 

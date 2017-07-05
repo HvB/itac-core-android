@@ -34,13 +34,14 @@ public class AuthentificationActivity extends ActionBarActivity {
         gridview.setAdapter(avatarAdapter);
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                v.setBackgroundResource(R.drawable.rounded_corner_green);
                 avatarAdapter.setSelectedPosition(position);
-                for (int i = 0; i < 8; i++) {
-                    if (avatarAdapter.getSelectedPosition() != i) {
-                        gridview.getChildAt(i).setBackgroundResource(0);
-                    }
-                }
+                avatarAdapter.notifyDataSetChanged();
+//                v.setBackgroundResource(R.drawable.rounded_corner_green);
+//                for (int i = 0; i < 8; i++) {
+//                    if (avatarAdapter.getSelectedPosition() != i) {
+//                        gridview.getChildAt(i).setBackgroundResource(0);
+//                    }
+//                }
             }
         });
 

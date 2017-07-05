@@ -5,8 +5,13 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Base64;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import fr.learning_adventure.android.itac.R;
 
@@ -21,6 +26,10 @@ public class ArtifactImageActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.artifact_image);
 
+        DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        DateFormat fmtDateCreation = new SimpleDateFormat("dd-MM-yyyy 'à 'HH:mm");
+        DateFormat fmtOut = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+
         String date = getIntent().getStringExtra("date");
         String contenu = getIntent().getStringExtra("image");
         String pseudo = getIntent().getStringExtra("pseudo");
@@ -29,8 +38,12 @@ public class ArtifactImageActivity extends ActionBarActivity {
 
         TextView pseudoView = (TextView) findViewById(R.id.pseudo);
         ImageView imageView = (ImageView) findViewById(R.id.image);
-
-        pseudoView.setText("Crée par " + pseudo + " le " + date);
+        try {
+            String dateCreation = fmtDateCreation.format(fmt.parse(date));
+            pseudoView.setText("Crée par " + pseudo + " le " + dateCreation);
+        } catch (ParseException e) {
+            Log.e("ArtifactImageActivity", "error decoding creation date",e);
+        }
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = 4;
         if (created.equals("true")) {

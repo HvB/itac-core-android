@@ -1,16 +1,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@drawable/background"
-    tools:context=".android_app_activity.ConnexionActivity" >
-
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:background="@drawable/background"
+              tools:context=".android_app_activity.ConnexionActivity" >
 
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="150px"
+        android:layout_marginTop="30dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:paddingBottom="20dp"
@@ -20,43 +19,40 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="20sp"
+            android:layout_marginTop="20sp"
+            android:padding="5dp"
             android:textStyle="bold"
             android:textColor="#f6f055"
             android:id="@+id/uri"
-            android:layout_marginTop="16dp"
             android:layout_centerHorizontal="true" />
 
-
+        <EditText
+            android:layout_below="@+id/uri"
+            android:layout_width="200sp"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20sp"
+            android:padding="5dp"
+            android:background="#90caf9"
+            android:id="@+id/ip"
+            android:hint="@string/enter_address_hint"
+            android:digits="0123456789."
+            android:inputType="numberDecimal"/>
 
         <EditText
-        android:layout_below="@+id/uri"
-        android:layout_width="550px"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:padding="10dp"
-        android:layout_marginTop="25sp"
-        android:background="#90caf9"
-        android:id="@+id/ip"
-        android:hint="@string/enter_address_hint"
-        android:digits="0123456789."
-        android:inputType="numberDecimal"/>
-
-    <EditText
-
-        android:layout_width="550px"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:padding="10dp"
-        android:layout_marginTop="25sp"
-        android:background="#90caf9"
-        android:layout_below="@id/ip"
-        android:id="@+id/port"
-        android:hint="@string/enter_port_hint"
-        android:inputType="number"/>
-
+            android:layout_width="200sp"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20sp"
+            android:padding="5dp"
+            android:background="#90caf9"
+            android:layout_below="@id/ip"
+            android:id="@+id/port"
+            android:hint="@string/enter_port_hint"
+            android:inputType="number"/>
         <Button
             android:layout_below="@+id/port"
-            android:layout_width="250px"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="10dp"
             android:layout_centerHorizontal="true"
@@ -66,13 +62,9 @@
             android:layout_marginTop="25dp"
             android:textAlignment="center"
             android:text="@string/valid_text"
-            android:textSize="25dp"
+            android:textSize="20sp"
             android:layout_marginBottom="20dp"
             android:textStyle="bold"
             />
-
-
-
     </RelativeLayout>
-
 </LinearLayout>

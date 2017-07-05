@@ -80,6 +80,9 @@ public class ArtifactAdapter extends BaseAdapter {
 
         } else {
             convertView = inflater.inflate(R.layout.artifact_image_adapter, null);
+            mImage = (ImageView) convertView.findViewById(R.id.image);
+            mImage.setImageBitmap(artifact.getThumbnail());
+            /*
             if (artifact.getCreated().equals("true")) {
                 mImage = (ImageView) convertView.findViewById(R.id.image);
                 Bitmap bmOrigine = BitmapFactory.decodeFile(artifact.getContenu());
@@ -114,11 +117,11 @@ public class ArtifactAdapter extends BaseAdapter {
                 }
                 mImage.setImageBitmap(decodedByte);
             }
+            */
 
 
         }
         //convertView.setOnTouchListener(new OnTouchListener());
-
 
 
         return convertView;
