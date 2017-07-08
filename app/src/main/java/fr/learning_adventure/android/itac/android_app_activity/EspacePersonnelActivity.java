@@ -712,6 +712,11 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             progressBar.setVisibility(View.VISIBLE);
             Log.i("WebSocket URL", getUriSocket());
             // creation de la socket
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+            final String serverLogin = sharedPreferences.getString(getString(R.string.pref_key_server_login),"anonymous");
+            final String serverPassword = sharedPreferences.getString(getString(R.string.pref_key_server_password),"");
+            Log.i("initializeWebSocket", "connection login : "+serverLogin);
+
             if (socket != null){
                 Log.i("initializeWebSocket", "reutilisation de la socket existante");
             } else {
@@ -728,7 +733,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         if (socket == null) {
                             Log.i("initializeWebSocket", "socket is null, can't send EVT_DemandeConnexionZEP : " + pseudo + ", " + String.valueOf(selectedPosition));
                         } else {
-                            socket.emit("EVT_DemandeConnexionZEP", pseudo, String.valueOf(selectedPosition));
+                            socket.emit("EVT_DemandeConnexionZEP", pseudo, String.valueOf(selectedPosition), serverLogin, serverPassword);
                         }
                     }
                 });
@@ -976,11 +981,14 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 socket.on(constantes.EVT_REPONSE_NOK_CONNEXION_ZEP, new Emitter.Listener() {
                     @Override
                     public void call(final Object... args) {
+                        final String reason;
+                        if (args.length > 0) reason = (String) args[0];
+                        else reason = "Connection impossible, cause indeterminée";
                         Log.i("evt", constantes.EVT_REPONSE_NOK_CONNEXION_ZEP+" : ");
                         EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Clink.show(EspacePersonnelActivity.this, "le nombre maximal de connexion au serveur est dépassé");
+                                Clink.show(EspacePersonnelActivity.this, reason);
                                 progressBar.setVisibility(View.GONE);
                                 login_btn.setVisibility(View.VISIBLE);
                                 logout_btn.setVisibility(View.GONE);
