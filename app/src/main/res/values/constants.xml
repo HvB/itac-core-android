@@ -4,6 +4,7 @@
     <string name="pref_key_server_port" translatable="false">pref_key_server_port</string>
     <string name="pref_key_server_login" translatable="false">pref_key_server_login</string>
     <string name="pref_key_server_password" translatable="false">pref_key_server_password</string>
+    <string name="pref_key_device_uuid" translatable="false">pref_key_device_uuid</string>
     <!-- constantes ITAC -->
     <string name="EVT_EnvoieArtefactdeZEversZP" translatable="false">EVT_Envoie_ArtefactdeZEversZP</string>
     <string name="EVT_EnvoieArtefactdeZPversZE" translatable="false">EVT_Envoie_ArtefactdeZPversZE</string>
