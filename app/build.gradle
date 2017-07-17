@@ -1,4 +1,18 @@
+plugins {
+    id "com.github.hierynomus.license" version "0.14.0"
+}
+
 apply plugin: 'com.android.application'
+
+license {
+    header = rootProject.file('Header_Apache-2.0.txt')
+    include('**/*.java')
+    include('test/**')
+    include('androidTest/**')
+    ext.year = Calendar.getInstance().get(Calendar.YEAR)
+    ext.author = "Titan Team"
+    sourceSets = project.sourceSets
+}
 
 android {
     signingConfigs {
