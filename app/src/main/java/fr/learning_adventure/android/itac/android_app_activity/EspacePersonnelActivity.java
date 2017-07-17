@@ -59,6 +59,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import fr.learning_adventure.android.itac.R;
 import fr.learning_adventure.android.itac.adapter.ArtifactAdapter;
@@ -81,6 +82,8 @@ import io.socket.emitter.Emitter;
  * Created by learninglab on 03/03/16.
  */
 public class EspacePersonnelActivity extends ActionBarActivity {
+    private UUID deviceUid;
+    private String serverLogin = "anonymous";
     private ItacConstant constantes;
     private  Socket socket;
     private final static String FILE_URI_SOCKET = "uri_socket.txt";
@@ -161,6 +164,25 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         // recuperation des constantes
         constantes = ItacConstant.getInstance(this.getApplicationContext());
+        // recuperation de preferences de l'app
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        preferenceListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                closeWebSocket();
+                //initializeWebSocket();
+            }
+        };
+        sharedPreferences.registerOnSharedPreferenceChangeListener(preferenceListener);
+        final String uuid = sharedPreferences.getString(getString(R.string.pref_key_device_uuid),"");
+        if (uuid == null || uuid.equals("")){
+            deviceUid = UUID.randomUUID();
+            SharedPreferences.Editor editor= sharedPreferences.edit();
+            editor.putString(getString(R.string.pref_key_device_uuid), deviceUid.toString());
+            editor.commit();
+        } else {
+            deviceUid = UUID.fromString(uuid);
+        }
         // construction de l'IHM
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_espacepersonnel);
@@ -354,6 +376,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                             try {
                                                 modificateur.putOpt(Artifact.JSON_MODIFICATEUR, pseudo);
                                                 modificateur.putOpt(Artifact.JSON_DATEMODIFICATION, fmt.format(new Date()));
+                                                //modificateur.putOpt(Artifact.JSON_LOGIN, serverLogin);
+                                                modificateur.putOpt(Artifact.JSON_DEVICE_UUID, deviceUid.toString());
                                                 passedItem.getModificateurs().put(modificateur);
                                                 Log.d("EspacePersonnelActivity", "Edition artefact, "+passedItem.getIdAr()+", ajout modificateurs "+modificateur);
                                              } catch (JSONException e) {
@@ -622,15 +646,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 }
             }
         });
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        preferenceListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-            @Override
-            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                closeWebSocket();
-                //initializeWebSocket();
-            }
-        };
-        sharedPreferences.registerOnSharedPreferenceChangeListener(preferenceListener);
     }
 
     @Override
@@ -712,10 +727,20 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             progressBar.setVisibility(View.VISIBLE);
             Log.i("WebSocket URL", getUriSocket());
             // creation de la socket
+            // recuperation de preferences de l'app
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-            final String serverLogin = sharedPreferences.getString(getString(R.string.pref_key_server_login),"anonymous");
+            serverLogin = sharedPreferences.getString(getString(R.string.pref_key_server_login),"anonymous");
             final String serverPassword = sharedPreferences.getString(getString(R.string.pref_key_server_password),"");
-            Log.i("initializeWebSocket", "connection login : "+serverLogin);
+            final String uuid = sharedPreferences.getString(getString(R.string.pref_key_device_uuid),"");
+            if (uuid == null || uuid.equals("")){
+                deviceUid = UUID.randomUUID();
+                SharedPreferences.Editor editor= sharedPreferences.edit();
+                editor.putString(getString(R.string.pref_key_device_uuid), deviceUid.toString());
+                editor.commit();
+            } else {
+                deviceUid = UUID.fromString(uuid);
+            }
+            Log.i("initializeWebSocket", "connection login : "+serverLogin+", device UUID: "+deviceUid.toString());
 
             if (socket != null){
                 Log.i("initializeWebSocket", "reutilisation de la socket existante");
@@ -733,7 +758,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         if (socket == null) {
                             Log.i("initializeWebSocket", "socket is null, can't send EVT_DemandeConnexionZEP : " + pseudo + ", " + String.valueOf(selectedPosition));
                         } else {
-                            socket.emit("EVT_DemandeConnexionZEP", pseudo, String.valueOf(selectedPosition), serverLogin, serverPassword);
+                            socket.emit("EVT_DemandeConnexionZEP", pseudo, String.valueOf(selectedPosition), serverLogin, serverPassword, deviceUid.toString());
                         }
                     }
                 });

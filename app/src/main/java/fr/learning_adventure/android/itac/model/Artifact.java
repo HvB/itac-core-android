@@ -53,6 +53,8 @@ public class Artifact implements Serializable {
     public final static String JSON_DATEMODIFICATION = "dateModification";
     private final static String JSON_TITLE = "title";
     private final static String JSON_CONTENU = "content";
+    public final static String JSON_LOGIN = "login";
+    public final static String JSON_DEVICE_UUID = "deviceUid";
     public final static String ARTIFACT_TYPE_MESSAGE = "message";
     public final static String ARTIFACT_TYPE_IMAGE = "image";
 
