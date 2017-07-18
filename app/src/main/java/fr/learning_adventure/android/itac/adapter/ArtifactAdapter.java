@@ -1,9 +1,7 @@
 package fr.learning_adventure.android.itac.adapter;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -74,56 +72,11 @@ public class ArtifactAdapter extends BaseAdapter {
             convertView = inflater.inflate(R.layout.artifact_article_adapter, null);
             mTitle = (TextView) convertView.findViewById(R.id.titre);
             mTitle.setText(artifact.getTitle());
-//            mDate = (TextView) convertView.findViewById(R.id.date);
-//            mDate.setText(artifact.getDateCreation());
-
-
         } else {
             convertView = inflater.inflate(R.layout.artifact_image_adapter, null);
             mImage = (ImageView) convertView.findViewById(R.id.image);
             mImage.setImageBitmap(artifact.getThumbnail());
-            /*
-            if (artifact.getCreated().equals("true")) {
-                mImage = (ImageView) convertView.findViewById(R.id.image);
-                Bitmap bmOrigine = BitmapFactory.decodeFile(artifact.getContenu());
-
-                //2048 est la resolution maximale au dela de laquelle on ne peut pas afficher une image sur la tablet Asus, cette valeur differe d'une valeur à une autre
-
-                if (bmOrigine.getHeight() > 2048 && bmOrigine.getWidth() > 2048){
-                    Bitmap bm = BitmapFactory.decodeFile(artifact.getContenu(),options);
-                    mImage.setImageBitmap(bm);
-
-                }else {
-
-                    mImage.setImageBitmap(bmOrigine);
-                }
-
-
-                //mImage.setImageBitmap(BitmapFactory.decodeFile(artifact.getContenu()));
-            } else
-
-            {
-                mImage = (ImageView) convertView.findViewById(R.id.image);
-                byte[] decodedString = Base64.decode(artifact.getContenu(), Base64.DEFAULT);
-                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-
-                if (decodedByte.getHeight() > 2048 && decodedByte.getWidth() > 2048){
-                    Bitmap bm =BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length,options);
-                    mImage.setImageBitmap(bm);
-
-                }else {
-
-                    mImage.setImageBitmap(decodedByte);
-                }
-                mImage.setImageBitmap(decodedByte);
-            }
-            */
-
-
         }
-        //convertView.setOnTouchListener(new OnTouchListener());
-
-
         return convertView;
 
 

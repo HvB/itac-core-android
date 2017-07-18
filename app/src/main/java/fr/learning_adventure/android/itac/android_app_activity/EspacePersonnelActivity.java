@@ -49,7 +49,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.URI;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -66,17 +65,12 @@ import fr.learning_adventure.android.itac.adapter.ArtifactAdapter;
 import fr.learning_adventure.android.itac.adapter.AvatarAdapter;
 import fr.learning_adventure.android.itac.model.Artifact;
 import fr.learning_adventure.android.itac.model.ItacConstant;
-import fr.learning_adventure.android.itac.model.Modificateurs;
 import fr.learning_adventure.android.itac.model.PassObject;
 import fr.learning_adventure.android.itac.widget.Clink;
 import fr.learning_adventure.android.itac.widget.LinearLayoutAbsListView;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
-
-//import com.github.nkzawa.emitter.Emitter;
-//import com.github.nkzawa.socketio.client.IO;
-//import com.github.nkzawa.socketio.client.Socket;
 
 /**
  * Created by learninglab on 03/03/16.
@@ -703,9 +697,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     }
 
     private void onDisconnection(){
-        //final RelativeLayout zepLayout = (RelativeLayout) findViewById(R.id.zep_layout);
-        //final ImageButton logout_btn = (ImageButton) this.findViewById(R.id.logout_btn);
-        //final ImageButton login_btn = (ImageButton) this.findViewById(R.id.login_btn);
         Log.i("onDisconnection", "on ete deconnecte du serveur...");
         connected=false;
         // on met a jour l'interface...
