@@ -9,7 +9,6 @@
                 android:weightSum="1"
                 tools:context=".android_app_activity.EspacePersonnelActivity">
 
-
     <LinearLayout
         android:id="@+id/zp_Layout"
         android:layout_width="fill_parent"
@@ -18,7 +17,7 @@
         android:background="#323232"
         android:gravity="center"
         android:orientation="horizontal"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -49,12 +48,11 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/zp_Layout"
         android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="10dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginBottom="0dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="0dp"
         android:background="@drawable/rounded_corner_red">
-
 
         <ImageButton
             android:id="@+id/login_btn"
@@ -87,8 +85,8 @@
 
             <ImageView
                 android:id="@+id/imageAvatar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:layout_width="100dp"
+                android:layout_height="100dp">
 
             </ImageView>
 
@@ -99,7 +97,6 @@
                 android:gravity="center"
                 android:textSize="20sp"
                 android:textStyle="bold"/>
-
         </LinearLayout>
 
         <ProgressBar
@@ -133,11 +130,10 @@
                 android:gravity="center"
                 android:horizontalSpacing="8dp"
                 android:numColumns="auto_fit"
-                android:stretchMode="columnWidth"
+                android:stretchMode="none"
                 android:verticalSpacing="5dp"/>
         </fr.learning_adventure.android.itac.widget.LinearLayoutAbsListView>
     </RelativeLayout>
-
 
     <RelativeLayout
         android:id="@+id/artifactLayout"
@@ -145,21 +141,22 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/zep_layout"
         android:layout_gravity="fill"
-        android:layout_marginTop="10dp">
-
+        >
 
         <fr.learning_adventure.android.itac.widget.LinearLayoutAbsListView
             android:id="@+id/listArtifactLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:padding="5dp">
+            android:layout_height="match_parent"
+            android:padding="8dp"
+            >
 
             <GridView
                 android:id="@+id/listArtifactView"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="5dp"
                 android:clickable="true"
                 android:columnWidth="100dp"
                 android:drawSelectorOnTop="true"
@@ -167,118 +164,111 @@
                 android:gravity="center"
                 android:horizontalSpacing="8dp"
                 android:numColumns="auto_fit"
-                android:stretchMode="columnWidth"
-                android:verticalSpacing="5dp"/>
-
-
+                android:stretchMode="spacingWidth"
+                android:verticalSpacing="8dp"/>
         </fr.learning_adventure.android.itac.widget.LinearLayoutAbsListView>
+    </RelativeLayout>
 
-        <ScrollView
-            android:layout_width="fill_parent"
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/zep_layout"
+        >
+
+        <RelativeLayout
+            android:id="@+id/artifact"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            >
+            android:layout_marginBottom="25dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="3dp"
+            android:background="@drawable/rounded_corner_blue"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:visibility="gone">
 
-            <RelativeLayout
-                android:id="@+id/artifact"
-                android:layout_width="match_parent"
+            <EditText
+                android:id="@+id/titre"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="25dp"
+                android:layout_marginTop="10dp"
+                android:layout_weight="1"
+                android:background="#ffffff"
+                android:hint="@string/title_hint"
+                android:inputType="text"
+                android:maxLines="1"
+                android:overScrollMode="always"
+                android:scrollbarStyle="insideInset"
+                android:scrollbars="vertical"
+                android:textSize="25dp"
+                android:textStyle="bold"/>
+
+            <EditText
+                android:id="@+id/message_input"
+                android:layout_width="fill_parent"
+                android:layout_height="250dp"
+                android:layout_below="@id/titre"
+                android:layout_marginTop="10dp"
+                android:layout_weight="1"
+                android:background="#ffffff"
+                android:gravity="top"
+                android:hint="@string/message_hint"
+                android:inputType="textMultiLine"/>
+
+            <Button
+                android:id="@+id/exit_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/message_input"
+                android:layout_alignParentLeft="true"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:layout_marginTop="3dp"
-                android:background="@drawable/rounded_corner_blue"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
-                android:visibility="gone">
+                android:background="@null"
+                android:contentDescription="@string/cancel_btn_desc"
+                android:drawableLeft="@drawable/exit"
+                android:padding="5dp"
+                android:text="@string/cancel_text"
+                android:textStyle="bold">
+            </Button>
 
 
-                <EditText
-                    android:id="@+id/titre"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:layout_weight="1"
-                    android:background="#ffffff"
-                    android:hint="@string/title_hint"
-                    android:inputType="text"
-                    android:maxLines="1"
-                    android:overScrollMode="always"
-                    android:scrollbarStyle="insideInset"
-                    android:scrollbars="vertical"
-                    android:textSize="25dp"
-                    android:textStyle="bold"/>
+            <Button
+                android:id="@+id/send_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/message_input"
+                android:layout_alignParentRight="true"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="@null"
+                android:contentDescription="@string/ok_btn_desc"
+                android:drawableLeft="@drawable/check"
+                android:padding="5dp"
+                android:text="@string/valid_text"
+                android:textStyle="bold"
+                >
+            </Button>
 
-                <EditText
-                    android:id="@+id/message_input"
-                    android:layout_width="fill_parent"
-                    android:layout_height="250dp"
-                    android:layout_below="@id/titre"
-                    android:layout_marginTop="10dp"
-                    android:layout_weight="1"
-                    android:background="#ffffff"
-                    android:gravity="top"
-                    android:hint="@string/message_hint"
-                    android:inputType="textMultiLine"/>
-
-                <Button
-                    android:id="@+id/exit_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/message_input"
-                    android:layout_alignParentLeft="true"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:background="@null"
-                    android:contentDescription="@string/cancel_btn_desc"
-                    android:drawableLeft="@drawable/exit"
-                    android:padding="5dp"
-                    android:text="@string/cancel_text"
-                    android:textStyle="bold">
-                </Button>
-
-
-                <Button
-                    android:id="@+id/send_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/message_input"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:background="@null"
-                    android:contentDescription="@string/ok_btn_desc"
-                    android:drawableLeft="@drawable/check"
-                    android:padding="5dp"
-                    android:text="@string/valid_text"
-                    android:textStyle="bold"
-                    >
-
-                </Button>
-
-                <Button
-                    android:id="@+id/send_modified_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/message_input"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:background="@null"
-                    android:contentDescription="@string/ok_btn_desc"
-                    android:drawableLeft="@drawable/check"
-                    android:padding="5dp"
-                    android:text="@string/valid_text"
-                    android:textStyle="bold"
-                    android:visibility="gone"
-                    >
-
-                </Button>
-
-
-            </RelativeLayout>
-        </ScrollView>
-    </RelativeLayout>
+            <Button
+                android:id="@+id/send_modified_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/message_input"
+                android:layout_alignParentRight="true"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="@null"
+                android:contentDescription="@string/ok_btn_desc"
+                android:drawableLeft="@drawable/check"
+                android:padding="5dp"
+                android:text="@string/valid_text"
+                android:textStyle="bold"
+                android:visibility="gone"
+                >
+            </Button>
+        </RelativeLayout>
+    </ScrollView>
 
     <LinearLayout
         android:id="@+id/optionsArtifactLayout"
@@ -421,5 +411,4 @@
                 android:textStyle="bold"/>
         </LinearLayout>
     </LinearLayout>
-
 </RelativeLayout>
