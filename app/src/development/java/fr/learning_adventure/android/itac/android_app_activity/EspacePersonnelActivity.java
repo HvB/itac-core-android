@@ -85,6 +85,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     private ItacConstant constantes;
     private  Socket socket;
     private final static String FILE_URI_SOCKET = "uri_socket.txt";
+    private static int RESULT_EDIT_IMAGE =2;
     private static int RESULT_LOAD_IMAGE = 1;
     private static int REQUEST_CAMERA_haute =1;
     private static int REQUEST_CAMERA_moyenne =0;
@@ -121,6 +122,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     private Button button;
 
     private int selectedPosition;
+    private Artifact editedItem;
 
     private GestureDetectorCompat activityGestureDetector;
     private GestureDetector.OnGestureListener activityGestureListener;
@@ -1223,7 +1225,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             artifact.setContenu(picturePath);
             artifact.setType(Artifact.ARTIFACT_TYPE_IMAGE);
             artifact.setCreated("true");
-
             String date = fmt.format(Calendar.getInstance().getTime());
             artifact.setDateCreation(date);
 
@@ -1251,10 +1252,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 e.printStackTrace();
             }
             Artifact artifact = new Artifact(getPseudo());
-            artifact.setContenu(destination.getAbsolutePath());
             artifact.setType(Artifact.ARTIFACT_TYPE_IMAGE);
+            artifact.setContenu(destination.getAbsolutePath());
             artifact.setCreated("true");
-
             String date = fmt.format(Calendar.getInstance().getTime());
             artifact.setDateCreation(date);
             listArtifact.add(artifact);
@@ -1275,11 +1275,29 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             artifact.setContenu(imageurl);
             artifact.setType(Artifact.ARTIFACT_TYPE_IMAGE);
             artifact.setCreated("true");
-
             String date = fmt.format(Calendar.getInstance().getTime());
             artifact.setDateCreation(date);
             listArtifact.add(artifact);
             artifactAdapter.notifyDataSetChanged();
+        } else if (requestCode == RESULT_EDIT_IMAGE && resultCode == RESULT_OK){
+            if (editedItem != null){
+                editedItem.setThumbnail(null);
+                artifactAdapter.notifyDataSetChanged();
+                if (editedItem.getModificateurs() == null){
+                    editedItem.setModificateurs(new JSONArray());
+                }
+                Log.v("EspacePersonnelActivity", "Edition artefact, "+editedItem.getIdAr()+", liste de modificateurs avant modification : "+editedItem.getModificateurs());
+                JSONObject modificateur = new JSONObject();
+                try {
+                    modificateur.putOpt(Artifact.JSON_MODIFICATEUR, pseudo);
+                    modificateur.putOpt(Artifact.JSON_DATEMODIFICATION, fmt.format(new Date()));
+                    editedItem.getModificateurs().put(modificateur);
+                    Log.d("EspacePersonnelActivity", "Edition artefact, "+editedItem.getIdAr()+", ajout modificateurs "+modificateur);
+                } catch (JSONException e) {
+                    Log.e("EspacePersonnelActivity", "Edition artefact, "+editedItem.getIdAr()+", erreur lors du decodage des modificateurs",e);
+                }
+                Log.v("EspacePersonnelActivity", "Edition artefact, "+editedItem.getIdAr()+", liste de modificateurs apres modification : "+editedItem.getModificateurs());
+            }
         }
         artifactAdapter.notifyDataSetChanged();
     }
@@ -1547,7 +1565,20 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 trashEditLayout.setVisibility(View.GONE);
                 optionsArtifactLayout.setVisibility(View.VISIBLE);
             } else if (passedItem.getType().equals("image") && srcList == listArtifact) {
-                Clink.show(EspacePersonnelActivity.this, "Ce type n'est pas modifiable");
+                editedItem = null;
+                Intent intent = new Intent(Intent.ACTION_EDIT);
+                File imageFile = passedItem.saveImage();
+                Uri uri = null;
+                if (imageFile != null) {
+                    uri = Uri.fromFile(new File(passedItem.getContenu()));
+                    intent.setDataAndType(uri, "image/jpeg");
+                }
+                if (uri != null && intent.resolveActivity(getPackageManager()) != null){
+                    startActivityForResult(intent, RESULT_EDIT_IMAGE);
+                    editedItem = passedItem;
+                } else {
+                    Clink.show(EspacePersonnelActivity.this, "Ce type n'est pas modifiable");
+                }
                 trashEditLayout.setVisibility(View.GONE);
                 optionsArtifactLayout.setVisibility(View.VISIBLE);
             } else if (passedItem.getType().equals("message")) {
