@@ -20,10 +20,12 @@ import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 //import android.support.v13.view.ViewCompat;
+import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.DragEvent;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -177,14 +179,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         constantes = ItacConstant.getInstance(this.getApplicationContext());
         // recuperation de preferences de l'app
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        preferenceListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-            @Override
-            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                closeWebSocket();
-                //initializeWebSocket();
-            }
-        };
-        sharedPreferences.registerOnSharedPreferenceChangeListener(preferenceListener);
         final String uuid = sharedPreferences.getString(getString(R.string.pref_key_device_uuid),"");
         if (uuid == null || uuid.equals("")){
             deviceUid = UUID.randomUUID();
@@ -194,6 +188,14 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         } else {
             deviceUid = UUID.fromString(uuid);
         }
+        preferenceListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                closeWebSocket();
+                //initializeWebSocket();
+            }
+        };
+        sharedPreferences.registerOnSharedPreferenceChangeListener(preferenceListener);
         // construction de l'IHM
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_espacepersonnel);
@@ -750,6 +752,42 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 }
             }
         });
+
+        final GestureDetector.OnGestureListener avatarListener = new GestureDetector.SimpleOnGestureListener(){
+            private int visibility;
+            @Override
+            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                Log.v("avatarListener", "on touch scroll event..."+Math.abs((e2.getX()-e1.getX())/density));
+                if (Math.abs((e2.getX()-e1.getX())/density)>5) {
+                    zPLayout.setVisibility(visibility);
+                }
+                return true;
+                //return super.onScroll(e1,e2, distanceX,distanceY);
+            }
+
+            @Override
+            public boolean onDown(MotionEvent e) {
+                Log.v("avatarListener", "on touch down event...");
+                if (zPLayout.getVisibility() == View.VISIBLE){
+                    visibility = View.GONE;
+                } else {
+                    visibility = View.VISIBLE;
+                }
+                //return super.onDown(e);
+                return true;
+            }
+        };
+        final GestureDetectorCompat avatarScrollDetector = new GestureDetectorCompat(this, avatarListener);
+        final View.OnTouchListener avatarOnTouchListener = new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                Log.v("avatarTouchListener", "on touch event...");
+                avatarScrollDetector.onTouchEvent(event);
+                return true;
+            }
+        };
+        final View avatarView = this.findViewById(R.id.imageAvatar);
+        avatarView.setOnTouchListener(avatarOnTouchListener);
     }
 
     @Override
