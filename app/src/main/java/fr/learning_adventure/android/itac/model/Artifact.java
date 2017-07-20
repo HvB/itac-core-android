@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.util.Base64;
 import android.util.Log;
@@ -12,10 +13,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
@@ -312,6 +317,60 @@ public class Artifact implements Serializable {
         String encImage = Base64.encodeToString(b, Base64.DEFAULT);
         //Base64.de
         return encImage;
+    }
+
+    private Bitmap decodeImage(String base64img) {
+        byte[] decodedImg = Base64.decode(base64img, Base64.DEFAULT);
+        Bitmap img = BitmapFactory.decodeByteArray(decodedImg, 0, decodedImg.length);
+        return img;
+    }
+
+    public boolean copyImage(File path) {
+        boolean res = false;
+        if (ARTIFACT_TYPE_IMAGE.equals(this.getType())) {
+            try (OutputStream fos = new BufferedOutputStream(new FileOutputStream(path))) {
+                Bitmap img;
+                if ("true".equals(this.getCreated())) {
+                    img = BitmapFactory.decodeFile(this.getContenu());
+                } else {
+                    img = decodeImage(this.getContenu());
+                }
+                img.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                this.setContenu(path.getAbsolutePath());
+                this.setCreated("true");
+                res = true;
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        }
+        return res;
+    }
+
+    public File saveImage() {
+        File res = null;
+        if (ARTIFACT_TYPE_IMAGE.equals(this.getType())) {
+            if ("true".equals(this.getCreated())) {
+                res = new File(this.getContenu());
+            } else {
+                File path = new File(Environment.getExternalStorageDirectory(),
+                        System.currentTimeMillis() + ".jpg");
+                try (OutputStream fos = new BufferedOutputStream(new FileOutputStream(path))) {
+                    Bitmap img;
+                    img = decodeImage(this.getContenu());
+                    img.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                    this.setContenu(path.getAbsolutePath());
+                    this.setCreated("true");
+                    res = path;
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
+        return res;
     }
 }
 
