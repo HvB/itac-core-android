@@ -799,6 +799,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         // suppression des fichiers image temporaires
         for (File temp : cachedFiles.values()){
             temp.delete();
+            // on met la base des medias a jour
+            sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(temp)));
         }
         super.onDestroy();
     }
@@ -1226,24 +1228,37 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             String picturePath = cursor.getString(columnIndex);
             cursor.close();
 
-            Artifact artifact = new Artifact(getPseudo());
-            artifact.setContenu(picturePath);
-            artifact.setType(Artifact.ARTIFACT_TYPE_IMAGE);
-            artifact.setCreated("true");
-            // on remplace le fichier original par une copy supprimable
-            File destination = new File(Environment.getExternalStorageDirectory(),
-                    System.currentTimeMillis() + ".jpg");
-            boolean ok = artifact.copyImage(destination);
-            if (ok) artifact.setContenu(destination.getAbsolutePath());
-            // on marque le fichier temporaire comme devant etre supprime
-            destination.deleteOnExit();
-            cachedFiles.put(artifact.getIdAr(), destination);
-            String date = fmt.format(Calendar.getInstance().getTime());
-            artifact.setDateCreation(date);
+            File pictureFile = new File(picturePath);
+            if (pictureFile.exists() && pictureFile.canRead()) {
+                Artifact artifact = new Artifact(getPseudo());
+                artifact.setContenu(pictureFile.getAbsolutePath());
+                artifact.setType(Artifact.ARTIFACT_TYPE_IMAGE);
+                artifact.setCreated("true");
+                // on remplace le fichier original par une copy supprimable
+                File destination = new File(Environment.getExternalStorageDirectory(),
+                        System.currentTimeMillis() + ".jpg");
+                boolean ok = artifact.copyImage(destination);
+                if (ok) {
+                    artifact.setContenu(destination.getAbsolutePath());
+                    // on marque le fichier temporaire comme devant etre supprime
+                    destination.deleteOnExit();
+                    cachedFiles.put(artifact.getIdAr(), destination);
+                    String date = fmt.format(Calendar.getInstance().getTime());
+                    artifact.setDateCreation(date);
 
-            listArtifact.add(artifact);
-            artifactAdapter.notifyDataSetChanged();
-        }
+                    listArtifact.add(artifact);
+                    artifactAdapter.notifyDataSetChanged();
+                } else {
+                    Clink.show(EspacePersonnelActivity.this, "Fichier image non existant ou inutilisable");
+                    // on met la base des medias a jour
+                    sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(pictureFile)));
+                }
+            } else {
+                Clink.show(EspacePersonnelActivity.this, "Fichier image non existant ou inutilisable");
+                // on met la base des medias a jour
+                sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(pictureFile)));
+            }
+         }
 
         //prendre un photo
         else if (requestCode == REQUEST_CAMERA_moyenne && resultCode == RESULT_OK && null != data) {
