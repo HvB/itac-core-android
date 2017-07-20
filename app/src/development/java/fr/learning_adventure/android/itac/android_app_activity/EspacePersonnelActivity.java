@@ -102,6 +102,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     private List<Artifact> listArtifactZEP = new ArrayList<>();
     private ArtifactAdapter artifactZEPAdapter = new ArtifactAdapter(this, listArtifactZEP);
     private HashMap<String, Artifact> artifactsWaitingServeurAck = new LinkedHashMap<>();
+    private HashMap<String, File> cachedFiles = new LinkedHashMap<>();
     private ProgressBar progressBar ;
     private LinearLayout zPLayout;
     private RelativeLayout zepLayout;
@@ -795,6 +796,10 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     @Override
     protected void onDestroy() {
         closeWebSocket();
+        // suppression des fichiers image temporaires
+        for (File temp : cachedFiles.values()){
+            temp.delete();
+        }
         super.onDestroy();
     }
 
@@ -1225,6 +1230,14 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             artifact.setContenu(picturePath);
             artifact.setType(Artifact.ARTIFACT_TYPE_IMAGE);
             artifact.setCreated("true");
+            // on remplace le fichier original par une copy supprimable
+            File destination = new File(Environment.getExternalStorageDirectory(),
+                    System.currentTimeMillis() + ".jpg");
+            boolean ok = artifact.copyImage(destination);
+            if (ok) artifact.setContenu(destination.getAbsolutePath());
+            // on marque le fichier temporaire comme devant etre supprime
+            destination.deleteOnExit();
+            cachedFiles.put(artifact.getIdAr(), destination);
             String date = fmt.format(Calendar.getInstance().getTime());
             artifact.setDateCreation(date);
 
@@ -1255,6 +1268,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             artifact.setType(Artifact.ARTIFACT_TYPE_IMAGE);
             artifact.setContenu(destination.getAbsolutePath());
             artifact.setCreated("true");
+            // on marque le fichier temporaire comme devant etre supprime
+            destination.deleteOnExit();
+            cachedFiles.put(artifact.getIdAr(), destination);
             String date = fmt.format(Calendar.getInstance().getTime());
             artifact.setDateCreation(date);
             listArtifact.add(artifact);
@@ -1275,12 +1291,23 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             artifact.setContenu(imageurl);
             artifact.setType(Artifact.ARTIFACT_TYPE_IMAGE);
             artifact.setCreated("true");
+            //// on remplace le fichier original par une copy supprimable
+            //File destination = new File(Environment.getExternalStorageDirectory(),
+            //        System.currentTimeMillis() + ".jpg");
+            //boolean ok = artifact.copyImage(destination);
+            //if (ok) artifact.setContenu(destination.getAbsolutePath());
+            // En fait, on considère que la photo n'a pas besoin d'etre conservee sur le telephone...
+            File destination = new File(imageurl);
+            // on marque le fichier temporaire comme devant etre supprime
+            destination.deleteOnExit();
+            cachedFiles.put(artifact.getIdAr(), destination);
             String date = fmt.format(Calendar.getInstance().getTime());
             artifact.setDateCreation(date);
             listArtifact.add(artifact);
             artifactAdapter.notifyDataSetChanged();
         } else if (requestCode == RESULT_EDIT_IMAGE && resultCode == RESULT_OK){
             if (editedItem != null){
+                // l'image est modifiee, on efface l'ancienne miniature
                 editedItem.setThumbnail(null);
                 artifactAdapter.notifyDataSetChanged();
                 if (editedItem.getModificateurs() == null){
@@ -1567,9 +1594,14 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             } else if (passedItem.getType().equals("image") && srcList == listArtifact) {
                 editedItem = null;
                 Intent intent = new Intent(Intent.ACTION_EDIT);
+                // on cree, si necessaire, le fichier qui correspond a l'image
                 File imageFile = passedItem.saveImage();
                 Uri uri = null;
                 if (imageFile != null) {
+                    // si besion, on marque le fichier comme devant etre supprime
+                    // (normalement c'est un fichier temporaire, soit on l'a cree soit c'est une copie)
+                    imageFile.deleteOnExit();
+                    cachedFiles.put(passedItem.getIdAr(), imageFile);
                     uri = Uri.fromFile(new File(passedItem.getContenu()));
                     intent.setDataAndType(uri, "image/jpeg");
                 }
