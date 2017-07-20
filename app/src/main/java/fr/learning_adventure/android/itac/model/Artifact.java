@@ -335,10 +335,11 @@ public class Artifact implements Serializable {
                 } else {
                     img = decodeImage(this.getContenu());
                 }
-                img.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-                this.setContenu(path.getAbsolutePath());
-                this.setCreated("true");
-                res = true;
+                if ((img != null) &&(img.compress(Bitmap.CompressFormat.JPEG, 100, fos))) {
+                    this.setContenu(path.getAbsolutePath());
+                    this.setCreated("true");
+                    res = true;
+                }
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e1) {
