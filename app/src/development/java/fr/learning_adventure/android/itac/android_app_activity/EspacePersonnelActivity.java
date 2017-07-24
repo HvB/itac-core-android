@@ -152,6 +152,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         String serverAddr = sharedPreferences.getString(getString(R.string.pref_key_server_addr),"127.0.0.1");
         String serverPort = sharedPreferences.getString(getString(R.string.pref_key_server_port),"8080");
+
         Log.i("getUri", "server address : "+serverAddr);
         Log.i("getUri", "server port : "+serverPort);
         short val = 8080;
@@ -182,11 +183,12 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         // recuperation des constantes
         constantes = ItacConstant.getInstance(this.getApplicationContext());
         // recuperation de preferences de l'app
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        final SharedPreferences.Editor editor = sharedPreferences.edit();
         final String uuid = sharedPreferences.getString(getString(R.string.pref_key_device_uuid),"");
+        final int zp_visibility = sharedPreferences.getInt(getString(R.string.pref_key_zp_visibility), View.VISIBLE);
         if (uuid == null || uuid.equals("")){
             deviceUid = UUID.randomUUID();
-            SharedPreferences.Editor editor= sharedPreferences.edit();
             editor.putString(getString(R.string.pref_key_device_uuid), deviceUid.toString());
             editor.commit();
         } else {
@@ -195,8 +197,14 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         preferenceListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                closeWebSocket();
-                //initializeWebSocket();
+                if (key.equals(getString(R.string.pref_key_device_uuid))
+                        || key.equals(getString(R.string.pref_key_server_addr))
+                        || key.equals(getString(R.string.pref_key_server_port))
+                        || key.equals(getString(R.string.pref_key_server_login))
+                        || key.equals(getString(R.string.pref_key_server_password))) {
+                    closeWebSocket();
+                    //initializeWebSocket();                }
+                }
             }
         };
         sharedPreferences.registerOnSharedPreferenceChangeListener(preferenceListener);
@@ -234,7 +242,8 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         login_btn = (ImageButton) this.findViewById(R.id.login_btn);
         //mettre arriere plans transparent
         espacePersonnelLayout.getBackground().setAlpha(200);
-
+        // user preference decides if zp is displayed or not
+        zPLayout.setVisibility(zp_visibility);
         //gestion des grid view
         artifactZEPLayout = (LinearLayoutAbsListView) findViewById(R.id.artifactZEPLayout);
         listArtifactZEPView = (GridView) findViewById(R.id.listArtifactZEPView);
@@ -776,6 +785,10 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 Log.v("avatarListener", "on touch scroll event..."+Math.abs((e2.getX()-e1.getX())/density));
                 if (Math.abs((e2.getX()-e1.getX())/density)>5) {
                     zPLayout.setVisibility(visibility);
+                    // changement des preferences
+                    editor.putInt(getString(R.string.pref_key_zp_visibility), visibility);
+                    // commit asynchrone
+                    editor.apply();
                 }
                 return true;
                 //return super.onScroll(e1,e2, distanceX,distanceY);
