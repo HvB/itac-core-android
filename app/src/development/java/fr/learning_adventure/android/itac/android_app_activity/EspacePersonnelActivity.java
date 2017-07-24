@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
@@ -603,6 +604,18 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
         listArtifactZEPView.setAdapter(artifactZEPAdapter);
         listArtifactView.setAdapter(artifactAdapter);
+
+        final View avatarLayout = this.findViewById(R.id.avatarlayout);
+        artifactZEPAdapter.registerDataSetObserver(new DataSetObserver() {
+            @Override
+            public void onChanged(){
+                if ((listArtifactZEPView.getNumColumns() < 0) || (artifactZEPAdapter.getCount() < listArtifactZEPView.getNumColumns())){
+                    avatarLayout.setVisibility(View.VISIBLE);
+                } else if (artifactZEPAdapter.getCount() > listArtifactZEPView.getNumColumns()){
+                    avatarLayout.setVisibility(View.GONE);
+                }
+            }
+        });
 
         //listArtifactZEPView.setOnItemClickListener(myOnItemClickListener);
         //listArtifactView.setOnItemClickListener(myOnItemClickListener);
