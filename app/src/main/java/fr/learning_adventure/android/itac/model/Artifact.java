@@ -314,13 +314,15 @@ public class Artifact implements Serializable {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bm.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] b = baos.toByteArray();
-        String encImage = Base64.encodeToString(b, Base64.DEFAULT);
+//        String encImage = Base64.encodeToString(b, Base64.DEFAULT);
+        String encImage = "data:image/jpeg;base64,"+Base64.encodeToString(b, Base64.NO_WRAP);
         //Base64.de
         return encImage;
     }
 
     private Bitmap decodeImage(String base64img) {
-        byte[] decodedImg = Base64.decode(base64img, Base64.DEFAULT);
+        String base64Data = base64img.replaceFirst("^data:image\\/[-\\w]*;base64,","");
+        byte[] decodedImg = Base64.decode(base64Data, Base64.DEFAULT);
         Bitmap img = BitmapFactory.decodeByteArray(decodedImg, 0, decodedImg.length);
         return img;
     }
