@@ -921,7 +921,11 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             } else {
                 Log.i("initializeWebSocket", "creation de la socket");
                 URI uri = URI.create(getUriSocket());
-                socket = IO.socket(uri);
+                //pas de reconnection automatique ni de reutilisation de socket
+                IO.Options opts = new IO.Options();
+                opts.forceNew = true;
+                opts.reconnection = false;
+                socket = IO.socket(uri, opts);
 
                 // gestion des evenements lies au foctionnement de la websocket
                 socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
