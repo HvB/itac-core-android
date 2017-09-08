@@ -64,6 +64,8 @@ import java.util.LinkedHashMap;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import fr.learning_adventure.android.itac.R;
 import fr.learning_adventure.android.itac.adapter.ArtifactAdapter;
@@ -128,6 +130,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
     private GestureDetectorCompat activityGestureDetector;
     private GestureDetector.OnGestureListener activityGestureListener;
+    private ExecutorService threadPool ;
 
     //get & set pseudo, ip
     private String pseudo;
@@ -194,6 +197,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         } else {
             deviceUid = UUID.fromString(uuid);
         }
+        threadPool = Executors.newSingleThreadExecutor();
         preferenceListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
@@ -823,6 +827,10 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     @Override
     protected void onDestroy() {
         closeWebSocket();
+        if (threadPool != null) {
+            threadPool.shutdownNow();
+            threadPool = null;
+        }
         // suppression des fichiers image temporaires
         for (File temp : cachedFiles.values()){
             temp.delete();
@@ -899,16 +907,18 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     private void onDisconnection(){
         Log.i("onDisconnection", "on ete deconnecte du serveur...");
         connected=false;
-        // en cas de deconnexion les artefacts en ZE vont sur la table
-        listArtifactZEP.clear();
-        artifactZEPAdapter.notifyDataSetChanged();
-        // en cas de deconnexion les artefacts en cours d'echange (ceux envyés dont on n'a pas eu d'ack)
-        // retournent en espace personnel (car a priori ils ne sont pas arrivés sur le serveur...)
-        if (! artifactsWaitingServeurAck.isEmpty()){
-            listArtifact.addAll(artifactsWaitingServeurAck.values());
-            artifactsWaitingServeurAck.clear();
-            artifactAdapter.notifyDataSetChanged();
-        }
+        this.runOnUiThread(()-> {
+                    // en cas de deconnexion les artefacts en ZE vont sur la table
+                    listArtifactZEP.clear();
+                    artifactZEPAdapter.notifyDataSetChanged();
+                    // en cas de deconnexion les artefacts en cours d'echange (ceux envyés dont on n'a pas eu d'ack)
+                    // retournent en espace personnel (car a priori ils ne sont pas arrivés sur le serveur...)
+                    if (!artifactsWaitingServeurAck.isEmpty()) {
+                        listArtifact.addAll(artifactsWaitingServeurAck.values());
+                        artifactsWaitingServeurAck.clear();
+                        artifactAdapter.notifyDataSetChanged();
+                    }
+                });
         // on met a jour l'interface...
         updateUI();
 //        runOnUiThread(new Runnable() {
@@ -1276,7 +1286,6 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 //        progressBar.setVisibility(View.GONE);
 //        login_btn.setVisibility(View.VISIBLE);
 //        logout_btn.setVisibility(View.GONE);
-        onDisconnection();
         if (socket != null) {
             if (socket.connected()) {
                 Log.i("closeWebSocket", "deconnection du serveur...");
@@ -1284,11 +1293,12 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 Log.i("closeWebSocket", constantes.EVT_DECONNEXION + " : " + pseudo + ", " + idZE);
             }
             Log.i("closeWebSocket", "fermeture de la socket");
-            socket.disconnect();
             // IMPERATIF : il faut supprimer les listeners attaches a la websocket
-            socket.off();
+            if (socket != null) socket.off();
+            socket.disconnect();
             socket = null;
         }
+        onDisconnection();
         updateUI();
     }
 
@@ -1465,7 +1475,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     }
 
     public boolean sendSelectedArtifactToZp(){
-        return sendToZp(passObj);
+        boolean res = sendToZp(passObj);
+        updateUI();
+        return res;
     }
     public boolean sendToZp(PassObject passObj){
         boolean transfered = false;
@@ -1477,13 +1489,16 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             if (passObj.srcList == listArtifact) {
                 Log.i("sendToZp", constantes.EVT_NEW_ARTEFACT_IN_ZP + " : " + pseudo + ", " + idZEP + ", " + idZE);
                 if (connected && (socket != null) && socket.connected()) {
-                    if (passedItem.getType().equals("message")) {
-                        socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZP, pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
-                        Log.v("sendToZp", "art : "+ passedItem.toJSONMessage().toString());
-                    } else {
-                        socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZP, pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
-                        Log.v("sendToZp", "art : "+ passedItem.toJSONImage().toString());
-                    }
+                    threadPool.submit(()-> {
+                                if (passedItem.getType().equals("message")) {
+                                    socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZP, pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
+                                    Log.v("sendToZp", "art : " + passedItem.toJSONMessage().toString());
+                                }
+                                else {
+                                    socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZP, pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
+                                    Log.v("sendToZp", "art : " + passedItem.toJSONImage().toString());
+                                }
+                            });
                     Log.i("sendToZp", constantes.EVT_NEW_ARTEFACT_IN_ZP + " : mise de l'artefact en zone d'attente : " + passedItem.getIdAr());
                     srcList.remove(position);
                     //on met l'artefact en zone d'attente
@@ -1513,7 +1528,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     }
 
     public boolean sendSelectedArtifactToZE(){
-        return sendToZE(passObj);
+        boolean res = sendToZE(passObj);
+        updateUI();
+        return res;
     }
     public boolean sendToZE(PassObject passObj){
         boolean transfered = false;
@@ -1529,13 +1546,16 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     //passedItem.setProprietaire(pseudo);
                     passedItem.setTypeConteneur("ZE");
                     passedItem.setIdConteneur(idZE);
-                    if (passedItem.getType().equals("message")) {
-                        socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZE, pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
-                        Log.v("sendToZE", "art : "+ passedItem.toJSONMessage().toString());
-                    } else {
-                        socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZE, pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
-                        Log.v("sendToZE", "art : "+ passedItem.toJSONImage().toString());
-                    }
+                    threadPool.submit(()-> {
+                                if (passedItem.getType().equals("message")) {
+                                    socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZE, pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
+                                    Log.v("sendToZE", "art : " + passedItem.toJSONMessage().toString());
+                                }
+                                else {
+                                    socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZE, pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
+                                    Log.v("sendToZE", "art : " + passedItem.toJSONImage().toString());
+                                }
+                            });
                     Log.i("sendToZE", constantes.EVT_NEW_ARTEFACT_IN_ZE + " : mise de l'atefact en zone d'attente : " + passedItem.getIdAr());
                     srcList.remove(position);
                     // listArtifactZEP.add(passedItem);
@@ -1569,7 +1589,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     }
 
     public boolean sendSelectedArtifactToEP(){
-        return sendToEP(passObj);
+        boolean res = sendToEP(passObj);
+        updateUI();
+        return res;
     }
     public boolean sendToEP(PassObject passObj){
         boolean transfered = false;
@@ -1589,13 +1611,15 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     artifactZEPAdapter.notifyDataSetChanged();
                     artifactAdapter.notifyDataSetChanged();
                 } else {
-                    // on est connecte on signalle le modif au serveur et on attend la notification
-                    if (passedItem.getType().equals("message")) {
-                        socket.emit(constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP, passedItem.getIdAr(), idZE, idZEP);
-                    }
-                    else {
-                        socket.emit(constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP, passedItem.getIdAr(), idZE, idZEP);
-                    }
+                    threadPool.submit(()-> {
+                                // on est connecte on signalle le modif au serveur et on attend la notification
+                                if (passedItem.getType().equals("message")) {
+                                    socket.emit(constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP, passedItem.getIdAr(), idZE, idZEP);
+                                }
+                                else {
+                                    socket.emit(constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP, passedItem.getIdAr(), idZE, idZEP);
+                                }
+                            });
                     Log.i("myArtefactOnDrag", constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP + " : passage direct de l'artefact en espace prive : " + passedItem.getIdAr());
                     // on met l'artefact en zone d'attente
                     srcList.remove(position);
@@ -1655,6 +1679,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
     public void deleteSelectedArtifact(){
         delete(passObj);
+        updateUI();
     }
     public void delete(PassObject passObj){
         if (passObj != null){
@@ -1675,11 +1700,13 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         // pas une bonne idee car trashEditLayout doit recevoir un event ACTION_DRAG_ENDED
         // trashEditLayout.setVisibility(View.GONE);
         // optionsArtifactLayout.setVisibility(View.VISIBLE);
+        updateUI();
     }
 
     public void editSelectedArtifact(){
         edit(passObj);
         setPassObject(null);
+        updateUI();
     }
     public void edit(PassObject passObj){
         if (passObj != null){
@@ -1815,6 +1842,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 //            }
 //        });
         updateConnectionUi();
+        updateArtifactToolsUi();
         updateProgressBarUi();
     }
 
@@ -1855,13 +1883,25 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
     public void updateArtifactToolsUi(){
         this.runOnUiThread(()-> {
-            if (passObj != null){
+            if (passObj == null){
                 trashEditLayout.setVisibility(View.GONE);
                 optionsArtifactLayout.setVisibility(View.VISIBLE);
             } else {
                 trashEditLayout.setVisibility(View.VISIBLE);
                 optionsArtifactLayout.setVisibility(View.GONE);
             }
+        });
+    }
+
+    public void updateZep(){
+        this.runOnUiThread(()-> {
+            artifactZEPAdapter.notifyDataSetChanged();
+        });
+    }
+
+    public void updateEp(){
+        this.runOnUiThread(()-> {
+            artifactAdapter.notifyDataSetChanged();
         });
     }
 
