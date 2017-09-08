@@ -3,6 +3,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="fr.learning_adventure.android.itac.android_app_activity.EspacePersonnelActivity">
 
+    <item
+        android:id="@+id/connect_item"
+        android:enabled="true"
+        android:icon="@drawable/ic_sync_white_24dp"
+        android:title="@string/connect_item"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/disconnect_item"
+        android:icon="@drawable/ic_sync_disabled_white_24dp"
+        android:title="@string/disconnect_item"
+        android:visible="false"
+        app:showAsAction="always"/>
     <item android:id="@+id/parametre"
         android:title="@string/connexion_parameters_item"
         android:orderInCategory="100"
