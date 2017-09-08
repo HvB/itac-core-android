@@ -1122,6 +1122,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         artifact.setCreated("false");
                         listArtifactZEP.add(artifact);
                         Log.i("evt", constantes.EVT_ENVOIE_ARTEFACT_DE_ZP_VERS_ZE+" : " + data);
+                        // Todo : mettre a jour le code
                         EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -1147,6 +1148,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                             //artifact.setCreated("false");
                             listArtifactZEP.add(artifact);
                             artifactsWaitingServeurAck.remove(uuid);
+                            // Todo : mettre a jour le code
                             EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -1174,6 +1176,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         } else {
                             Log.e("evt", constantes.EVT_RECEPTION_ARTEFACT_INTO_ZP+", acquitement transfert artefact en ZP : " + uuid);
                             artifactsWaitingServeurAck.remove(uuid);
+                            // Todo : mettre a jour le code
                             EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -1503,6 +1506,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     srcList.remove(position);
                     //on met l'artefact en zone d'attente
                     artifactsWaitingServeurAck.put(passedItem.getIdAr(), passedItem);
+                    // Todo : mettre a jour le code
                     progressBar.setVisibility(View.VISIBLE);
                     artifactAdapter.notifyDataSetChanged();
                     transfered = true;
@@ -1561,6 +1565,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     // listArtifactZEP.add(passedItem);
                     // on met l'artefact en zone d'attente
                     artifactsWaitingServeurAck.put(passedItem.getIdAr(), passedItem);
+                    // Todo : mettre a jour le code
                     progressBar.setVisibility(View.VISIBLE);
                     artifactAdapter.notifyDataSetChanged();
                     // artifactZEPAdapter.notifyDataSetChanged();
@@ -1608,6 +1613,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     // on met l'artefact en espace prive directement
                     srcList.remove(position);
                     listArtifact.add(passedItem);
+                    // Todo : mettre a jour le code
                     artifactZEPAdapter.notifyDataSetChanged();
                     artifactAdapter.notifyDataSetChanged();
                 } else {
@@ -1625,6 +1631,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     srcList.remove(position);
                     // listArtifact.add(passedItem);
                     artifactsWaitingServeurAck.put(passedItem.getIdAr(), passedItem);
+                    // Todo : mettre a jour le code
                     progressBar.setVisibility(View.VISIBLE);
                     artifactZEPAdapter.notifyDataSetChanged();
                     // artifactAdapter.notifyDataSetChanged();
@@ -1688,6 +1695,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             int position = passObj.position;
             if (passObj.srcList == listArtifact) {
                 srcList.remove(position);
+                // Todo : mettre a jour le code
                 artifactAdapter.notifyDataSetChanged();
             }
             trashEditLayout.setVisibility(View.GONE);
