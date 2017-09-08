@@ -899,6 +899,16 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     private void onDisconnection(){
         Log.i("onDisconnection", "on ete deconnecte du serveur...");
         connected=false;
+        // en cas de deconnexion les artefacts en ZE vont sur la table
+        listArtifactZEP.clear();
+        artifactZEPAdapter.notifyDataSetChanged();
+        // en cas de deconnexion les artefacts en cours d'echange (ceux envyés dont on n'a pas eu d'ack)
+        // retournent en espace personnel (car a priori ils ne sont pas arrivés sur le serveur...)
+        if (! artifactsWaitingServeurAck.isEmpty()){
+            listArtifact.addAll(artifactsWaitingServeurAck.values());
+            artifactsWaitingServeurAck.clear();
+            artifactAdapter.notifyDataSetChanged();
+        }
         // on met a jour l'interface...
         updateUI();
 //        runOnUiThread(new Runnable() {
