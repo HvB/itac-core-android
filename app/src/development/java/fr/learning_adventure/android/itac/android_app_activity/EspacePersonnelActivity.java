@@ -64,6 +64,8 @@ import java.util.LinkedHashMap;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import fr.learning_adventure.android.itac.R;
 import fr.learning_adventure.android.itac.adapter.ArtifactAdapter;
@@ -128,6 +130,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
     private GestureDetectorCompat activityGestureDetector;
     private GestureDetector.OnGestureListener activityGestureListener;
+    private ExecutorService threadPool ;
 
     //get & set pseudo, ip
     private String pseudo;
@@ -194,6 +197,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         } else {
             deviceUid = UUID.fromString(uuid);
         }
+        threadPool = Executors.newSingleThreadExecutor();
         preferenceListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
@@ -817,11 +821,16 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         };
         final View avatarView = this.findViewById(R.id.imageAvatar);
         avatarView.setOnTouchListener(avatarOnTouchListener);
+        updateUI();
     }
 
     @Override
     protected void onDestroy() {
         closeWebSocket();
+        if (threadPool != null) {
+            threadPool.shutdownNow();
+            threadPool = null;
+        }
         // suppression des fichiers image temporaires
         for (File temp : cachedFiles.values()){
             temp.delete();
@@ -831,11 +840,15 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         super.onDestroy();
     }
 
+    private MenuItem connect_item;
+    private MenuItem disconnect_item;
     // Création du menu
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.menu, menu);
+        connect_item = menu.findItem(R.id.connect_item);
+        disconnect_item = menu.findItem(R.id.disconnect_item);
         return true;
     }
 
@@ -846,7 +859,19 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             item.setChecked(true);
         }
         switch (item.getItemId()) {
-            //accés au parametre de connexion : saisie d'adresse ip et port
+            case R.id.connect_item:
+                Log.i("onOptionsItemSelected", "socket tentative de connection...");
+                initializeWebSocket();
+                break;
+            case R.id.disconnect_item:
+                if (listArtifactZEP.size() > 0) {
+                    Clink.show(EspacePersonnelActivity.this, "votre zone d'échange contient des élèments, veuiller la vider pour se déconnecter");
+                } else {
+                    Log.i("onOptionsItemSelected", "deconnection du serveur...");
+                    closeWebSocket();
+                }
+                break;
+                //accés au parametre de connexion : saisie d'adresse ip et port
             case R.id.parametre:
                 if (listArtifactZEP.size() > 0) {
                     Clink.show(EspacePersonnelActivity.this, "votre zone d'échange contient des élèments, veuiller la vider pour se déconnecter");
@@ -882,15 +907,28 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     private void onDisconnection(){
         Log.i("onDisconnection", "on ete deconnecte du serveur...");
         connected=false;
+        this.runOnUiThread(()-> {
+                    // en cas de deconnexion les artefacts en ZE vont sur la table
+                    listArtifactZEP.clear();
+                    artifactZEPAdapter.notifyDataSetChanged();
+                    // en cas de deconnexion les artefacts en cours d'echange (ceux envyés dont on n'a pas eu d'ack)
+                    // retournent en espace personnel (car a priori ils ne sont pas arrivés sur le serveur...)
+                    if (!artifactsWaitingServeurAck.isEmpty()) {
+                        listArtifact.addAll(artifactsWaitingServeurAck.values());
+                        artifactsWaitingServeurAck.clear();
+                        artifactAdapter.notifyDataSetChanged();
+                    }
+                });
         // on met a jour l'interface...
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                logout_btn.setVisibility(View.GONE);
-                login_btn.setVisibility(View.VISIBLE);
-                zepLayout.setBackgroundResource(R.drawable.rounded_corner_red);
-            }
-        });
+        updateUI();
+//        runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                logout_btn.setVisibility(View.GONE);
+//                login_btn.setVisibility(View.VISIBLE);
+//                zepLayout.setBackgroundResource(R.drawable.rounded_corner_red);
+//            }
+//        });
     }
     //Creation de la WebSocket et lancement de la connexion
     private void initializeWebSocket() {
@@ -926,7 +964,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 opts.forceNew = true;
                 opts.reconnection = false;
                 socket = IO.socket(uri, opts);
-
+                updateUI();
                 // gestion des evenements lies au foctionnement de la websocket
                 socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
                     @Override
@@ -938,34 +976,37 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         } else {
                             socket.emit("EVT_DemandeConnexionZEP", pseudo, String.valueOf(selectedPosition), serverLogin, serverPassword, deviceUid.toString());
                         }
+                        updateUI();
                     }
                 });
                 socket.on(Socket.EVENT_RECONNECTING, new Emitter.Listener() {
                     @Override
                     public void call(Object... args) {
                         Log.i("Socket", "reconnecting");
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                logout_btn.setVisibility(View.VISIBLE);
-                                login_btn.setVisibility(View.GONE);
-                                progressBar.setVisibility(View.VISIBLE);
-                            }
-                        });
+                        updateUI();
+//                        runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                logout_btn.setVisibility(View.VISIBLE);
+//                                login_btn.setVisibility(View.GONE);
+//                                progressBar.setVisibility(View.VISIBLE);
+//                            }
+//                        });
                     }
                 });
                 socket.on(Socket.EVENT_RECONNECT_ATTEMPT, new Emitter.Listener() {
                     @Override
                     public void call(Object... args) {
                         Log.i("Socket", "reconnect attempt");
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                logout_btn.setVisibility(View.VISIBLE);
-                                login_btn.setVisibility(View.GONE);
-                                progressBar.setVisibility(View.VISIBLE);
-                            }
-                        });
+                        updateUI();
+//                        runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                logout_btn.setVisibility(View.VISIBLE);
+//                                login_btn.setVisibility(View.GONE);
+//                                progressBar.setVisibility(View.VISIBLE);
+//                            }
+//                        });
                     }
                 });
                 socket.on(Socket.EVENT_MESSAGE, new Emitter.Listener() {
@@ -978,11 +1019,14 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     @Override
                     public void call(Object... args) {
                         Log.i("Socket", "connexion error");
+                        // pas de reconnection en cas de pb
+                        closeWebSocket();
+                        updateUI();
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 Clink.show(EspacePersonnelActivity.this, "veuillez verifier les parametres de connexion");
-                                progressBar.setVisibility(View.GONE);
+                                //progressBar.setVisibility(View.GONE);
                                 //login_btn.setVisibility(View.VISIBLE);
                                 //logout_btn.setVisibility(View.GONE);
                             }
@@ -993,11 +1037,14 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     @Override
                     public void call(Object... args) {
                         Log.i("Socket", "timeout");
+                        // pas de reconnection en cas de pb
+                        closeWebSocket();
+                        updateUI();
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 Clink.show(EspacePersonnelActivity.this, "veuillez verifier les parametres de connexion");
-                                progressBar.setVisibility(View.GONE);
+                                //progressBar.setVisibility(View.GONE);
                                 //login_btn.setVisibility(View.VISIBLE);
                                 //logout_btn.setVisibility(View.GONE);
                             }
@@ -1008,21 +1055,27 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     @Override
                     public void call(Object... args) {
                         Log.i("Socket", "disconnection " + args[0]);
-                        EspacePersonnelActivity.this.onDisconnection();
+                        // pas de reconnection
+                        closeWebSocket();
+                        //EspacePersonnelActivity.this.onDisconnection();
+                        updateUI();
                     }
                 });
                 socket.on(Socket.EVENT_ERROR, new Emitter.Listener() {
                     @Override
                     public void call(Object... args) {
                         Log.i("Socket", "error " + args[0]);
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                progressBar.setVisibility(View.GONE);
-                                login_btn.setVisibility(View.VISIBLE);
-                                logout_btn.setVisibility(View.GONE);
-                            }
-                        });
+                        // pas de reconnection en cas de pb
+                        closeWebSocket();
+                        updateUI();
+//                        runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                progressBar.setVisibility(View.GONE);
+//                                login_btn.setVisibility(View.VISIBLE);
+//                                logout_btn.setVisibility(View.GONE);
+//                            }
+//                        });
                     }
                 });
 
@@ -1048,6 +1101,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                 }
                             }
                         });
+                        updateUI();
                     }
                 });
 
@@ -1068,12 +1122,14 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         artifact.setCreated("false");
                         listArtifactZEP.add(artifact);
                         Log.i("evt", constantes.EVT_ENVOIE_ARTEFACT_DE_ZP_VERS_ZE+" : " + data);
+                        // Todo : mettre a jour le code
                         EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 artifactZEPAdapter.notifyDataSetChanged();
                             }
                         });
+                        updateUI();
                     }
                 });
 
@@ -1092,15 +1148,17 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                             //artifact.setCreated("false");
                             listArtifactZEP.add(artifact);
                             artifactsWaitingServeurAck.remove(uuid);
+                            // Todo : mettre a jour le code
                             EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
                                     if (artifactsWaitingServeurAck.isEmpty()) {
                                         artifactZEPAdapter.notifyDataSetChanged();
-                                        progressBar.setVisibility(View.GONE);
+                                        //progressBar.setVisibility(View.GONE);
                                     }
                                 }
                             });
+                            updateUI();
                         }
                     }
                 });
@@ -1118,14 +1176,16 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         } else {
                             Log.e("evt", constantes.EVT_RECEPTION_ARTEFACT_INTO_ZP+", acquitement transfert artefact en ZP : " + uuid);
                             artifactsWaitingServeurAck.remove(uuid);
+                            // Todo : mettre a jour le code
                             EspacePersonnelActivity.this.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
                                     if (artifactsWaitingServeurAck.isEmpty()) {
-                                        progressBar.setVisibility(View.GONE);
+                                        //progressBar.setVisibility(View.GONE);
                                     }
                                 }
                             });
+                            updateUI();
                         }
                     }
                 });
@@ -1149,10 +1209,11 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                 public void run() {
                                     artifactAdapter.notifyDataSetChanged();
                                     if (artifactsWaitingServeurAck.isEmpty()) {
-                                        progressBar.setVisibility(View.GONE);
+                                        //progressBar.setVisibility(View.GONE);
                                     }
                                 }
                             });
+                            updateUI();
                         }
                     }
                 });
@@ -1168,15 +1229,16 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         connected = true;
                         Log.i("evt", constantes.EVT_REPONSE_OK_CONNEXION_ZEP+" : " + idZE + ", "+idZEP);
                         // on met a jour l'interface
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                progressBar.setVisibility(View.GONE);
-                                zepLayout.setBackgroundResource(R.drawable.rounded_corner_green);
-                                logout_btn.setVisibility(View.VISIBLE);
-                                login_btn.setVisibility(View.GONE);
-                            }
-                        });
+//                        runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                progressBar.setVisibility(View.GONE);
+//                                zepLayout.setBackgroundResource(R.drawable.rounded_corner_green);
+//                                logout_btn.setVisibility(View.VISIBLE);
+//                                login_btn.setVisibility(View.GONE);
+//                            }
+//                        });
+                        updateUI();
                     }
                 });
 
@@ -1217,15 +1279,16 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         } catch (Exception e) {
             e.printStackTrace();
             Log.i("error", e.toString());
+        } finally {
+            updateUI();
         }
     }
 
     //Fin de la connexion au srveur ITAC et fermeture de la WebSocket
     private void closeWebSocket() {
-        progressBar.setVisibility(View.GONE);
-        login_btn.setVisibility(View.VISIBLE);
-        logout_btn.setVisibility(View.GONE);
-        onDisconnection();
+//        progressBar.setVisibility(View.GONE);
+//        login_btn.setVisibility(View.VISIBLE);
+//        logout_btn.setVisibility(View.GONE);
         if (socket != null) {
             if (socket.connected()) {
                 Log.i("closeWebSocket", "deconnection du serveur...");
@@ -1233,11 +1296,13 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 Log.i("closeWebSocket", constantes.EVT_DECONNEXION + " : " + pseudo + ", " + idZE);
             }
             Log.i("closeWebSocket", "fermeture de la socket");
-            socket.disconnect();
             // IMPERATIF : il faut supprimer les listeners attaches a la websocket
-            socket.off();
+            if (socket != null) socket.off();
+            socket.disconnect();
             socket = null;
         }
+        onDisconnection();
+        updateUI();
     }
 
     //selectionner l'image depuis la galerie ou l'appareil photo
@@ -1386,6 +1451,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
     public void startDragSeletedArtefact(){
         startDrag(passObj);
+        updateUI();
     }
 
     private View.DragShadowBuilder shadowBuilder;
@@ -1405,14 +1471,16 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             view.startDrag(data, shadowBuilder, passObj, 0);
             view.setVisibility(View.INVISIBLE);
             // affichage outils sur l'artefact
-            trashEditLayout.setVisibility(View.VISIBLE);
-            optionsArtifactLayout.setVisibility(View.GONE);
+            //trashEditLayout.setVisibility(View.VISIBLE);
+            //optionsArtifactLayout.setVisibility(View.GONE);
             // }
         }
     }
 
     public boolean sendSelectedArtifactToZp(){
-        return sendToZp(passObj);
+        boolean res = sendToZp(passObj);
+        updateUI();
+        return res;
     }
     public boolean sendToZp(PassObject passObj){
         boolean transfered = false;
@@ -1424,17 +1492,21 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             if (passObj.srcList == listArtifact) {
                 Log.i("sendToZp", constantes.EVT_NEW_ARTEFACT_IN_ZP + " : " + pseudo + ", " + idZEP + ", " + idZE);
                 if (connected && (socket != null) && socket.connected()) {
-                    if (passedItem.getType().equals("message")) {
-                        socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZP, pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
-                        Log.v("sendToZp", "art : "+ passedItem.toJSONMessage().toString());
-                    } else {
-                        socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZP, pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
-                        Log.v("sendToZp", "art : "+ passedItem.toJSONImage().toString());
-                    }
+                    threadPool.submit(()-> {
+                                if (passedItem.getType().equals("message")) {
+                                    socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZP, pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
+                                    Log.v("sendToZp", "art : " + passedItem.toJSONMessage().toString());
+                                }
+                                else {
+                                    socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZP, pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
+                                    Log.v("sendToZp", "art : " + passedItem.toJSONImage().toString());
+                                }
+                            });
                     Log.i("sendToZp", constantes.EVT_NEW_ARTEFACT_IN_ZP + " : mise de l'artefact en zone d'attente : " + passedItem.getIdAr());
                     srcList.remove(position);
                     //on met l'artefact en zone d'attente
                     artifactsWaitingServeurAck.put(passedItem.getIdAr(), passedItem);
+                    // Todo : mettre a jour le code
                     progressBar.setVisibility(View.VISIBLE);
                     artifactAdapter.notifyDataSetChanged();
                     transfered = true;
@@ -1460,7 +1532,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     }
 
     public boolean sendSelectedArtifactToZE(){
-        return sendToZE(passObj);
+        boolean res = sendToZE(passObj);
+        updateUI();
+        return res;
     }
     public boolean sendToZE(PassObject passObj){
         boolean transfered = false;
@@ -1476,18 +1550,22 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     //passedItem.setProprietaire(pseudo);
                     passedItem.setTypeConteneur("ZE");
                     passedItem.setIdConteneur(idZE);
-                    if (passedItem.getType().equals("message")) {
-                        socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZE, pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
-                        Log.v("sendToZE", "art : "+ passedItem.toJSONMessage().toString());
-                    } else {
-                        socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZE, pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
-                        Log.v("sendToZE", "art : "+ passedItem.toJSONImage().toString());
-                    }
+                    threadPool.submit(()-> {
+                                if (passedItem.getType().equals("message")) {
+                                    socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZE, pseudo, idZEP, idZE, passedItem.toJSONMessage().toString());
+                                    Log.v("sendToZE", "art : " + passedItem.toJSONMessage().toString());
+                                }
+                                else {
+                                    socket.emit(constantes.EVT_NEW_ARTEFACT_IN_ZE, pseudo, idZEP, idZE, passedItem.toJSONImage().toString());
+                                    Log.v("sendToZE", "art : " + passedItem.toJSONImage().toString());
+                                }
+                            });
                     Log.i("sendToZE", constantes.EVT_NEW_ARTEFACT_IN_ZE + " : mise de l'atefact en zone d'attente : " + passedItem.getIdAr());
                     srcList.remove(position);
                     // listArtifactZEP.add(passedItem);
                     // on met l'artefact en zone d'attente
                     artifactsWaitingServeurAck.put(passedItem.getIdAr(), passedItem);
+                    // Todo : mettre a jour le code
                     progressBar.setVisibility(View.VISIBLE);
                     artifactAdapter.notifyDataSetChanged();
                     // artifactZEPAdapter.notifyDataSetChanged();
@@ -1516,7 +1594,9 @@ public class EspacePersonnelActivity extends ActionBarActivity {
     }
 
     public boolean sendSelectedArtifactToEP(){
-        return sendToEP(passObj);
+        boolean res = sendToEP(passObj);
+        updateUI();
+        return res;
     }
     public boolean sendToEP(PassObject passObj){
         boolean transfered = false;
@@ -1533,21 +1613,25 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     // on met l'artefact en espace prive directement
                     srcList.remove(position);
                     listArtifact.add(passedItem);
+                    // Todo : mettre a jour le code
                     artifactZEPAdapter.notifyDataSetChanged();
                     artifactAdapter.notifyDataSetChanged();
                 } else {
-                    // on est connecte on signalle le modif au serveur et on attend la notification
-                    if (passedItem.getType().equals("message")) {
-                        socket.emit(constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP, passedItem.getIdAr(), idZE, idZEP);
-                    }
-                    else {
-                        socket.emit(constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP, passedItem.getIdAr(), idZE, idZEP);
-                    }
+                    threadPool.submit(()-> {
+                                // on est connecte on signalle le modif au serveur et on attend la notification
+                                if (passedItem.getType().equals("message")) {
+                                    socket.emit(constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP, passedItem.getIdAr(), idZE, idZEP);
+                                }
+                                else {
+                                    socket.emit(constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP, passedItem.getIdAr(), idZE, idZEP);
+                                }
+                            });
                     Log.i("myArtefactOnDrag", constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP + " : passage direct de l'artefact en espace prive : " + passedItem.getIdAr());
                     // on met l'artefact en zone d'attente
                     srcList.remove(position);
                     // listArtifact.add(passedItem);
                     artifactsWaitingServeurAck.put(passedItem.getIdAr(), passedItem);
+                    // Todo : mettre a jour le code
                     progressBar.setVisibility(View.VISIBLE);
                     artifactZEPAdapter.notifyDataSetChanged();
                     // artifactAdapter.notifyDataSetChanged();
@@ -1602,6 +1686,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 
     public void deleteSelectedArtifact(){
         delete(passObj);
+        updateUI();
     }
     public void delete(PassObject passObj){
         if (passObj != null){
@@ -1610,6 +1695,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
             int position = passObj.position;
             if (passObj.srcList == listArtifact) {
                 srcList.remove(position);
+                // Todo : mettre a jour le code
                 artifactAdapter.notifyDataSetChanged();
             }
             trashEditLayout.setVisibility(View.GONE);
@@ -1622,11 +1708,13 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         // pas une bonne idee car trashEditLayout doit recevoir un event ACTION_DRAG_ENDED
         // trashEditLayout.setVisibility(View.GONE);
         // optionsArtifactLayout.setVisibility(View.VISIBLE);
+        updateUI();
     }
 
     public void editSelectedArtifact(){
         edit(passObj);
         setPassObject(null);
+        updateUI();
     }
     public void edit(PassObject passObj){
         if (passObj != null){
@@ -1749,6 +1837,82 @@ public class EspacePersonnelActivity extends ActionBarActivity {
         }
         return res;
     }
+
+
+    public void updateUI(){
+//        this.runOnUiThread(()-> {
+//            if (passObj != null){
+//                trashEditLayout.setVisibility(View.GONE);
+//                optionsArtifactLayout.setVisibility(View.VISIBLE);
+//            } else {
+//                trashEditLayout.setVisibility(View.VISIBLE);
+//                optionsArtifactLayout.setVisibility(View.GONE);
+//            }
+//        });
+        updateConnectionUi();
+        updateArtifactToolsUi();
+        updateProgressBarUi();
+    }
+
+    void updateConnectionUi(){
+        this.runOnUiThread(()-> {
+            if (connected || socket != null) {
+                login_btn.setVisibility(View.GONE);
+                //logout_btn.setVisibility(View.VISIBLE);
+                logout_btn.setVisibility(View.GONE);
+                if (connect_item != null) connect_item.setVisible(false);
+                if (disconnect_item != null) disconnect_item.setVisible(true);
+            }
+            else {
+                login_btn.setVisibility(View.GONE);
+                //login_btn.setVisibility(View.VISIBLE);
+                logout_btn.setVisibility(View.GONE);
+                if (connect_item != null) connect_item.setVisible(true);
+                if (disconnect_item != null) disconnect_item.setVisible(false);
+            }
+            if (connected){
+                zepLayout.setBackgroundResource(R.drawable.rounded_corner_green);
+            } else {
+                zepLayout.setBackgroundResource(R.drawable.rounded_corner_red);
+            }
+        });
+    }
+
+    void updateProgressBarUi(){
+        this.runOnUiThread(()-> {
+            if ((connected || socket == null) && artifactsWaitingServeurAck.isEmpty()) {
+                progressBar.setVisibility(View.GONE);
+            }
+            else {
+                progressBar.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
+    public void updateArtifactToolsUi(){
+        this.runOnUiThread(()-> {
+            if (passObj == null){
+                trashEditLayout.setVisibility(View.GONE);
+                optionsArtifactLayout.setVisibility(View.VISIBLE);
+            } else {
+                trashEditLayout.setVisibility(View.VISIBLE);
+                optionsArtifactLayout.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    public void updateZep(){
+        this.runOnUiThread(()-> {
+            artifactZEPAdapter.notifyDataSetChanged();
+        });
+    }
+
+    public void updateEp(){
+        this.runOnUiThread(()-> {
+            artifactAdapter.notifyDataSetChanged();
+        });
+    }
+
 
     public static void hideSoftKeyboard(Activity activity) {
         if (activity != null && activity.getCurrentFocus() != null && activity.getCurrentFocus().getWindowToken() != null) {
