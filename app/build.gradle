@@ -5,7 +5,7 @@ plugins {
 apply plugin: 'com.android.application'
 
 license {
-    header = rootProject.file('../Header_GPLv3.txt')
+    header = rootProject.file('Header_GPLv3.txt')
     include('**/*.java')
     include('**/*.xml')
     ext.yearsAS = '2016'
