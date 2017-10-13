@@ -15,6 +15,7 @@ license {
     sourceSets = project.sourceSets
     include('**/*.java')
     include('**/*.xml')
+    exclude('**/ic_sync*.xml')
 }
 
 android {
