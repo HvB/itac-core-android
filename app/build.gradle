@@ -5,13 +5,17 @@ plugins {
 apply plugin: 'com.android.application'
 
 license {
-    header = rootProject.file('Header_Apache-2.0.txt')
-    include('**/*.java')
-    include('test/**')
-    include('androidTest/**')
-    ext.year = Calendar.getInstance().get(Calendar.YEAR)
-    ext.author = "Titan Team"
+    header = rootProject.file('Header_GPLv3.txt')
+    ext.yearsAS = '2016'
+    ext.yearsAIP = '2016'
+    ext.yearsUSMB = '2016-'+Calendar.getInstance().get(Calendar.YEAR)
+    ext.authorAS = "Yassine Siela"
+    ext.authorAIP = "AIP Primeca RAO"
+    ext.authorUSMB = "Université Savoie Mont Blanc"
     sourceSets = project.sourceSets
+    include('**/*.java')
+    include('**/*.xml')
+    exclude('**/ic_sync*.xml')
 }
 
 android {
