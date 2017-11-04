@@ -1627,14 +1627,20 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                                 }
                             });
                     Log.i("myArtefactOnDrag", constantes.EVT_ENVOIE_ARTEFACT_DE_ZE_VERS_EP + " : passage direct de l'artefact en espace prive : " + passedItem.getIdAr());
-                    // on met l'artefact en zone d'attente
-                    srcList.remove(position);
-                    // listArtifact.add(passedItem);
-                    artifactsWaitingServeurAck.put(passedItem.getIdAr(), passedItem);
-                    // Todo : mettre a jour le code
-                    progressBar.setVisibility(View.VISIBLE);
-                    artifactZEPAdapter.notifyDataSetChanged();
-                    // artifactAdapter.notifyDataSetChanged();
+                    // parfois on peut deplacer l'artefact simultanement
+                    // sur la table et la tablette et c'est la merde
+                    boolean supOk = srcList.remove(passedItem);
+                    if (supOk) {
+                        // listArtifact.add(passedItem);
+                        // on met l'artefact en zone d'attente
+                        artifactsWaitingServeurAck.put(passedItem.getIdAr(), passedItem);
+                        // Todo : mettre a jour le code
+                        progressBar.setVisibility(View.VISIBLE);
+                        artifactZEPAdapter.notifyDataSetChanged();
+                        // artifactAdapter.notifyDataSetChanged();
+                    } else {
+                        Log.d("EspacePersonnelActivity", "oups pb lors du dplacement de l'artefact ");
+                    }
                 }
                 // smooth scroll to bottom of EP
                 listArtifactLayout.absListView.smoothScrollToPosition(artifactAdapter.getCount() - 1);
