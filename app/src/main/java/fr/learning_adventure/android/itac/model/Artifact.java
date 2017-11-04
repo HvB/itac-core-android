@@ -167,7 +167,11 @@ public class Artifact implements Serializable {
             //byte[] decodedImg = Base64.decode(base64Img, Base64.DEFAULT);
             //Bitmap img = BitmapFactory.decodeByteArray(decodedImg, 0, decodedImg.length);
             Bitmap img = decodeImage(base64Img);
-            thumbnail = Bitmap.createScaledBitmap(img, 200,160, false);
+            if (img!= null) {
+                thumbnail = Bitmap.createScaledBitmap(img, 200, 160, false);
+            } else {
+                Log.e("artifact_getThumbnail", "oups img est null !!!");
+            }
         }
         return thumbnail;
     }

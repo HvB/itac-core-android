@@ -1,7 +1,9 @@
 package fr.learning_adventure.android.itac.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -74,7 +76,12 @@ public class ArtifactAdapter extends BaseAdapter {
         } else {
             convertView = inflater.inflate(R.layout.artifact_image_adapter, null);
             mImage = (ImageView) convertView.findViewById(R.id.image);
-            mImage.setImageBitmap(artifact.getThumbnail());
+            Bitmap img = artifact.getThumbnail();
+            if ( img != null) {
+                mImage.setImageBitmap(img);
+            } else {
+                Log.e("ArtifactAdapter_getView", "oups thumbnail est null !!!");
+            }
         }
         final PassObject passObj = new PassObject(convertView, artifact, artifacts, position);
 
