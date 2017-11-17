@@ -326,7 +326,7 @@ public class Artifact implements Serializable {
     }
 
     private Bitmap decodeImage(String base64img) {
-        String base64Data = base64img.replaceFirst("^data:image\\/[-\\w]*;base64,","");
+        String base64Data = base64img.replaceFirst("^data:image\\/[-*\\w]*;base64,","");
         byte[] decodedImg = Base64.decode(base64Data, Base64.DEFAULT);
         Bitmap img = BitmapFactory.decodeByteArray(decodedImg, 0, decodedImg.length);
         return img;
