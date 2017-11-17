@@ -14,6 +14,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import fr.learning_adventure.android.itac.R;
+import fr.learning_adventure.android.itac.model.Artifact;
 
 /**
  * Created by yassine on 12/04/2016.
@@ -52,24 +53,15 @@ public class ArtifactImageActivity extends ActionBarActivity {
             if (bmOrigine.getHeight() > 2048 && bmOrigine.getWidth() > 2048){
                 Bitmap bm = BitmapFactory.decodeFile(contenu,options);
                 imageView.setImageBitmap(bm);
-
             }else {
-
                 imageView.setImageBitmap(bmOrigine);
             }
-           }
-             else
-
-        {
-            byte[] decodedString = Base64.decode(contenu, Base64.DEFAULT);
-            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-
+        } else {
+            Bitmap decodedByte = Artifact.decodeImage(contenu);
             if (decodedByte.getHeight() > 2048 && decodedByte.getWidth() > 2048){
-                Bitmap bm = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length,options);
-                imageView.setImageBitmap(bm);
-
-            }else {
-
+                decodedByte = Artifact.decodeImage(contenu, options);
+                imageView.setImageBitmap(decodedByte);
+            } else {
                 imageView.setImageBitmap(decodedByte);
             }
         }
