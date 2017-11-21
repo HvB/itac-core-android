@@ -307,7 +307,7 @@ public class Artifact implements Serializable {
 
     //encoder image en base 64
     @TargetApi(Build.VERSION_CODES.FROYO)
-    private String encodeImage(String path) {
+    static public String encodeImage(String path) {
         File imagefile = new File(path);
         FileInputStream fis = null;
         try {
@@ -325,10 +325,19 @@ public class Artifact implements Serializable {
         return encImage;
     }
 
-    private Bitmap decodeImage(String base64img) {
-        String base64Data = base64img.replaceFirst("^data:image\\/[-\\w]*;base64,","");
+    static public  Bitmap decodeImage(String base64img) {
+        return Artifact.decodeImage(base64img, null);
+    }
+
+    static public  Bitmap decodeImage(String base64img, BitmapFactory.Options options) {
+        Bitmap img = null;
+        String base64Data = base64img.replaceFirst("^data:image\\/[-*\\w]*;base64,","");
         byte[] decodedImg = Base64.decode(base64Data, Base64.DEFAULT);
-        Bitmap img = BitmapFactory.decodeByteArray(decodedImg, 0, decodedImg.length);
+        if (options == null) {
+            img = BitmapFactory.decodeByteArray(decodedImg, 0, decodedImg.length);
+        } else {
+            img = BitmapFactory.decodeByteArray(decodedImg, 0, decodedImg.length, options);
+        }
         return img;
     }
 
