@@ -19,4 +19,5 @@ Itac-core-android has been developed by (in alphabetical order):
     - Yassine Siela
     - Stéphane Talbot
 
-It uses also several Open Source components distributed under the terms of the MIT licence, the Apache License v2.0 , the Eclipse Public License v1.0 or v2.0.
+It uses also several Open Source components distributed under the terms of the MIT licence,
+the Apache License v2.0, the Eclipse Public License v1.0 or v2.0.

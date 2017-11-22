@@ -28,11 +28,15 @@ android {
     compileSdkVersion 22
     buildToolsVersion '27.0.1'
     defaultConfig {
-        applicationId "fr.learning_adventure.android.itac"
+        applicationId 'fr.learning_adventure.android.itac.gpl'
         minSdkVersion 15
         targetSdkVersion 22
         versionCode 56
         versionName '1.1.0.alpha6'
+    }
+    // permet d'acceder au nom de la version via la resource R.string.versionName
+    applicationVariants.all { variant ->
+        variant.resValue "string", "versionName", variant.versionName
     }
     buildTypes {
         release {
@@ -73,7 +77,6 @@ android {
 //            dimension "test"
 //        }
         development {
-            versionNameSuffix '.dev'
             dimension 'distribution'
         }
         original {
