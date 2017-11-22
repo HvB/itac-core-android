@@ -36,8 +36,12 @@
             </group>
         </menu>
     </item>
+    <item android:id="@+id/about"
+          android:title="@string/about_title"
+          android:orderInCategory="100"
+          app:showAsAction="never"/>
     <item android:id="@+id/quitter"
-        android:title="@string/quit_item"
-        android:orderInCategory="100"
-        app:showAsAction="never"/>
+          android:title="@string/quit_item"
+          android:orderInCategory="100"
+          app:showAsAction="never"/>
 </menu>
