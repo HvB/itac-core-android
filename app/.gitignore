@@ -1,1 +1,6 @@
 /build
+
+# gradle & gradle wrapper
+.gradle
+gradle
+gradlew*
