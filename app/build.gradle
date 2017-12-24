@@ -27,8 +27,8 @@ android {
         applicationId "fr.learning_adventure.android.itac"
         minSdkVersion 15
         targetSdkVersion 22
-        versionCode 56
-        versionName '1.1.0.alpha6'
+        versionCode 57
+        versionName '1.1.0.alpha7'
     }
     buildTypes {
         release {
