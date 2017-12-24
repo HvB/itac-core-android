@@ -31,8 +31,8 @@ android {
         applicationId 'fr.learning_adventure.android.itac.gpl'
         minSdkVersion 15
         targetSdkVersion 22
-        versionCode 56
-        versionName '1.1.0.alpha6'
+        versionCode 57
+        versionName '1.1.0.alpha7'
     }
     // permet d'acceder au nom de la version via la resource R.string.versionName
     applicationVariants.all { variant ->
