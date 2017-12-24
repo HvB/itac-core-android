@@ -8,7 +8,7 @@
 
 # gradle & gradle wrapper
 .gradle
-gradle
+gradle/
 gradlew*
 
 #built application files
