@@ -1677,6 +1677,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                 startActivity(intent);
             }
             else {
+                artifact.saveImage();
                 Intent intent = new Intent(EspacePersonnelActivity.this, ArtifactImageActivity.class);
                 intent.putExtra("pseudo", artifact.getCreator());
                 intent.putExtra("image", artifact.getContenu());
