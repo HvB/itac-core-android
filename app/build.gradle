@@ -72,9 +72,6 @@ android {
             versionNameSuffix '.dev'
             dimension 'distribution'
         }
-        original {
-            dimension 'distribution'
-        }
     }
 }
 
