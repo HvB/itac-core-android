@@ -300,7 +300,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         break;
                     case DragEvent.ACTION_DRAG_ENDED :
                         Log.v("epOnDragListener", "drag ended");
-                        //onDragEng();
+                        v.post(()->onDragEng());
                         res = true;
                         break;
                     case DragEvent.ACTION_DROP :
@@ -330,7 +330,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         break;
                     case DragEvent.ACTION_DRAG_ENDED :
                         Log.v("zeOnDragListener", "drag ended");
-                        //onDragEng();
+                        //v.post(()->onDragEng());
                         res = true;
                         break;
                     case DragEvent.ACTION_DROP :
@@ -371,7 +371,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     case DragEvent.ACTION_DRAG_ENDED:
                         Log.v("zpOnDragListener", "drag ended");
                         v.setBackgroundColor(Color.parseColor("#323232"));
-                        //onDragEng();
+                        //v.post(()->onDragEng());
                         res = true;
                         break;
                     case DragEvent.ACTION_DROP :
@@ -412,7 +412,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     case DragEvent.ACTION_DRAG_ENDED:
                         Log.v("editOnDragListener", "drag ended");
                         v.setBackgroundColor(Color.parseColor("#323232"));
-                        //onDragEng();
+                        //v.post(()->onDragEng());
                         res = true;
                         break;
                     case DragEvent.ACTION_DROP :
@@ -453,7 +453,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                     case DragEvent.ACTION_DRAG_ENDED:
                         Log.v("trashOnDragListener", "drag ended");
                         v.setBackgroundColor(Color.parseColor("#323232"));
-                        onDragEng();
+                        //v.post(()->onDragEng());
                         res = true;
                         break;
                     case DragEvent.ACTION_DROP :
@@ -538,7 +538,7 @@ public class EspacePersonnelActivity extends ActionBarActivity {
                         x0 = 0.0f;
                         y0 = 0.0f;
                         t0 = 0;
-                        onDragEng();
+                        v.post(()->onDragEng());
                         break;
                     case DragEvent.ACTION_DRAG_ENTERED:
                         Log.v("defaultOnDragListener", "drag entered");
@@ -1856,9 +1856,11 @@ public class EspacePersonnelActivity extends ActionBarActivity {
 //                optionsArtifactLayout.setVisibility(View.GONE);
 //            }
 //        });
+        Log.v("updateUI", "start");
         updateConnectionUi();
         updateArtifactToolsUi();
         updateProgressBarUi();
+        Log.v("updateUI", "end");
     }
 
     void updateConnectionUi(){
