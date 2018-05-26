@@ -1,7 +1,7 @@
 package fr.learning_adventure.android.itac.android_app_activity;
 
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Layout;
 import android.util.Log;
 import android.view.View;
@@ -24,7 +24,7 @@ import fr.learning_adventure.android.itac.model.Artifact;
 /**
  * Created by yassine on 12/04/2016.
  */
-public class ArtifactArticleActivity extends ActionBarActivity {
+public class ArtifactArticleActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -6,7 +6,7 @@ import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -19,7 +19,7 @@ import fr.learning_adventure.android.itac.R;
 import fr.learning_adventure.android.itac.adapter.AvatarAdapter;
 import fr.learning_adventure.android.itac.widget.Clink;
 
-public class AuthentificationActivity extends ActionBarActivity {
+public class AuthentificationActivity extends AppCompatActivity {
 
     int zoneEchangePosition = -1;
 

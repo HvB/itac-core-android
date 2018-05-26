@@ -22,7 +22,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 //import android.support.v13.view.ViewCompat;
 import android.support.v4.view.GestureDetectorCompat;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.DragEvent;
@@ -82,7 +82,7 @@ import io.socket.emitter.Emitter;
 /**
  * Created by learninglab on 03/03/16.
  */
-public class EspacePersonnelActivity extends ActionBarActivity {
+public class EspacePersonnelActivity extends AppCompatActivity {
     private UUID deviceUid;
     private String serverLogin = "anonymous";
     private ItacConstant constantes;

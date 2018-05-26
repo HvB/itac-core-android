@@ -75,7 +75,7 @@ import io.socket.emitter.Emitter;
 /**
  * Created by learninglab on 03/03/16.
  */
-public class EspacePersonnelActivity extends ActionBarActivity {
+public class EspacePersonnelActivity extends AppCompatActivity {
     private UUID deviceUid;
     private String serverLogin = "anonymous";
     private ItacConstant constantes;
