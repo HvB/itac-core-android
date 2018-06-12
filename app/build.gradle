@@ -25,14 +25,14 @@ android {
             keyAlias 'AndroidTitanTeamDev'
         }
     }
-    compileSdkVersion 22
-    buildToolsVersion '27.0.1'
+    compileSdkVersion 27
+    buildToolsVersion '27.0.3'
     defaultConfig {
         applicationId 'fr.learning_adventure.android.itac.gpl'
         minSdkVersion 15
         targetSdkVersion 22
-        versionCode 57
-        versionName '1.1.0.alpha7'
+        versionCode 58
+        versionName '1.1.0.alpha8'
     }
     // permet d'acceder au nom de la version via la resource R.string.versionName
     applicationVariants.all { variant ->
@@ -86,12 +86,12 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:22+'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestImplementation 'junit:junit:4.12'
+    implementation 'com.android.support:appcompat-v7:27.1.1'
     //compile 'com.github.nkzawa:socket.io-client:0.4.1'
-    compile 'com.android.support:recyclerview-v7:22+'
-    compile('io.socket:socket.io-client:0.8.3') {
+    implementation 'com.android.support:recyclerview-v7:27.1.1'
+    implementation('io.socket:socket.io-client:0.8.3') {
         // excluding org.json which is provided by Android
         exclude group: 'org.json', module: 'json'
     }
