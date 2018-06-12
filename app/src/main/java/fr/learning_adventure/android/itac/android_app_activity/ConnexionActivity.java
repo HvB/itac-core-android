@@ -22,6 +22,8 @@ public class ConnexionActivity extends Activity {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         String serverAddr = sharedPreferences.getString(getString(R.string.pref_key_server_addr),"127.0.0.1");
         String serverPort = sharedPreferences.getString(getString(R.string.pref_key_server_port),"8080");
+        String serverLogin = sharedPreferences.getString(getString(R.string.pref_key_server_login),"anonymous");
+        String serverPassword = sharedPreferences.getString(getString(R.string.pref_key_server_password),"");
         final SharedPreferences.Editor editor = sharedPreferences.edit();
         Log.i("ConnexionActivity", "server address : "+serverAddr);
         Log.i("ConnexionActivity", "server port : "+serverPort);
@@ -31,8 +33,12 @@ public class ConnexionActivity extends Activity {
 
         EditText ip = (EditText) ConnexionActivity.this.findViewById(R.id.ip);
         EditText port = (EditText) ConnexionActivity.this.findViewById(R.id.port);
+        EditText login = (EditText) ConnexionActivity.this.findViewById(R.id.login);
+        EditText password = (EditText) ConnexionActivity.this.findViewById(R.id.password);
         ip.setText(serverAddr);
         port.setText(serverPort);
+        login.setText(serverLogin);
+        password.setText(serverPassword);
         Button button = (Button) this.findViewById(R.id.loginbtn);
         TextView uriTextView = (TextView) this.findViewById(R.id.uri);
         uriTextView.setText("l'adresse actuelle : "+uri);
@@ -52,6 +58,8 @@ public class ConnexionActivity extends Activity {
                                                   short val = Short.parseShort(port.getText().toString());
                                                   editor.putString(getString(R.string.pref_key_server_addr), ip.getText().toString());
                                                   editor.putString(getString(R.string.pref_key_server_port), port.getText().toString());
+                                                  editor.putString(getString(R.string.pref_key_server_login), login.getText().toString());
+                                                  editor.putString(getString(R.string.pref_key_server_password), password.getText().toString());
                                                   boolean ok = editor.commit();
                                                   if (ok) {
                                                       ConnexionActivity.this.finish();

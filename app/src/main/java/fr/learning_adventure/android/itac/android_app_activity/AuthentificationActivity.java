@@ -1,20 +1,25 @@
 package fr.learning_adventure.android.itac.android_app_activity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.preference.PreferenceManager;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 
+import java.util.UUID;
+
 import fr.learning_adventure.android.itac.R;
 import fr.learning_adventure.android.itac.adapter.AvatarAdapter;
 import fr.learning_adventure.android.itac.widget.Clink;
 
-public class AuthentificationActivity extends ActionBarActivity {
+public class AuthentificationActivity extends AppCompatActivity {
 
     int zoneEchangePosition = -1;
 
@@ -25,8 +30,22 @@ public class AuthentificationActivity extends ActionBarActivity {
         setContentView(R.layout.activity_authentification);
 
 
-
-
+        // demarrage vi une uri dugenre itac://host:port
+        // recuperation des infos et enregistrement dans les preferences
+        Intent intent = this.getIntent();
+        if (intent != null && intent.getData() != null){
+            Uri uri = intent.getData();
+            String host = uri.getHost();
+            int port = uri.getPort();
+            if (port == -1) port=8080;
+            if ((host != null) && (! "".equals(host)) && (port != -1)){
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+                SharedPreferences.Editor editor= sharedPreferences.edit();
+                editor.putString(getString(R.string.pref_key_server_addr), host);
+                editor.putString(getString(R.string.pref_key_server_port), Integer.toString(port));
+                editor.commit();
+            }
+        }
 
         final AvatarAdapter avatarAdapter = new AvatarAdapter(this);
 

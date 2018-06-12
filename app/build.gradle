@@ -1,4 +1,18 @@
+plugins {
+    id "com.github.hierynomus.license" version "0.14.0"
+}
+
 apply plugin: 'com.android.application'
+
+license {
+    header = rootProject.file('Header_Apache-2.0.txt')
+    include('**/*.java')
+    include('test/**')
+    include('androidTest/**')
+    ext.year = Calendar.getInstance().get(Calendar.YEAR)
+    ext.author = "Titan Team"
+    sourceSets = project.sourceSets
+}
 
 android {
     signingConfigs {
@@ -7,14 +21,14 @@ android {
             keyAlias 'AndroidTitanTeamDev'
         }
     }
-    compileSdkVersion 22
-    buildToolsVersion '25.0.0'
+    compileSdkVersion 27
+    buildToolsVersion '27.0.3'
     defaultConfig {
         applicationId "fr.learning_adventure.android.itac"
         minSdkVersion 15
         targetSdkVersion 22
-        versionCode 10
-        versionName '1.0.6'
+        versionCode 60
+        versionName '2.0'
     }
     buildTypes {
         release {
@@ -58,19 +72,16 @@ android {
             versionNameSuffix '.dev'
             dimension 'distribution'
         }
-        original {
-            dimension 'distribution'
-        }
     }
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:22+'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestImplementation 'junit:junit:4.12'
+    implementation 'com.android.support:appcompat-v7:27.1.1'
     //compile 'com.github.nkzawa:socket.io-client:0.4.1'
-    compile 'com.android.support:recyclerview-v7:22+'
-    compile('io.socket:socket.io-client:0.8.3') {
+    implementation 'com.android.support:recyclerview-v7:27.1.1'
+    implementation('io.socket:socket.io-client:0.8.3') {
         // excluding org.json which is provided by Android
         exclude group: 'org.json', module: 'json'
     }

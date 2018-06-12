@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.util.Base64;
 import android.util.Log;
@@ -12,10 +13,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
@@ -53,6 +58,8 @@ public class Artifact implements Serializable {
     public final static String JSON_DATEMODIFICATION = "dateModification";
     private final static String JSON_TITLE = "title";
     private final static String JSON_CONTENU = "content";
+    public final static String JSON_LOGIN = "login";
+    public final static String JSON_DEVICE_UUID = "deviceUid";
     public final static String ARTIFACT_TYPE_MESSAGE = "message";
     public final static String ARTIFACT_TYPE_IMAGE = "image";
 
@@ -157,9 +164,14 @@ public class Artifact implements Serializable {
             } else {
                 base64Img = this.contenu;
             }
-            byte[] decodedImg = Base64.decode(base64Img, Base64.DEFAULT);
-            Bitmap img = BitmapFactory.decodeByteArray(decodedImg, 0, decodedImg.length);
-            thumbnail = Bitmap.createScaledBitmap(img, 100,100, false);
+            //byte[] decodedImg = Base64.decode(base64Img, Base64.DEFAULT);
+            //Bitmap img = BitmapFactory.decodeByteArray(decodedImg, 0, decodedImg.length);
+            Bitmap img = decodeImage(base64Img);
+            if (img!= null) {
+                thumbnail = Bitmap.createScaledBitmap(img, 200, 160, false);
+            } else {
+                Log.e("artifact_getThumbnail", "oups img est null !!!");
+            }
         }
         return thumbnail;
     }
@@ -295,7 +307,7 @@ public class Artifact implements Serializable {
 
     //encoder image en base 64
     @TargetApi(Build.VERSION_CODES.FROYO)
-    private String encodeImage(String path) {
+    static public String encodeImage(String path) {
         File imagefile = new File(path);
         FileInputStream fis = null;
         try {
@@ -307,9 +319,75 @@ public class Artifact implements Serializable {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bm.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] b = baos.toByteArray();
-        String encImage = Base64.encodeToString(b, Base64.DEFAULT);
+//        String encImage = Base64.encodeToString(b, Base64.DEFAULT);
+        String encImage = "data:image/jpeg;base64,"+Base64.encodeToString(b, Base64.NO_WRAP);
         //Base64.de
         return encImage;
+    }
+
+    static public  Bitmap decodeImage(String base64img) {
+        return Artifact.decodeImage(base64img, null);
+    }
+
+    static public  Bitmap decodeImage(String base64img, BitmapFactory.Options options) {
+        Bitmap img = null;
+        String base64Data = base64img.replaceFirst("^data:image\\/[-*\\w]*;base64,","");
+        byte[] decodedImg = Base64.decode(base64Data, Base64.DEFAULT);
+        if (options == null) {
+            img = BitmapFactory.decodeByteArray(decodedImg, 0, decodedImg.length);
+        } else {
+            img = BitmapFactory.decodeByteArray(decodedImg, 0, decodedImg.length, options);
+        }
+        return img;
+    }
+
+    public boolean copyImage(File path) {
+        boolean res = false;
+        if (ARTIFACT_TYPE_IMAGE.equals(this.getType())) {
+            try (OutputStream fos = new BufferedOutputStream(new FileOutputStream(path))) {
+                Bitmap img;
+                if ("true".equals(this.getCreated())) {
+                    img = BitmapFactory.decodeFile(this.getContenu());
+                } else {
+                    img = decodeImage(this.getContenu());
+                }
+                if ((img != null) &&(img.compress(Bitmap.CompressFormat.JPEG, 100, fos))) {
+                    this.setContenu(path.getAbsolutePath());
+                    this.setCreated("true");
+                    res = true;
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        }
+        return res;
+    }
+
+    public File saveImage() {
+        File res = null;
+        if (ARTIFACT_TYPE_IMAGE.equals(this.getType())) {
+            if ("true".equals(this.getCreated())) {
+                res = new File(this.getContenu());
+            } else {
+                File path = new File(Environment.getExternalStorageDirectory(),
+                        System.currentTimeMillis() + ".jpg");
+                try (OutputStream fos = new BufferedOutputStream(new FileOutputStream(path))) {
+                    Bitmap img;
+                    img = decodeImage(this.getContenu());
+                    img.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                    this.setContenu(path.getAbsolutePath());
+                    this.setCreated("true");
+                    res = path;
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
+        return res;
     }
 }
 

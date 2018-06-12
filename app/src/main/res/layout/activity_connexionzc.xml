@@ -50,8 +50,31 @@
             android:id="@+id/port"
             android:hint="@string/enter_port_hint"
             android:inputType="number"/>
-        <Button
+        <EditText
             android:layout_below="@+id/port"
+            android:layout_width="200sp"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20sp"
+            android:padding="5dp"
+            android:background="#90caf9"
+            android:id="@+id/login"
+            android:hint="@string/enter_login_hint"
+            android:inputType="text"/>
+
+        <EditText
+            android:layout_width="200sp"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20sp"
+            android:padding="5dp"
+            android:background="#90caf9"
+            android:layout_below="@id/login"
+            android:id="@+id/password"
+            android:hint="@string/enter_password_hint"
+            android:inputType="textPassword"/>
+        <Button
+            android:layout_below="@+id/password"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="10dp"
