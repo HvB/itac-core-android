@@ -1,6 +1,25 @@
+/**
+ *     Copyright © 2016 Yassine Siela
+ *     Copyright © 2016 AIP Primeca RAO
+ *     Copyright © 2016-2017 Université Savoie Mont Blanc
+ *
+ *     ITAC-Core-Android is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package fr.learning_adventure.android.itac.android_app_activity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -23,6 +42,8 @@ import android.support.annotation.NonNull;
 //import android.support.v13.view.ViewCompat;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.DragEvent;
@@ -899,6 +920,9 @@ public class EspacePersonnelActivity extends AppCompatActivity {
                 } else {
                     finish();
                 }
+                return true;
+            case R.id.about:
+                this.displayAboutDialog();
                 return true;
         }
         return false;
@@ -1929,4 +1953,23 @@ public class EspacePersonnelActivity extends AppCompatActivity {
             inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
         }
     }
+
+    private void displayAboutDialog(){
+        View messageView = getLayoutInflater().inflate(R.layout.about, null, false);
+        // we need this to enable html links
+        TextView textView = (TextView) messageView.findViewById(R.id.about_text);
+        // pour acceder a la version ne pas oublier de configurer build.gradle correctement
+        textView.setText(Html.fromHtml(this.getString(R.string.about_text, this.getString(R.string.versionName))));
+        textView.setMovementMethod(LinkMovementMethod.getInstance());
+        // When linking text, force to always use default color. This works
+        // around a pressed color state bug.
+        int defaultColor = textView.getTextColors().getDefaultColor();
+        textView.setTextColor(defaultColor);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT);
+        builder.setTitle(R.string.about_title);
+        builder.setIcon(R.drawable.gplv3_icon);
+        builder.setView(messageView);
+        builder.show();
+    }
+
 }
