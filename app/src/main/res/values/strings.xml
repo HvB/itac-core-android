@@ -1,3 +1,23 @@
+<!--
+
+        Copyright © 2016 Yassine Siela
+        Copyright © 2016 AIP Primeca RAO
+        Copyright © 2016-2018 Université Savoie Mont Blanc
+
+        ITAC-Core-Android is free software: you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by
+        the Free Software Foundation, either version 3 of the License, or
+        (at your option) any later version.
+
+        This program is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.
+
+        You should have received a copy of the GNU General Public License
+        along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
 <resources>
     <string name="app_name">ITAC</string>
     <string name="load_image_text">Charger une image</string>
@@ -26,4 +46,25 @@
     <string name="message_hint">Message</string>
     <string name="cancel_btn_desc">Bouton annuler</string>
     <string name="ok_btn_desc">Bouton valider</string>
+    <string name="about_title">À propos de</string>
+    <string name="about_text"><![CDATA[<p>ITAC-Core-Android version %1$s</p>
+        <p>ITAC-Core-Android est un client android utilisable pour
+            la gestion de l\'espace privé de l\'application collaborative ITAC.
+        </p>
+        <p>Il s\'agit d\'un logiciel libre
+            distribué gratuitement et régi par la
+            <a href="http://www.gnu.org/licenses/gpl-3.0-standalone.html"><b>Licence Publique Générale GNU (GPL v3.0)</b></a>.
+        </p>
+        <p>Le code source est téléchargeable à partir du
+        <a href="https://bitbucket.org/stalb/itac-core-android/">dépot Git du projet</a>.
+        </p>
+        <p>ITAC-Core-Android a été développé par : <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;- Thibault Carron<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;- Philippe Pernelle<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;- Yassine Siela<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;- Stéphane Talbot
+        </p>
+        <p>Il utilise également plusieurs composants open-source distribués
+            sous licence MIT, licence Apache v2.0, licence Publique Eclipse v1.0 ou v2.0.</p>]]>
+    </string>
 </resources>

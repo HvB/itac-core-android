@@ -19,8 +19,17 @@
         along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
-</resources>
+<ScrollView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	>
+	<TextView
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:id="@+id/about_text"
+		android:padding="8sp"
+		android:text="@string/about_text"
+		android:autoLink="none"
+		/>
+</ScrollView>
