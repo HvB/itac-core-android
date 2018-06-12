@@ -79,9 +79,6 @@ android {
         development {
             dimension 'distribution'
         }
-        original {
-            dimension 'distribution'
-        }
     }
 }
 
